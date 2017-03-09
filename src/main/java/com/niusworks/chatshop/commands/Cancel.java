@@ -9,9 +9,9 @@ import org.bukkit.inventory.ItemStack;
 import com.niusworks.chatshop.ChatShop;
 
 /**
- * A child of the ChatShop plugin for OC Network.
- * Executor for the "cancel" command.
- * @author Nicholas Harrell (SirNius / Nius Atreides)
+ * Executor for the "cancel" command for
+ * OC Network's ChatShop.
+ * @author ObsidianCraft Staff
  */
 public class Cancel implements CommandExecutor
 {

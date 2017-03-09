@@ -13,9 +13,9 @@ import com.niusworks.chatshop.managers.ChatManager;
 import com.niusworks.chatshop.managers.ItemManager;
 
 /**
- * A child of the ChatShop plugin for OC Network.
- * Executor for the "sell" command.
- * @author Nicholas Harrell (SirNius / Nius Atreides)
+ * Executor for the "sell" command for
+ * OC Network's ChatShop.
+ * @author ObsidianCraft Staff
  */
 public class Sell implements CommandExecutor
 {

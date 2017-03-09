@@ -14,14 +14,13 @@ import com.niusworks.chatshop.managers.ItemManager;
 import net.milkbowl.vault.economy.Economy;
 
 /**
- * Chat-based shop plugin designed specially for ObsidianCraft Network.
+ * Chat-based shop plugin designed for ObsidianCraft Network.
  * This plugin and all of its future versions are freely licensed
  * for use on ObsidianCraft Network systems, and for modification and
  * continued development by ObsidianCraft staff.
  * Commissioned 2017-02-26
  * 
- * @author Nicholas Harrell (SirNius / Nius Atreides)
- *
+ * @author ObsidianCraft Staff
  */
 public class ChatShop extends JavaPlugin
 {

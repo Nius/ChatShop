@@ -11,9 +11,9 @@ import com.niusworks.chatshop.managers.ChatManager;
 import com.niusworks.chatshop.managers.DatabaseManager.Listing;
 
 /**
- * A child of the ChatShop plugin for OC Network.
- * Executor for the "stock" command.
- * @author Nicholas Harrell (SirNius / Nius Atreides)
+ * Executor for the "stock" command for
+ * OC Network's ChatShop.
+ * @author ObsidianCraft Staff
  */
 public class Stock implements CommandExecutor
 {

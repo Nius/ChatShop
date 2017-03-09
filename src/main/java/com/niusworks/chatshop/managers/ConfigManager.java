@@ -5,9 +5,9 @@ import java.io.File;
 import com.niusworks.chatshop.ChatShop;
 
 /**
- * A child of the ChatShop plugin for OC Network.
- * Handles interaction with the config file.
- * @author Nicholas Harrell (SirNius / Nius Atreides)
+ * Handles interaction with the config file
+ * for OC Network's ChatShop.
+ * @author ObsidianCraft Staff
  */
 public class ConfigManager
 {

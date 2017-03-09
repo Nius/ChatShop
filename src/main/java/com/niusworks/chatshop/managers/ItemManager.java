@@ -16,9 +16,9 @@ import org.bukkit.inventory.PlayerInventory;
 import com.niusworks.chatshop.ChatShop;
 
 /**
- * A child of the ChatShop plugin for OC Network.
- * Manages all Minecraft item handling functionality.
- * @author Nicholas Harrell (SirNius / Nius Atreides)
+ * Manages all Minecraft item handling functionality for
+ * OC Network's ChatShop.
+ * @author ObsidianCraft Staff
  */
 public class ItemManager
 {
@@ -423,9 +423,8 @@ public class ItemManager
         
     
     /**
-     * A child of the Item Manager for ChatShop plugin.
-     * Represents an item that exists in Minecraft.
-     * @author Nicholas Harrell (SirNius / Nius Atreides)
+     * Represents an item that exists in the items dictionary items.csv.
+     * @author ObsidianCraft Staff
      */
     public class Item
     {

@@ -2,7 +2,7 @@
 #ID[:DMG],real_minecraft_name   ,Common Name[,Common Name 2[,CommonName3[,...]]]   ,!FLAG
 #"minecraft:" omitted from all real_minecraft_names.
 #
-#ChatShop supports lookups via ID or CommonName.
+#ChatShop supports lookups via ID, CommonName, or real_minecraft_name.
 #
 #Allowed flags:
 #  !BAN           The shop will have no idea this item exists.

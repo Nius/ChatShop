@@ -13,9 +13,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 /**
- * A child of the ChatShop plugin for OC Network.
- * Manages all database functionality.
- * @author Nicholas Harrell (SirNius / Nius Atreides)
+ * Manages all database functionality for
+ * OC Network's ChatShop.
+ * @author ObsidianCraft Staff
  */
 public class DatabaseManager
 {
@@ -472,9 +472,8 @@ public class DatabaseManager
     }
     
     /**
-     * A simple vehicle for expressing in a single object a quantity
-     * tendered and its total net cost.
-     * @author Nicholas Harrell (SirNius / Nius Atreides)
+     * A simple vehicle for expressing the results of a buy order.
+     * @author ObsidianCraft Staff
      *
      */
     public class Tender
@@ -501,9 +500,8 @@ public class DatabaseManager
     }
     
     /**
-     * A child of the Database Manager for the ChatShop plugin.
      * Represents a listing that exists in the database.
-     * @author Nicholas Harrell (SirNius / Nius Atreides)
+     * @author ObsidianCraft Staff
      */
     public class Listing
     {

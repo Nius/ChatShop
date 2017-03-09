@@ -12,9 +12,9 @@ import com.niusworks.chatshop.ChatShop;
 import net.md_5.bungee.api.ChatColor;
 
 /**
- * A child of the ChatShop plugin for OC Network.
- * Manages all chat output functionality.
- * @author Nicholas Harrell (SirNius / Nius Atreides)
+ * Manages all chat output functionality for
+ * OC Network's ChatShop.
+ * @author ObsidianCraft Staff
  */
 public class ChatManager
 {
@@ -55,7 +55,6 @@ public class ChatManager
                     String key = param.getKey().split("\\.")[
                         param.getKey().split("\\.").length - 1];
                     COLORS.put(key,col.toString());
-                    log("Matching color key \"" + key + "\" to val \"" + col.toString() + "\".");
                 }
                 catch(IllegalArgumentException e){/* do nothing */}
     }
