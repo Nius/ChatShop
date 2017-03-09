@@ -1,0 +1,27 @@
+#------------------------------------------
+#            Virtual Shop Config
+#------------------------------------------
+MySQL:
+  port:             3306
+  username:         ChatShop
+  host:             localhost
+  password:         password
+  database:         ChatShop
+broadcast-offers:   true
+
+#-------------------
+# Chat Confiuration
+#-------------------
+chat:
+  page-length:      10
+  prefix: 
+    color:          DARK_PURPLE
+    tag:            '[OShop]'
+  colors:
+    player:         YELLOW
+    text:           BLUE
+    quantity:       RED
+    item:           YELLOW
+    price:          YELLOW
+    success:        GREEN
+    error:          DARK_RED

@@ -1,0 +1,45 @@
+author: ObsidianCraft Staff
+authors: [Wesley27, LazrCowboy, SirNius]
+description: Allows players to buy and sell goods via chat.
+main: com.niusworks.chatshop.ChatShop
+name: ChatShop
+version: 1.0.0
+depend: [Vault]
+commands:
+    buy:
+        description: Buy goods for sale on the Chat Shop.
+        usage: /buy <amount> <item> [maxprice]
+    cancel:
+        description: Removes items from Chat Shop.
+        usage: /cancel <amount> <item>
+    find:
+        description: Find offers for an item.
+        usage: /price <item> [page]
+    sell:
+        description: Put goods up for sale on the VirtualShop.
+        usage: /sell <amount> <item | "hand"> <price | "-">
+    stock:
+        description: List items for sale.
+        usage: /stock [player] [page]
+permissions:
+    virtualshop.access.admin:
+        description: Access to administrator commands
+        default: OP
+    virtualshop.sell:
+        description: Allow usage of /sell
+        default: true
+    virtualshop.buy:
+        description: Allow usage of /buy
+        default: true
+    virtualshop.find:
+        description: Allow usage of /find
+        default: true
+    virtualshop.cancel:
+        description: Allow usage of /cancel
+        default: true
+    virtualshop.stock:
+        description: Allow usage of /stock
+        default: true
+    virtualshop.sales:
+        description: Allow usage of /sales
+        default: true
