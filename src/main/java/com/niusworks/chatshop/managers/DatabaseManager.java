@@ -68,7 +68,7 @@ public class DatabaseManager
             
             //Verify database schema.
             String query; int result;
-            query = "CREATE TABLE IF NOT EXISTS listings("
+            query = "CREATE TABLE IF NOT EXISTS ChatShop_listings("
                     + "id INT PRIMARY KEY AUTO_INCREMENT,"
                     + "material VARCHAR(39) NOT NULL,"      //Current longest official item name
                     + "damage INT NOT NULL,"
@@ -76,7 +76,7 @@ public class DatabaseManager
                     + "price DECIMAL(8,2) NOT NULL,"
                     + "quantity INT NOT NULL) ENGINE=INNODB";
             result = connect.createStatement().executeUpdate(query);
-            query = "CREATE TABLE IF NOT EXISTS transactions("
+            query = "CREATE TABLE IF NOT EXISTS ChatShop_transactions("
                     + "id INT PRIMARY KEY AUTO_INCREMENT,"
                     + "material VARCHAR(39) NOT NULL,"      //Current longest official item name
                     + "damage INT NOT NULL,"
@@ -104,7 +104,7 @@ public class DatabaseManager
      */
     public synchronized Listing getListing(Player user, ItemStack merchandise)
     {
-        String query = "SELECT * FROM listings WHERE seller = '" + user.getUniqueId() + "'"
+        String query = "SELECT * FROM ChatShop_listings WHERE seller = '" + user.getUniqueId() + "'"
             + " AND material = '" + merchandise.getType() + "'"
             + " AND damage = '" + merchandise.getDurability() + "'";
         try
@@ -139,7 +139,7 @@ public class DatabaseManager
     public synchronized Listing[] getListings(ItemStack merchandise)
     {
         ArrayList<Listing> listings = new ArrayList<Listing>();
-        String query = "SELECT * FROM listings" +
+        String query = "SELECT * FROM ChatShop_listings" +
                 " WHERE material = '" + merchandise.getType() + "'" +
                 " AND damage = '" + merchandise.getDurability() + "'" +
                 " ORDER BY price ASC";
@@ -175,7 +175,7 @@ public class DatabaseManager
     public synchronized Listing[] getListings(OfflinePlayer qPlayer)
     {
         ArrayList<Listing> listings = new ArrayList<Listing>();
-        String query = "SELECT * FROM listings" +
+        String query = "SELECT * FROM ChatShop_listings" +
                 " WHERE seller = '" + qPlayer.getUniqueId() + "'" +
                 " ORDER BY material";
         try
@@ -224,14 +224,14 @@ public class DatabaseManager
                 // greater than the available amount, so the
                 // listing will be removed rather than updated.
                 
-                String query = "DELETE FROM listings WHERE id = " + stock.ID;
+                String query = "DELETE FROM ChatShop_listings WHERE id = " + stock.ID;
                 int unused = connect.createStatement().executeUpdate(query);
                 
                 return stock.QUANTITY;
             }
             
             int targetQty = (stock.QUANTITY - merch.getAmount());
-            String query = "UPDATE listings SET quantity = " +
+            String query = "UPDATE ChatShop_listings SET quantity = " +
                  + targetQty + " WHERE id = " + stock.ID;
             int unused = connect.createStatement().executeUpdate(query);
             
@@ -266,7 +266,7 @@ public class DatabaseManager
             ArrayList<Listing> listings = new ArrayList<Listing>();
             
             //Query all listings which match the search criteria.
-            query = "SELECT * FROM listings "
+            query = "SELECT * FROM ChatShop_listings "
                     + "WHERE material = '" + merch.getType() + "' "
                     + "AND damage = " + merch.getDurability() + " ";
             if(maxp != -1)
@@ -325,7 +325,7 @@ public class DatabaseManager
                     listingCost = thisQuantity * listing.PRICE;
                     
                     //Update this listing in the market.
-                    query = "UPDATE listings SET quantity = " +
+                    query = "UPDATE ChatShop_listings SET quantity = " +
                             (listing.QUANTITY - thisQuantity) +
                             " WHERE id = " + listing.ID;
                     int unused = connect.createStatement().executeUpdate(query);
@@ -340,7 +340,7 @@ public class DatabaseManager
                         self = thisQuantity;
                     
                     //Remove this listing from the market.
-                    query = "DELETE FROM listings WHERE id = "
+                    query = "DELETE FROM ChatShop_listings WHERE id = "
                             + listing.ID;
                     int unused = connect.createStatement().executeUpdate(query);
                 }
@@ -383,7 +383,7 @@ public class DatabaseManager
                 totalMerch += thisQuantity;
                 
                 //Log this transaction.
-                query = "INSERT INTO transactions VALUES ("
+                query = "INSERT INTO ChatShop_transactions VALUES ("
                         + "null, '" + merch.getType() + "', "
                         + merch.getDurability() + ", "
                         + "'" + listing.SELLER + "', "
@@ -433,7 +433,7 @@ public class DatabaseManager
                 if(price == -1)
                     price = current.PRICE;
                 
-                query = "UPDATE listings SET quantity = " + (merch.getAmount() + current.QUANTITY)
+                query = "UPDATE ChatShop_listings SET quantity = " + (merch.getAmount() + current.QUANTITY)
                         + ", price = " + price
                         + " WHERE id = " + current.ID;
                 int unused = connect.createStatement().executeUpdate(query);
@@ -444,7 +444,7 @@ public class DatabaseManager
                 return false;
             
             // The user does not have a listing, so one must be created.
-            query = "INSERT INTO listings VALUES("
+            query = "INSERT INTO ChatShop_listings VALUES("
                     + "null,"
                     + "'" + merch.getType() + "',"
                     + merch.getDurability() + ","
