@@ -37,16 +37,30 @@ public class Find implements CommandExecutor
     
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String lbl, String[] args)
-    {
-        Player usr = (Player)sender;
-        
+    {        
+        //
         // Denial of service conditions
-        // This command could conceivably be used from the console.
-        // It'd make sense either way, to leave it available or block it.
-        //if(!(sender instanceof Player))
-        //    return PLUGIN.CM.reply(sender,"ChatShop.find cannot be executed as console.");
+        //
+        
+        //No console
+        if(!(sender instanceof Player))
+            return PLUGIN.CM.reply(sender,"ChatShop.find cannot be executed as console.");
+        Player usr = (Player)sender;
+        //Permissions
         if(!sender.hasPermission("chatshop.find"))
             return PLUGIN.CM.denyPermission(sender);
+        //Gamemode
+        if(!PLUGIN.getConfig().getBoolean("query-anyone"))
+        {
+            Object[] modes = PLUGIN.getConfig().getList("allowed-modes").toArray();
+            boolean allowed = false;
+            for(int i = 0; i < modes.length; i ++)
+                if(modes[i] instanceof String)
+                    if(((String)modes[i]).equalsIgnoreCase(usr.getGameMode().toString()))
+                        allowed = true;
+            if(!allowed)
+                return PLUGIN.CM.denyGameMode(sender);
+        }
         
         //
         //  VALIDATION

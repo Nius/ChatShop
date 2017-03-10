@@ -186,6 +186,8 @@ public class ChatManager
     }
     
     /**
+     * Notify the user that they do not have permission to proceed.
+     * 
      * @param sender    The source of the action to which we are to reply.
      * @return          Always returns true, to allow command executors to
      *                  send a message and terminate in one line.
@@ -193,5 +195,17 @@ public class ChatManager
     public boolean denyPermission(CommandSender sender)
     {
         return error(sender, "You do not have permission to do this.");
+    }
+    
+    /**
+     * Notify the user that they are in the wrong gamemode.
+     * 
+     * @param sender    The source of the action to which we are to reply.
+     * @return          Always returns true, to allow command executors to
+     *                  send a message and terminate in one line.
+     */
+    public boolean denyGameMode(CommandSender sender)
+    {
+        return error(sender, "You cannot use that command in your current game mode.");
     }
 }

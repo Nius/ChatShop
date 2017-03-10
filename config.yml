@@ -1,18 +1,35 @@
 #------------------------------------------
 #            Virtual Shop Config
 #------------------------------------------
+
+#
+# Database Configuration
+#
+
 MySQL:
   port:             3306
   username:         ChatShop
   host:             localhost
   password:         password
   database:         ChatShop
-broadcast-offers:   true
 
-#-------------------
+#
+# Gamemode Configuration
+#
+
+# Only players in these gamemodes can buy, sell, etc.
+allowed-modes:
+  - SURVIVAL
+# Whether players in the wrong gamemode can query the
+# shop (/find, /sales, etc.)
+query-anyone:       true
+
+#
 # Chat Confiuration
-#-------------------
+#
+
 chat:
+  broadcast-offers: true
   page-length:      10
   prefix: 
     color:          DARK_PURPLE

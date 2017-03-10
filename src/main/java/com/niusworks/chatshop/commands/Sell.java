@@ -38,13 +38,26 @@ public class Sell implements CommandExecutor
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String lbl, String[] args)
     {
-        Player usr = (Player)sender;
-        
+        //
         // Denial of service conditions
+        //
+        
+        //No console
         if(!(sender instanceof Player))
             return PLUGIN.CM.reply(sender,"ChatShop.sell cannot be executed as console.");
+        Player usr = (Player)sender;
+        //Permissions
         if(!sender.hasPermission("chatshop.sell"))
             return PLUGIN.CM.denyPermission(sender);
+        //Gamemode
+        Object[] modes = PLUGIN.getConfig().getList("allowed-modes").toArray();
+        boolean allowed = false;
+        for(int i = 0; i < modes.length; i ++)
+            if(modes[i] instanceof String)
+                if(((String)modes[i]).equalsIgnoreCase(usr.getGameMode().toString()))
+                    allowed = true;
+        if(!allowed)
+            return PLUGIN.CM.denyGameMode(sender);
         
         //
         //  VALIDATION
@@ -154,6 +167,9 @@ public class Sell implements CommandExecutor
         String qColor = PLUGIN.CM.color("quantity");
         
         // Construct a broadcast message.
+        
+        if(!PLUGIN.getConfig().getBoolean("chat.broadcast-offers"))
+            return true;
         
         String broadcast = PLUGIN.CM.color("player") + usr.getName() + " " +
                 textColor + "is selling " + qColor;
