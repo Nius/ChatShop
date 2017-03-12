@@ -15,6 +15,9 @@ commands:
     find:
         description: Find offers for an item.
         usage: /price <item> [page]
+    history:
+        description: Show a history of ChatShop transactions.
+        usage: /history [player] [page]
     sell:
         description: Put goods up for sale on the VirtualShop.
         usage: /sell <amount> <item | "hand"> <price | "-">

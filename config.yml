@@ -42,3 +42,4 @@ chat:
     price:          YELLOW
     success:        GREEN
     error:          DARK_RED
+    date:           DARK_GRAY

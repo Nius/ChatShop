@@ -242,7 +242,6 @@ public class ItemManager
         return didDrop;
     }
           
-    
     /**
      * Get the display name of the specified item, as
      * defined by either the first alias of the item
@@ -266,6 +265,23 @@ public class ItemManager
             return null;
         }
         return self.DISPLAY;
+    }
+
+    /**
+     * Look up a valid Minecraft item using the material name
+     * and the damage value.
+     * 
+     * @param material  The (validated) material name.
+     * @param dmg       The damage value.
+     * @return          An Item, or null on fail.
+     */
+    public Item lookup(String material, int dmg)
+    {
+        Item sibling = aliases.get(material);
+        if(sibling == null)
+            return null;
+        Item self = lookup(sibling.ID,dmg);
+        return self;
     }
     
     /**

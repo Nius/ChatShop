@@ -199,6 +199,49 @@ public class DatabaseManager
     }
     
     /**
+     * Get the transaction history of the specified player.
+     * 
+     * @param qPlayer   The player whose history to compile.
+     * @return          A list of listings in reverse order by
+     *                  date, such that the QUANTITY is positive
+     *                  when the queried player was the buyer and
+     *                  negative when the queried player was the
+     *                  seller.
+     */
+    public synchronized Listing[] getHistory(OfflinePlayer qPlayer)
+    {
+        ArrayList<Listing> sales = new ArrayList<Listing>();
+        String query = "SELECT * FROM ChatShop_transactions " +
+            "WHERE seller = '" + qPlayer.getUniqueId().toString() + "' " +
+            "OR buyer = '" + qPlayer.getUniqueId().toString() + "' " +
+            "ORDER BY date DESC";
+        
+        try
+        {
+            ResultSet res = connect.createStatement().executeQuery(query);
+            while(res.next())
+            {
+                String seller = res.getString("seller");
+                boolean qWasSeller = seller.equalsIgnoreCase(qPlayer.getUniqueId().toString());
+                sales.add(new Listing (
+                        res.getInt("id"),
+                        res.getString("material"),
+                        res.getInt("damage"),
+                        (qWasSeller ? res.getString("buyer") : seller),
+                        res.getDouble("price"),
+                        res.getInt("quantity") * (qWasSeller ? -1 : 1),
+                        res.getTimestamp("date")));
+            }
+            return sales.toArray(new Listing[sales.size()]);            
+        }
+        catch(SQLException e)
+        {
+            error(query);
+        }
+        return null;
+    }
+    
+    /**
      * Execute a cancel operation.
      * This method resides here and not with {@link Sell} in order
      * to manage synchronization with the database.
@@ -319,7 +362,7 @@ public class DatabaseManager
                     if(thisQuantity == 0)
                         break;
                     
-                    if(listing.SELLER.equals(usr.getUniqueId().toString()))
+                    if(listing.PLAYER.equals(usr.getUniqueId().toString()))
                         self = thisQuantity;
                     
                     listingCost = thisQuantity * listing.PRICE;
@@ -336,7 +379,7 @@ public class DatabaseManager
                     // particular stock is affordable and demanded by the user.
                     
                     thisQuantity = listing.QUANTITY;
-                    if(listing.SELLER.equals(usr.getUniqueId().toString()))
+                    if(listing.PLAYER.equals(usr.getUniqueId().toString()))
                         self = thisQuantity;
                     
                     //Remove this listing from the market.
@@ -346,7 +389,7 @@ public class DatabaseManager
                 }
                 
                 //Pay the player who had the listing.
-                UUID seller = UUID.fromString(listing.SELLER);
+                UUID seller = UUID.fromString(listing.PLAYER);
                 PLUGIN.ECON.depositPlayer(
                         PLUGIN.getServer().getOfflinePlayer(seller),
                         listingCost);
@@ -386,7 +429,7 @@ public class DatabaseManager
                 query = "INSERT INTO ChatShop_transactions VALUES ("
                         + "null, '" + merch.getType() + "', "
                         + merch.getDurability() + ", "
-                        + "'" + listing.SELLER + "', "
+                        + "'" + listing.PLAYER + "', "
                         + "'" + usr.getUniqueId() + "', "
                         + listingCost + ", "
                         + thisQuantity + ", "
@@ -512,24 +555,43 @@ public class DatabaseManager
         /** The damage value of the specified item. **/
         public final int DAMAGE;
         /** The UUID of the selling player. **/
-        public final String SELLER;
+        public final String PLAYER;
         /** The price per item. **/
         public final double PRICE;
         /** The quantity for sale. **/
         public final int QUANTITY;
+        /** An optional MySQL Timestamp. **/
+        public final Timestamp DATE;
+        
         /**
-         * Create a new Listing object.
+         * Create a new Listing object with no date.
          * 
          * @param id        Unique ID of this listing in the database.
          * @param mat       The official Minecraft name for this material.
          * @param dmg       The damage value of the specified item.
-         * @param seller    The UUID of the selling player.
+         * @param player    The UUID of the involved player.
          * @param price     The price per item.
          * @param qty       The quantity for sale.
          */
-        public Listing(int id, String mat, int dmg, String seller, double price, int qty)
+        public Listing(int id, String mat, int dmg, String player, double price, int qty)
         {
-            ID = id; MATERIAL = mat; DAMAGE = dmg; SELLER = seller; PRICE = price; QUANTITY = qty;
+            ID = id; MATERIAL = mat; DAMAGE = dmg; PLAYER = player; PRICE = price; QUANTITY = qty; DATE = null;
+        }
+        
+        /**
+         * Create a new Listing object with a specific date.
+         * 
+         * @param id        Unique ID of this listing in the database.
+         * @param mat       The official Minecraft name for this material.
+         * @param dmg       The damage value of the specified item.
+         * @param player    The UUID of the involved player.
+         * @param price     The price per item.
+         * @param qty       The quantity for sale.
+         * @param date      A SQL Timestamp.
+         */
+        public Listing(int id, String mat, int dmg, String player, double price, int qty, Timestamp date)
+        {
+            ID = id; MATERIAL = mat; DAMAGE = dmg; PLAYER = player; PRICE = price; QUANTITY = qty; DATE = date;
         }
     }
 }

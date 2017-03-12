@@ -8,6 +8,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
 
 import com.niusworks.chatshop.ChatShop;
+import com.niusworks.chatshop.managers.DatabaseManager.Listing;
 
 import net.md_5.bungee.api.ChatColor;
 
@@ -125,6 +126,68 @@ public class ChatManager
     }
     
     /**
+     * Given a list of Listings, return one page's worth
+     * assuming that Listings and lines of chat have a
+     * one-to-one relationship.
+     * 
+     * @param available All available Listings.
+     * @param pageNum   The index of the desired page, where
+     *                  the first page is index 1.
+     * @return          One page of Listings, pursuant to
+     *                  the config file.
+     */
+    public Listing[] paginate(Listing[] available, int pageNum)
+    {        
+        //Convert from natural page number to index
+        pageNum --;
+        
+        //Get configured number of lines per page
+        int listingsPerPage = PLUGIN.getConfig().getInt("chat.page-length");
+        
+        //Determine total number of possible pages
+        int pagesAvailable = paginate(available);
+        
+        //Prevent asking for a nonexistent page
+        if(pageNum >= pagesAvailable)
+            pageNum = pagesAvailable - 1;
+        if(pageNum < 0)
+            pageNum = 0;
+        
+        int startIndex = pageNum * listingsPerPage;
+        
+        //Determine how many listings are on this page
+        //(in case of last page)
+        int qty = Math.min(
+            available.length - startIndex,
+            listingsPerPage);
+        
+        Listing[] res = new Listing[qty];
+        for(int i = startIndex; i < startIndex + listingsPerPage && i < available.length; i++)
+            res[i - startIndex] = available[i];
+        
+        return res;
+    }
+    
+    /**
+     * Determine the total number of pages it would take
+     * to express the given array of Listings,
+     * assuming that Listings and lines of chat have a
+     * one-to-one relationship.
+     * 
+     * @param available All available Listings.
+     * @return          The number of pages required to
+     *                  express these Listings.
+     */
+    public int paginate(Listing[] available)
+    {
+        int listingsPerPage = PLUGIN.getConfig().getInt("chat.page-length");
+        double fpa = ((double)available.length) / listingsPerPage;
+        int pagesAvailable = ((int)fpa) +
+            (fpa % 1.00 == 0 ? 0 : 1);
+        return pagesAvailable;
+    }
+    
+    /**
      * Log an INFO message.
      * 
      * @param message   The message to log.
@@ -154,7 +217,22 @@ public class ChatManager
      */
     public boolean reply(CommandSender sender, String message)
     {        
-        sender.sendMessage(PREFIX + message);
+        return reply(sender,message,true);
+    }
+    
+    /**
+     * Send a message to the specified recipient.
+     * 
+     * @param sender    The source of the action to which we are to reply.
+     * @param message   The message to send to the recipient.
+     * @param prefix    Whether to prepend the standard prefix to the specified
+     *                  message.
+     * @return          Always returns true, to allow command executors to
+     *                  send a message and terminate in one line.
+     */
+    public boolean reply(CommandSender sender, String message,boolean prefix)
+    {        
+        sender.sendMessage((prefix ? PREFIX : "") + message);
         return true;
     }
     

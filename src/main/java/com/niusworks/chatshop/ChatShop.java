@@ -86,6 +86,7 @@ public class ChatShop extends JavaPlugin
         this.getCommand("cancel").setExecutor(new Cancel(this));
         this.getCommand("find").setExecutor(new Find(this));
         this.getCommand("stock").setExecutor(new Stock(this));
+        this.getCommand("history").setExecutor(new History(this));
     }
         
     /**

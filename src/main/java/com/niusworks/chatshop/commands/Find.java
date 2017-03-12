@@ -115,23 +115,21 @@ public class Find implements CommandExecutor
                 PLUGIN.CM.color("item") + displayName +
                 PLUGIN.CM.color("error") + ".");
         
-        //Figure out which page of listings to display.
-        int listingsPerPage = PLUGIN.getConfig().getInt("chat.page-length");
-        int pagesAvailable = (int)(listings.length / listingsPerPage);
-        if(page > pagesAvailable)
-            page = pagesAvailable;
-        
         //Head the sales list.
+        //Checking the page number is already taken care of by
+        //ChatManager, but for purposes of displaying an accurate
+        //number it needs to happen here.
+        page = Math.max(page,1);
         String msg =
                 PLUGIN.CM.color("text") + "Listings for " +
                 PLUGIN.CM.color("item") + displayName +
                 PLUGIN.CM.color("text") + ", page " + (page + 1) +
-                " of " + (pagesAvailable + 1) + ":";
+                " of " + PLUGIN.CM.paginate(listings) + ":";
         PLUGIN.CM.reply(usr,msg);
         
         //List all listings on this page.
-        int startIndex = page * listingsPerPage;
-        for(int i = startIndex; i < listings.length && i < startIndex + 10; i ++)
+        listings = PLUGIN.CM.paginate(listings,page);
+        for(int i = 0; i < listings.length; i ++)
         {
             msg =
                 PLUGIN.CM.color("price") + ChatManager.format(listings[i].PRICE) +
@@ -140,7 +138,7 @@ public class Find implements CommandExecutor
                 PLUGIN.CM.color("text") + " from " +
                 PLUGIN.CM.color("player") +
                     PLUGIN.getServer().getPlayer(
-                            UUID.fromString(listings[i].SELLER))
+                            UUID.fromString(listings[i].PLAYER))
                                 .getName();
             PLUGIN.CM.reply(usr,msg);
         }
