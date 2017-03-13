@@ -1,6 +1,9 @@
 package com.niusworks.chatshop.managers;
 
 import com.niusworks.chatshop.ChatShop;
+import com.niusworks.chatshop.commands.Buy;
+import com.niusworks.chatshop.commands.Cancel;
+import com.niusworks.chatshop.commands.Reprice;
 import com.niusworks.chatshop.commands.Sell;
 
 import java.sql.*;
@@ -246,7 +249,7 @@ public class DatabaseManager
     
     /**
      * Execute a cancel operation.
-     * This method resides here and not with {@link Sell} in order
+     * This method resides here and not with {@link Cancel} in order
      * to manage synchronization with the database.
      * 
      * @param usr       The player who executed the cancel command.
@@ -291,7 +294,7 @@ public class DatabaseManager
     
     /**
      * Execute a buy operation.
-     * This method resides here and not with {@link Sell} in order
+     * This method resides here and not with {@link Buy} in order
      * to manage synchronization with the database.
      * 
      * @param usr       The player who executed the buy command.
@@ -506,6 +509,44 @@ public class DatabaseManager
             error(query);
         }
         return -2;
+    }
+    
+    /**
+     * Execute a reprice operation.
+     * This method resides here and not with {@link Reprice} in order
+     * to manage synchronization with the database.
+     * 
+     * @param usr       The player who executed the sell command.
+     * @param merch     The (validated) items to sell.
+     * @param price     The price (each, not total) for the merchandise.
+     * @return          -1 on SQL fail, 0 on no listing, or else
+     *                  the original pre-existing listing.
+     */
+    @SuppressWarnings("unused")
+    public synchronized Object reprice(Player usr, ItemStack merch, double price)
+    {
+        String query = "";
+        try
+        {
+            Listing current = getListing(usr,merch);
+            
+            // The user already has a listing for this item...
+            if(current != null)
+            {                
+                query = "UPDATE ChatShop_listings SET price = " + price
+                        + " WHERE id = " + current.ID;
+                int unused = connect.createStatement().executeUpdate(query);
+                return current;
+            }
+            
+            // The user did not have a listing
+            return 0;
+        }
+        catch(SQLException e)
+        {
+            error(query);
+        }
+        return -1;
     }
     
     /**

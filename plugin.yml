@@ -26,6 +26,9 @@ commands:
         description: Show a history of Chat Shop transactions.
         usage: /history [player] [page]
         aliases: [sales]
+    reprice:
+        description: Change the price of something you have on the Chat Shop.
+        usage: /reprice <item> <newPrice>
     sell:
         description: Put goods up for sale on the Chat Shop.
         usage: /sell <amount> <item | "hand"> <price | "-">
@@ -48,8 +51,14 @@ permissions:
     virtualshop.find:
         description: Allow usage of /find
         default: true
+    virtualshop.help:
+        description: Allow usage of /chatshop
+        default: true
     virtualshop.history:
         description: Allow usage of /history
+        default: true
+    virtualshop.reprice:
+        description: Allow usage of /reprice
         default: true
     virtualshop.sell:
         description: Allow usage of /sell

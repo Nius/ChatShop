@@ -31,7 +31,7 @@ public class Help implements CommandExecutor
     private final ChatShop PLUGIN;
     
     /**
-     * Instantiate the command executor for "find" commands.
+     * Instantiate the command executor for help commands.
      * 
      * @param master    The specific instance of the parent ChatShop plugin.
      */
