@@ -74,6 +74,9 @@ public class Reprice implements CommandExecutor
             price = Double.parseDouble(args[1]);
             if(price < .01)
                 return PLUGIN.CM.error(sender,"Minimum price is $0.01.");
+            double globalmax = PLUGIN.getConfig().getDouble("global-max-price");
+            if(price > globalmax)
+                return PLUGIN.CM.error(sender,"Maximum price is " + ChatManager.format(globalmax) + ".");
         } catch (NumberFormatException e)
         {
             return PLUGIN.CM.error(sender,USAGE);

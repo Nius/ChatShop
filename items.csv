@@ -166,9 +166,21 @@
 67,stone_stairs                    ,Cobblestone Stairs,cobblestairs
 68,wall_sign                       ,Wall-mounted Sign Block             !BAN
 69,lever                           ,Lever
-70,stone_pressure_plate            ,Stone Pressure Plate
+
+# Minecraft and Bukkit disagree on pressure plates.
+# The real Minecraft name for thhis is stone_pressure_plate
+# but Bukkit will not recognize it unless it matches Bukkit's
+# own Material enum which uses stone_plate.
+70,stone_plate                     ,Stone Pressure Plate
+
 71,iron_door                       ,Iron Door Block                     !BAN
-72,wooden_pressure_plate           ,Wooden Pressure Plate
+
+# Minecraft and Bukkit disagree on pressure plates.
+# The real Minecraft name for thhis is wooden_pressure_plate
+# but Bukkit will not recognize it unless it matches Bukkit's
+# own Material enum which uses wooden_plate.
+72,wooden_plate                    ,Wooden Pressure Plate
+
 73,redstone_ore                    ,Redstone Ore,rore
 74,lit_redstone_ore                ,Glowing Redstone Ore                !BAN
 75,unlit_redstone_torch            ,Redstone Torch (off)                !BAN
@@ -277,8 +289,16 @@
 144,skull                          ,Mob Head                            !BAN
 145,anvil                          ,Anvil
 146,trapped_chest                  ,Trapped Chest
-147,light_weighted_pressure_plateminecraft:  ,Weighted Pressure Plate (light)
-148,heavy_weighted_pressure_plate  ,Weighted Pressure Plate (heavy)
+
+# Minecraft and Bukkit disagree on weighted pressure plates.
+# The real Minecraft names for these are
+# gold_plate = minecraft:light_weighted_pressure_plate
+# iron_plate = minecraft:heavy_weighted_pressure_plate
+# but Bukkit will not recognize them unless they match Bukkit's
+# own Material enum which uses gold_plate and iron_plate.
+147,gold_plate                     ,Gold Pressure Plate,Light Pressure Plate,Gold Plate,gplate
+148,iron_plate                     ,Iron Pressure Plate,Heavy Pressure Plate,Iron Plate,iplate
+
 149,unpowered_comparator           ,Redstone Comparator (inactive)      !BAN
 150,powered_comparator             ,Redstone Comparator (active)        !BAN
 151,daylight_detector              ,Daylight Sensor
@@ -500,7 +520,7 @@
 327,lava_bucket                    ,Lava Bucket
 328,minecart                       ,Minecart
 329,saddle                         ,Saddle
-330,iron_door                      ,Iron Door
+330,iron_door                      ,Iron Door,idoor
 331,redstone                       ,Redstone
 332,snowball                       ,Snowball
 333,boat                           ,Oak Boat
