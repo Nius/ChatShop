@@ -104,6 +104,9 @@ public class DatabaseManager
      */
     public synchronized Listing getListing(Player user, ItemStack merchandise)
     {
+        if(merchandise == null)
+            return null;
+        
         String query = "SELECT * FROM ChatShop_listings WHERE seller = '" + user.getUniqueId() + "'"
             + " AND material = '" + merchandise.getType() + "'"
             + " AND damage = '" + merchandise.getDurability() + "'";
@@ -455,6 +458,7 @@ public class DatabaseManager
      * @param usr       The player who executed the sell command.
      * @param merch     The (validated) items to sell.
      * @param price     The price (each, not total) for the merchandise.
+     *                  -1 indicates the previously existing price should be used.
      * @return          -2 on SQL fail, -1 if the user used "-" as price and
      *                  does not have a listing, 0 on new listing, or else
      *                  the original pre-existing listing.
@@ -484,7 +488,7 @@ public class DatabaseManager
             }
             
             if(price == -1)
-                return false;
+                return -1;
             
             // The user does not have a listing, so one must be created.
             query = "INSERT INTO ChatShop_listings VALUES("

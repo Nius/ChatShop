@@ -24,7 +24,7 @@ public class Stock implements CommandExecutor
     private final ChatShop PLUGIN;
     
     /**
-     * Instantiate the command executor for "buy" commands.
+     * Instantiate the command executor for "stock" commands.
      * 
      * @param master    The specific instance of the parent ChatShop plugin.
      */
@@ -129,27 +129,26 @@ public class Stock implements CommandExecutor
                 PLUGIN.CM.color("player") + qPlayer.getName() +
                 PLUGIN.CM.color("error") + ".");
         
-        //Figure out which page of listings to display.
-        int listingsPerPage = PLUGIN.getConfig().getInt("chat.page-length");
-        int pagesAvailable = (int)(listings.length / listingsPerPage);
-        if(page > pagesAvailable)
-            page = pagesAvailable;
-        
         //Head the sales list.
+        //Checking the page number is already taken care of by
+        //ChatManager, but for purposes of displaying an accurate
+        //number it needs to happen here.
+        page = Math.max(page,1);
+        page = Math.min(page,PLUGIN.CM.paginate(listings));
         String msg =
                 PLUGIN.CM.color("text") + "Listings for " +
                 PLUGIN.CM.color("item") + qPlayer.getName() +
                 PLUGIN.CM.color("text") + ", page " + (page + 1) +
-                " of " + (pagesAvailable + 1) + ":";
+                " of " + PLUGIN.CM.paginate(listings) + ":";
         PLUGIN.CM.reply(usr,msg);
         
         //List all listings on this page.
-        int startIndex = page * listingsPerPage;
-        for(int i = startIndex; i < listings.length && i < startIndex + 10; i ++)
+        listings = PLUGIN.CM.paginate(listings,page);
+        for(int i = 0; i < listings.length; i ++)
         {
             msg =
                 PLUGIN.CM.color("quantity") + ChatManager.format(listings[i].QUANTITY) + " " +
-                PLUGIN.CM.color("item") + PLUGIN.IM.lookup(listings[i].ID,listings[i].DAMAGE).DISPLAY +
+                PLUGIN.CM.color("item") + PLUGIN.IM.lookup(listings[i].MATERIAL,listings[i].DAMAGE).DISPLAY +
                 PLUGIN.CM.color("text") + " at " +
                 PLUGIN.CM.color("price") + ChatManager.format(listings[i].PRICE) +
                 PLUGIN.CM.color("text") + " each.";

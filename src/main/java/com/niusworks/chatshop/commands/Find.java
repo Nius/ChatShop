@@ -26,7 +26,7 @@ public class Find implements CommandExecutor
     private final ChatShop PLUGIN;
     
     /**
-     * Instantiate the command executor for "buy" commands.
+     * Instantiate the command executor for "find" commands.
      * 
      * @param master    The specific instance of the parent ChatShop plugin.
      */

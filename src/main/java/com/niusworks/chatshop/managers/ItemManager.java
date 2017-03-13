@@ -56,6 +56,10 @@ public class ItemManager
         items.clear();
         aliases.clear();
         
+        int totalLoaded = 0;
+        int totalCommented = 0;
+        int totalBanned = 0;
+        
         try
         {
             //Create the items.csv if it does not exist.
@@ -66,6 +70,8 @@ public class ItemManager
                 URL inputUrl = getClass().getResource("/items.csv");
                 FileUtils.copyURLToFile(inputUrl, itemFile);
             }
+            else
+                PLUGIN.CM.log("Items file found. Loading now...");
                 
             //Parse items.csv into a malleable datastructure of Items.
             BufferedReader reader = new BufferedReader(new FileReader(itemFile));
@@ -78,7 +84,10 @@ public class ItemManager
                     
                     //Skip commented or empty lines.
                     if(line.startsWith("#") || line.length() < 1)
+                    {
+                        totalCommented ++;
                         continue;
+                    }
                     
                     //Skip banned entries
                     boolean isban = false;
@@ -90,7 +99,10 @@ public class ItemManager
                             break;
                         }
                     if(isban)
+                    {
+                        totalBanned ++;
                         continue;
+                    }
                     
                     String[] tokens = flags[0].split(",");
                     
@@ -141,7 +153,7 @@ public class ItemManager
                     
                     //Store the new item in the items 2D-hash
                     //In case of duplicates, the latest entry will prevail.
-                    Item itm = new Item(id, dam, mname.trim().toLowerCase(),(display.length() > 0 ? display.trim() : alii[0].trim()), s);
+                    Item itm = new Item(id, dam, mname.trim().toUpperCase(),(display.length() > 0 ? display.trim() : alii[0].trim()), s);
                     if(!items.containsKey(id))                      //If this ID is undefined...
                         items.put(id,new HashMap<Integer,Item>());  //...create a new map for it.
                     if(!items.get(id).containsKey(dam))             //If this exact item is undefined...
@@ -158,7 +170,9 @@ public class ItemManager
                     }
                     //Store the official Minecraft name as an alias only for items with damage 0.
                     if(dam == 0)
-                        aliases.put(mname,itm);
+                        aliases.put(mname.trim().toUpperCase(),itm);
+                    
+                    totalLoaded ++;
                 }
                 catch(ArrayIndexOutOfBoundsException|StringIndexOutOfBoundsException e)
                 {
@@ -172,6 +186,9 @@ public class ItemManager
             return -2;
         }
         
+        PLUGIN.CM.log("Loaded " + totalLoaded + " items. (" + totalBanned
+            + " banned items and " + totalCommented + " commentes, totaling "
+            + (totalLoaded + totalBanned + totalCommented) + " lines.)");
         return -1;
     }
     

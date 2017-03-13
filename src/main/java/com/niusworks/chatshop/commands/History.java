@@ -36,7 +36,7 @@ public class History implements CommandExecutor
     private final ChatShop PLUGIN;
     
     /**
-     * Instantiate the command executor for "buy" commands.
+     * Instantiate the command executor for "history" commands.
      * 
      * @param master    The specific instance of the parent ChatShop plugin.
      */
@@ -197,10 +197,6 @@ public class History implements CommandExecutor
                 String time = new SimpleDateFormat("HH:mm:ss").format(tenders[i].DATE);
                 PLUGIN.CM.reply(usr,PLUGIN.CM.color("date") + time + msg,false);
             }
-            
-            
-            
-            
         }
         
         return true;

@@ -22,7 +22,7 @@ public class Cancel implements CommandExecutor
     private final ChatShop PLUGIN;
     
     /**
-     * Instantiate the command executor for "buy" commands.
+     * Instantiate the command executor for "cancel" commands.
      * 
      * @param master    The specific instance of the parent ChatShop plugin.
      */

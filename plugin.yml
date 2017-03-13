@@ -12,6 +12,9 @@ commands:
     cancel:
         description: Removes items from Chat Shop.
         usage: /cancel <amount> <item>
+    dump:
+        description: Dumps all items in inventory which have VM listings onto the VM.
+        usage: /dump
     find:
         description: Find offers for an item.
         usage: /price <item> [page]
@@ -28,21 +31,24 @@ permissions:
     virtualshop.access.admin:
         description: Access to administrator commands
         default: OP
-    virtualshop.sell:
-        description: Allow usage of /sell
-        default: true
     virtualshop.buy:
         description: Allow usage of /buy
-        default: true
-    virtualshop.find:
-        description: Allow usage of /find
         default: true
     virtualshop.cancel:
         description: Allow usage of /cancel
         default: true
+    virtualshop.dump:
+        description: Allow usage of /dump
+        default: true
+    virtualshop.find:
+        description: Allow usage of /find
+        default: true
+    virtualshop.history:
+        description: Allow usage of /history
+        default: true
+    virtualshop.sell:
+        description: Allow usage of /sell
+        default: true
     virtualshop.stock:
         description: Allow usage of /stock
-        default: true
-    virtualshop.sales:
-        description: Allow usage of /sales
         default: true

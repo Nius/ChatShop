@@ -22,12 +22,12 @@
 3:1,dirt                           ,Coarse Dirt
 3:2,dirt                           ,Podzol
 4,cobblestone                      ,Cobblestone,cobble
-5,planks                           ,Oak Wood Plank,oakplank
-5:1,planks                         ,Spruce Wood Plank,spruceplank
-5:2,planks                         ,Birch Wood Plank,birchplank
-5:3,planks                         ,Jungle Wood Plank,jungleplank
-5:4,planks                         ,Acacia Wood Plank,acaciaplank
-5:5,planks                         ,Dark Oak Wood Plank,darkoakplank
+5,wood                             ,Oak Wood Plank,oakplank
+5:1,wood                           ,Spruce Wood Plank,spruceplank
+5:2,wood                           ,Birch Wood Plank,birchplank
+5:3,wood                           ,Jungle Wood Plank,jungleplank
+5:4,wood                           ,Acacia Wood Plank,acaciaplank
+5:5,wood                           ,Dark Oak Wood Plank,darkoakplank
 6,sapling                          ,Oak Sapling
 6:1,sapling                        ,Spruce Sapling
 6:2,sapling                        ,Birch Sapling
@@ -91,15 +91,15 @@
 35:14,wool                         ,Red Wool
 35:15,wool                         ,Black Wool
 37,yellow_flower                   ,Dandelion
-38,red_flower                      ,Poppy,rose
-38:1,red_flower                    ,Blue Orchid
-38:2,red_flower                    ,Allium
-38:3,red_flower                    ,Azure Bluet
-38:4,red_flower                    ,Red Tulip
-38:5,red_flower                    ,Orange Tulip
-38:6,red_flower                    ,White Tulip
-38:7,red_flower                    ,Pink Tulip
-38:8,red_flower                    ,Oxeye Daisy
+38,red_rose                        ,Poppy,rose
+38:1,red_rose                      ,Blue Orchid
+38:2,red_rose                      ,Allium
+38:3,red_rose                      ,Azure Bluet
+38:4,red_rose                      ,Red Tulip
+38:5,red_rose                      ,Orange Tulip
+38:6,red_rose                      ,White Tulip
+38:7,red_rose                      ,Pink Tulip
+38:8,red_rose                      ,Oxeye Daisy
 39,brown_mushroom                  ,Brown Mushroom
 40,red_mushroom                    ,Red Mushroom
 41,gold_block                      ,Gold Block
