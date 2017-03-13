@@ -1,13 +1,34 @@
-#FORMAT:
-#ID[:DMG],real_minecraft_name   ,Common Name[,Common Name 2[,CommonName3[,...]]]   ,!FLAG
-#"minecraft:" omitted from all real_minecraft_names.
+# ITEMS DICTIONARY for ChatShop
 #
-#ChatShop supports lookups via ID, CommonName, or real_minecraft_name.
+# This file defines ChatShop's understanding of Minecraft items.
+# Items not defined here will not be understood by ChatShop, which will
+# flatly refuse to interact with them.
 #
-#Allowed flags:
-#  !BAN           The shop will have no idea this item exists.
-#  !DISPLAY-"..." The shop will use the specified display name instead of the first Common Name, but will recognize both.
+# ChatShop does not support non-vanilla items.
+#
+# FORMAT:
+# ID[:DMG],real_minecraft_name   ,Alias[,Alias 2[,Alias 3[,...]]]   !FLAG[!FLAG[!FLAG[...]]]
+# "minecraft:" omitted from all real_minecraft_names.
+#
+# ChatShop can query items by ID, ID:DMG, real_minecrat_name, or Alias.
+#
+# ALIASES:
+# All references (in chat output) to items will be resolved to the first alias unless
+# a !DISPLAY flag is present. Aliases which contain spaces will be logged twice; once with
+# all spaces removed, and once with all spaces replaced by underscores.
+#
+# The !S flag is not yet implemented.
+#
+# Allowed flags:
+#  !BAN           Items with this flag will be completely ignored. ChatShop will thusly refuse to
+#                       interact with them at all. It is advised that you ban items rather than
+#                       delete them, in the interest of maintaining a complete dictionary.
+#
+#  !DISPLAY-"..." The shop will use the specified display name instead of the first Alias, but will recognize both.
+#
 #  !S             The shop will not allow "s" forgiveness for this item.
+#                       This flag is not yet implemented.
+#
 
 0,air                              ,Air                                 !BAN
 1,stone                            ,Stone
