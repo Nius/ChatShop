@@ -8,8 +8,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.niusworks.chatshop.ChatShop;
+import com.niusworks.chatshop.commands.Confirm.SellOrder;
 import com.niusworks.chatshop.managers.DatabaseManager.Listing;
 import com.niusworks.chatshop.managers.ChatManager;
+import com.niusworks.chatshop.managers.DatabaseManager;
 import com.niusworks.chatshop.managers.ItemManager;
 
 /**
@@ -69,7 +71,7 @@ public class Sell implements CommandExecutor
                
         //Price check
         //User entry of "-" results in a price of -1, which resolves
-        //  later to the current listed price.
+        //  within DatabaseManager#sell to the current listed price.
         double price = 0;
         try
         {
@@ -128,19 +130,60 @@ public class Sell implements CommandExecutor
         //  Deferred to DatabaseManager for synchronization purposes.
         //
         
+        if(PLUGIN.DB.getPlayerFlag(usr,1) != 'X')
+        {
+           //The player is using /confirm for sells.
+           SellOrder order = new SellOrder(usr,merchandise,displayName,price,System.currentTimeMillis());
+           PLUGIN.PENDING.put(usr,order);
+           String textCol = PLUGIN.CM.color("text");
+           String msg =
+               textCol + "Preparing to sell " +
+               PLUGIN.CM.color("quantity") + merchandise.getAmount() + " " +
+               PLUGIN.CM.color("item") + displayName + " " +
+               textCol + "for " +
+               PLUGIN.CM.color("price") + (price == -1 ?
+                   "your currently listed price" :
+                   PLUGIN.CM.color("price") + ChatManager.format(price)) +
+               textCol + ".\n" + PLUGIN.CM.PREFIX +
+               textCol + "Use " +
+               PLUGIN.CM.color("helpUsage") + "/confirm " +
+               textCol + "to confirm this order.";
+           return PLUGIN.CM.reply(usr,msg);
+        }
+        else{} //The player is not using /confirm for buys.
+           
         Object res = PLUGIN.DB.sell(usr,merchandise,price);
         
         //
         //  RESULT
         //
         
+        return processResults(usr,merchandise,displayName,price,res);
+    }
+    
+    /**
+     * Process the results of a sell action.
+     * This was originally contiguous from onCommand, but was
+     * separated so that {@link Confirm} can also finalize
+     * buy operations.
+     * 
+     * @param usr           The user who is executing the buy operaion.
+     * @param merchandise   The merchandise (including amount) the user tried to buy.
+     * @param displayName   The already-looked-up display name of the items.
+     * @param price         The user-provided price for these items.
+     * @param res           The results of {@link DatabaseManager#sell}.
+     * @return              Always returns true, so that calling methods can finalize
+     *                      the buy order and terminate in one line.
+     */
+    public boolean processResults(Player usr,ItemStack merchandise,String displayName,double price,Object res)
+    {
         // On fail...
         if(res instanceof Integer && ((Integer)res).intValue() == -2)
-            return PLUGIN.CM.err500(sender);
+            return PLUGIN.CM.err500(usr);
         
         // On "-" price but no listing found...
         if(res instanceof Integer && ((Integer)res).intValue() == -1)
-            return PLUGIN.CM.error(sender,"You do not have any " + displayName + " for sale and must specify a price.");
+            return PLUGIN.CM.error(usr,"You do not have any " + displayName + " for sale and must specify a price.");
         
         //Remove the specified items from the player's inventory.
         int removed = 0;

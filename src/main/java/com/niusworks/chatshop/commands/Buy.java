@@ -7,7 +7,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.niusworks.chatshop.ChatShop;
+import com.niusworks.chatshop.commands.Confirm.BuyOrder;
 import com.niusworks.chatshop.managers.ChatManager;
+import com.niusworks.chatshop.managers.DatabaseManager;
 import com.niusworks.chatshop.managers.DatabaseManager.Tender;
 
 /**
@@ -115,28 +117,68 @@ public class Buy implements CommandExecutor
         //    once.
         //
         
+        if(PLUGIN.DB.getPlayerFlag(usr,0) != 'X')
+        {
+           //The player is using /confirm for buys.
+           double tprice = PLUGIN.DB.price(usr,merchandise,maxp);
+           BuyOrder order = new BuyOrder(usr,merchandise,displayName,maxp,tprice,System.currentTimeMillis());
+           PLUGIN.PENDING.put(usr,order);
+           
+           String textCol = PLUGIN.CM.color("text");
+           String msg =
+               textCol + "Preparing to buy " +
+               PLUGIN.CM.color("quantity") + merchandise.getAmount() + " " +
+               PLUGIN.CM.color("item") + displayName + " " +
+               textCol + "for a total of " +
+               PLUGIN.CM.color("price") + ChatManager.format(order.TOTAL) +
+               textCol + ".\n" + PLUGIN.CM.PREFIX +
+               textCol + "Use " +
+               PLUGIN.CM.color("helpUsage") + "/confirm " +
+               textCol + "to confirm this order.";
+           return PLUGIN.CM.reply(usr,msg);
+        }
+        else{} //The player is not using /confirm for buys.
+        
         Tender res = PLUGIN.DB.buy(usr,merchandise,maxp);
         
         //
         //  RESULT
         //
         
+        return processResults(usr,merchandise,displayName,res);
+    }
+    
+    /**
+     * Process the results of a buy action.
+     * This was originally contiguous from onCommand, but was
+     * separated so that {@link Confirm} can also finalize
+     * buy operations.
+     * 
+     * @param usr           The user who is executing the buy operaion.
+     * @param merchandise   The merchandise (including amount) the user tried to buy.
+     * @param displayName   The already-looked-up display name of the items.
+     * @param res           The results of {@link DatabaseManager#buy}.
+     * @return              Always returns true, so that calling methods can finalize
+     *                      the buy order and terminate in one line.
+     */
+    public boolean processResults(Player usr,ItemStack merchandise,String displayName,Tender res)
+    {
         //On fail...
         if(res == null)
-            return PLUGIN.CM.err500(sender);
+            return PLUGIN.CM.err500(usr);
         
         //Notify the buyer that a purchase was made.
         String msg =
-                PLUGIN.CM.color("text") + "Bought " +
-                PLUGIN.CM.color("quantity") + ChatManager.format(res.QUANTITY) + " " +
-                PLUGIN.CM.color("item") + displayName + " " +
-                (res.SELF > 0 ?
-                    PLUGIN.CM.color("text") + "(" +
-                    /*PLUGIN.CM.color("quantity") + */ChatManager.format(res.SELF) +
-                    PLUGIN.CM.color("text") + " from yourself) " : "") +                
-                PLUGIN.CM.color("text") + "for a total of " +
-                PLUGIN.CM.color("price") + ChatManager.format(res.COST) +
-                PLUGIN.CM.color("text") + ".";
+            PLUGIN.CM.color("text") + "Bought " +
+            PLUGIN.CM.color("quantity") + ChatManager.format(res.QUANTITY) + " " +
+            PLUGIN.CM.color("item") + displayName + " " +
+            (res.SELF > 0 ?
+                PLUGIN.CM.color("text") + "(" +
+                /*PLUGIN.CM.color("quantity") + */ChatManager.format(res.SELF) +
+                PLUGIN.CM.color("text") + " from yourself) " : "") +                
+            PLUGIN.CM.color("text") + "for a total of " +
+            PLUGIN.CM.color("price") + ChatManager.format(res.COST) +
+            PLUGIN.CM.color("text") + ".";
         PLUGIN.CM.reply(usr,msg);
         
         //Notify the buyer of any metadata.

@@ -16,6 +16,9 @@ commands:
         description: Get a list of Chat Shop commands.
         usage: /chatshop [page]
         aliases: [chatshop,vm,vs,cs,os,oshop,shop]
+    confirm:
+        description: Confirm a pending transaction or toggle confirmations.
+        usage: /confirm [toggle <buy|sell>]
     dump:
         description: Dump your inventory to the Chat Shop.
         usage: /dump

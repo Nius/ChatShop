@@ -1,0 +1,7 @@
+Reference for the 'flags' field in table ChatShop_players.
+This file is not read by the plugin but exists only for the convenience
+of developers. 
+
+INDEX	PURPOSE					VALUES
+0		/buy confirm toggle		default yes, 'X' no
+1		/sell confirm toggle	default yes, 'X' no

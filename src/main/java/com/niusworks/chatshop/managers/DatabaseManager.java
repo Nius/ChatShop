@@ -89,6 +89,11 @@ public class DatabaseManager
                     + "quantity INT NOT NULL,"
                     + "date TIMESTAMP NOT NULL DEFAULT NOW()) ENGINE=INNODB";
             result = connect.createStatement().executeUpdate(query);
+            query = "CREATE TABLE IF NOT EXISTS ChatShop_players("
+                    + "entryIndex INT PRIMARY KEY AUTO_INCREMENT,"
+                    + "uuid VARCHAR(36) NOT NULL,"          //Minecraft UUID length
+                    + "flags VARCHAR(5) NOT NULL) ENGINE=INNODB";
+            result = connect.createStatement().executeUpdate(query);
         }
         catch(ClassNotFoundException|SQLException e)
         {
@@ -96,6 +101,102 @@ public class DatabaseManager
             return -1;
         }
         return 1;
+    }
+    
+    /**
+     * Retrieve the desired player flag from the database.
+     * Flags are indexed from left to right, so that index usage
+     * could be thought of as <code>flags.charAt(index)</code>.
+     * 
+     * @param user      The user to query.
+     * @param index     The index of the desired flag.
+     * @return          The char value of the flag, or ' ' if the
+     *                  flag was not defined. Returns ' ' on SQL fail.
+     */
+    public synchronized char getPlayerFlag(Player user, int index)
+    {
+        String query = "";
+        if(index < 0)
+            return ' '; //Flag out of bounds
+        try
+        {
+            query = "SELECT flags FROM ChatShop_players "
+                + "WHERE uuid = '" + user.getUniqueId().toString() + "'";
+            ResultSet res = connect.createStatement().executeQuery(query);
+            
+            if(!res.next())
+                return ' '; //User hasn't been given flags yet
+            
+            String flags = "" + res.getString("flags");
+            if(index + 1 > flags.length())
+                return ' '; //Flag not defined
+            
+            char flag = flags.charAt(index);
+            
+            return flag;
+        }
+        catch (SQLException e)
+        {
+            error(query);
+            return ' ';
+        }
+    }
+    
+    /**
+     * Write the desired player flag to the database.
+     * Flags are indexed from left to right, so that index usage
+     * could be thought of as <code>flags.charAt(index)</code>.
+     * 
+     * @param user      The user to update.
+     * @param index     The index of the desired flag.
+     * @param newFlag   The new value of the flag.
+     */
+    public synchronized void writePlayerFlag(Player user, int index, char newFlag)
+    {
+        String query = "";
+        if(index < 0)
+            return; //Flag out of bounds
+        try
+        {            
+            query = "SELECT flags FROM ChatShop_players "
+                + "WHERE uuid = '" + user.getUniqueId().toString() + "'";
+            ResultSet res = connect.createStatement().executeQuery(query);
+            
+            String oldFlags = "";
+            boolean hadEntry = false;
+            if(res.next())
+            {
+                oldFlags = res.getString("flags");
+                hadEntry = true;
+            }
+            
+            //Expand the flags integer to be wide enough to include
+            // the desired index.
+            while(oldFlags.length() < index + 1)
+                oldFlags += ' ';
+            
+            //Write the desired flag
+            String out =
+                oldFlags.substring(0,index) +
+                newFlag +
+                (index == oldFlags.length() + 1 ? "" : oldFlags.substring(index + 1));
+            
+            if(hadEntry)
+                query = "UPDATE ChatShop_players "
+                    + "SET flags = '" + out + "' "
+                    + "WHERE uuid = '" + user.getUniqueId().toString() + "'";
+            else
+                query = "INSERT INTO ChatShop_players VALUES("
+                    + "null,'" + user.getUniqueId().toString() + "',"
+                    + "'" + out + "')";
+            @SuppressWarnings("unused")
+            int unused = connect.createStatement().executeUpdate(query);
+        }
+        catch (SQLException e)
+        {
+            error(query);
+            return; //SQL problem
+        }
     }
     
     /**
@@ -293,6 +394,24 @@ public class DatabaseManager
     }
     
     /**
+     * Price a buy operation.
+     * This method resides here and not with {@link Buy} in order
+     * to manage synchronization with the database.
+     * 
+     * @param usr       The player who executed the buy command.
+     * @param merch     The (validated) items to potentially buy.
+     * @param maxp      The maximum price of purchase. -1 signifies
+     *                  omission of maxprice.
+     * @return          The total price the player would pay if they
+     *                  had, at this moment, executed a buy with the
+     *                  same arguments.
+     */
+    public synchronized double price(Player usr, ItemStack merch, double maxp)
+    {
+        return buy(usr,merch,maxp,true).COST;
+    }
+    
+    /**
      * Execute a buy operation.
      * This method resides here and not with {@link Buy} in order
      * to manage synchronization with the database.
@@ -306,8 +425,30 @@ public class DatabaseManager
      *                  on fail.
      *                  
      */
-    @SuppressWarnings("unused")
     public synchronized Tender buy(Player usr, ItemStack merch, double maxp)
+    {
+        return buy(usr,merch,maxp,false);
+    }
+    
+    /**
+     * Execute a buy operation.
+     * This method resides here and not with {@link Buy} in order
+     * to manage synchronization with the database.
+     * 
+     * @param usr       The player who executed the buy command.
+     * @param merch     The (validated) items to buy.
+     * @param maxp      The maximum price of purchase. -1 signifies
+     *                  omission of maxprice.
+     * @param pricingOnly   Whether this command is being executed only to
+     *                      compile a price, or to actually carry out a buy
+     *                      operation.
+     * @return          A Tender representing the total quantity and
+     *                  TOTAL COST OF ALL ITEMS tendered, or null
+     *                  on fail.
+     *                  
+     */
+    @SuppressWarnings("unused")
+    private synchronized Tender buy(Player usr, ItemStack merch, double maxp, boolean pricingOnly)
     {
         String query = "";
         try
@@ -374,10 +515,13 @@ public class DatabaseManager
                     listingCost = thisQuantity * listing.PRICE;
                     
                     //Update this listing in the market.
-                    query = "UPDATE ChatShop_listings SET quantity = " +
-                            (listing.QUANTITY - thisQuantity) +
-                            " WHERE id = " + listing.ID;
-                    int unused = connect.createStatement().executeUpdate(query);
+                    if(!pricingOnly)
+                    {
+                        query = "UPDATE ChatShop_listings SET quantity = " +
+                                (listing.QUANTITY - thisQuantity) +
+                                " WHERE id = " + listing.ID;
+                        int unused = connect.createStatement().executeUpdate(query);
+                    }
                 }
                 else
                 {
@@ -389,16 +533,22 @@ public class DatabaseManager
                         self = thisQuantity;
                     
                     //Remove this listing from the market.
-                    query = "DELETE FROM ChatShop_listings WHERE id = "
-                            + listing.ID;
-                    int unused = connect.createStatement().executeUpdate(query);
+                    if(!pricingOnly)
+                    {
+                        query = "DELETE FROM ChatShop_listings WHERE id = "
+                                + listing.ID;
+                        int unused = connect.createStatement().executeUpdate(query);
+                    }
                 }
                 
                 //Pay the player who had the listing.
                 UUID seller = UUID.fromString(listing.PLAYER);
-                PLUGIN.ECON.depositPlayer(
-                        PLUGIN.getServer().getOfflinePlayer(seller),
-                        listingCost);
+                if(!pricingOnly)
+                {
+                    PLUGIN.ECON.depositPlayer(
+                            PLUGIN.getServer().getOfflinePlayer(seller),
+                            listingCost);
+                }
                 
                 //Notify the seller that this transaction took place.
                 //  This database manager is responsible for notifying players
@@ -406,22 +556,25 @@ public class DatabaseManager
                 //    does not need to be passed to any Buy instance and
                 //    (2) this list does not need to be traversed more than
                 //    once.
-                Player slr = PLUGIN.getServer().getPlayer(seller);
-                if( slr.isOnline() &&
-                    !slr.getUniqueId().equals(usr.getUniqueId()))
+                if(!pricingOnly)
                 {
-                    String displayName = PLUGIN.IM.getDisplayName(merch);
-                    if(slr != null) // If is online
+                    Player slr = PLUGIN.getServer().getPlayer(seller);
+                    if( slr.isOnline() &&
+                        !slr.getUniqueId().equals(usr.getUniqueId()))
                     {
-                        String msg =
-                            PLUGIN.CM.color("player") + usr.getName() + " " +
-                            PLUGIN.CM.color("text") + "just bought " +
-                            PLUGIN.CM.color("quantity") + ChatManager.format(thisQuantity) + " " +
-                            PLUGIN.CM.color("item") + displayName + " " +
-                            PLUGIN.CM.color("text") + "for " +
-                            PLUGIN.CM.color("price") + ChatManager.format(listingCost) +
-                            PLUGIN.CM.color("text") + ".";
-                        PLUGIN.CM.reply(slr,msg);
+                        String displayName = PLUGIN.IM.getDisplayName(merch);
+                        if(slr != null) // If is online
+                        {
+                            String msg =
+                                PLUGIN.CM.color("player") + usr.getName() + " " +
+                                PLUGIN.CM.color("text") + "just bought " +
+                                PLUGIN.CM.color("quantity") + ChatManager.format(thisQuantity) + " " +
+                                PLUGIN.CM.color("item") + displayName + " " +
+                                PLUGIN.CM.color("text") + "for " +
+                                PLUGIN.CM.color("price") + ChatManager.format(listingCost) +
+                                PLUGIN.CM.color("text") + ".";
+                            PLUGIN.CM.reply(slr,msg);
+                        }
                     }
                 }
                 
@@ -432,15 +585,18 @@ public class DatabaseManager
                 totalMerch += thisQuantity;
                 
                 //Log this transaction.
-                query = "INSERT INTO ChatShop_transactions VALUES ("
-                        + "null, '" + merch.getType() + "', "
-                        + merch.getDurability() + ", "
-                        + "'" + listing.PLAYER + "', "
-                        + "'" + usr.getUniqueId() + "', "
-                        + listingCost + ", "
-                        + thisQuantity + ", "
-                        + "null)";
-                int unused = connect.createStatement().executeUpdate(query);
+                if(!pricingOnly)
+                {
+                    query = "INSERT INTO ChatShop_transactions VALUES ("
+                            + "null, '" + merch.getType() + "', "
+                            + merch.getDurability() + ", "
+                            + "'" + listing.PLAYER + "', "
+                            + "'" + usr.getUniqueId() + "', "
+                            + listingCost + ", "
+                            + thisQuantity + ", "
+                            + "null)";
+                    int unused = connect.createStatement().executeUpdate(query);
+                }
             }
             
             //Return the quantity and price ultimately accrued.
@@ -562,7 +718,6 @@ public class DatabaseManager
     /**
      * A simple vehicle for expressing the results of a buy order.
      * @author ObsidianCraft Staff
-     *
      */
     public class Tender
     {
