@@ -35,11 +35,11 @@ chat:
     color:          DARK_PURPLE
     tag:            '[OShop]'
   colors:
-    player:         YELLOW
-    text:           BLUE
-    quantity:       RED
-    item:           YELLOW
-    price:          YELLOW
-    success:        GREEN
-    error:          DARK_RED
     date:           DARK_GRAY
+    error:          DARK_RED
+    helpUsage:      GRAY
+    item:           YELLOW
+    player:         YELLOW
+    price:          YELLOW
+    quantity:       RED
+    text:           BLUE

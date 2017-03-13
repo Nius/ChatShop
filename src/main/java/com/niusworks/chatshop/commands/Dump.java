@@ -65,7 +65,6 @@ public class Dump implements CommandExecutor
         
         //
         //  EXECUTION
-        //  Deferred to DatabaseManager for synchronization purposes.
         //
         
         int totalSold = 0;

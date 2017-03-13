@@ -123,7 +123,7 @@ public class Find implements CommandExecutor
         String msg =
                 PLUGIN.CM.color("text") + "Listings for " +
                 PLUGIN.CM.color("item") + displayName +
-                PLUGIN.CM.color("text") + ", page " + (page + 1) +
+                PLUGIN.CM.color("text") + ", page " + page +
                 " of " + PLUGIN.CM.paginate(listings) + ":";
         PLUGIN.CM.reply(usr,msg);
         
@@ -140,7 +140,7 @@ public class Find implements CommandExecutor
                     PLUGIN.getServer().getPlayer(
                             UUID.fromString(listings[i].PLAYER))
                                 .getName();
-            PLUGIN.CM.reply(usr,msg);
+            PLUGIN.CM.reply(usr,msg,false);
         }
         
         return true;

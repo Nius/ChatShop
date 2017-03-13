@@ -169,16 +169,59 @@ public class ChatManager
     }
     
     /**
-     * Determine the total number of pages it would take
-     * to express the given array of Listings,
-     * assuming that Listings and lines of chat have a
+     * Given a list of Strings, return one page's worth
+     * assuming that Strings and lines of chat have a
      * one-to-one relationship.
      * 
-     * @param available All available Listings.
-     * @return          The number of pages required to
-     *                  express these Listings.
+     * @param available All available Strings.
+     * @param pageNum   The index of the desired page, where
+     *                  the first page is index 1.
+     * @return          One page of Strings, pursuant to
+     *                  the config file.
      */
-    public int paginate(Listing[] available)
+    public String[] paginate(String[] available, int pageNum)
+    {        
+        //Convert from natural page number to index
+        pageNum --;
+        
+        //Get configured number of lines per page
+        int listingsPerPage = PLUGIN.getConfig().getInt("chat.page-length");
+        
+        //Determine total number of possible pages
+        int pagesAvailable = paginate(available);
+        
+        //Prevent asking for a nonexistent page
+        if(pageNum >= pagesAvailable)
+            pageNum = pagesAvailable - 1;
+        if(pageNum < 0)
+            pageNum = 0;
+        
+        int startIndex = pageNum * listingsPerPage;
+        
+        //Determine how many listings are on this page
+        //(in case of last page)
+        int qty = Math.min(
+            available.length - startIndex,
+            listingsPerPage);
+        
+        String[] res = new String[qty];
+        for(int i = startIndex; i < startIndex + listingsPerPage && i < available.length; i++)
+            res[i - startIndex] = available[i];
+        
+        return res;
+    }
+    
+    /**
+     * Determine the total number of pages it would take
+     * to express the given array of Objects,
+     * assuming that Objects and lines of chat have a
+     * one-to-one relationship.
+     * 
+     * @param available All available Objects.
+     * @return          The number of pages required to
+     *                  express these Objects.
+     */
+    public int paginate(Object[] available)
     {
         int listingsPerPage = PLUGIN.getConfig().getInt("chat.page-length");
         double fpa = ((double)available.length) / listingsPerPage;

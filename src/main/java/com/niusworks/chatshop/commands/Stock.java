@@ -138,7 +138,7 @@ public class Stock implements CommandExecutor
         String msg =
                 PLUGIN.CM.color("text") + "Listings for " +
                 PLUGIN.CM.color("item") + qPlayer.getName() +
-                PLUGIN.CM.color("text") + ", page " + (page + 1) +
+                PLUGIN.CM.color("text") + ", page " + page +
                 " of " + PLUGIN.CM.paginate(listings) + ":";
         PLUGIN.CM.reply(usr,msg);
         
@@ -152,7 +152,7 @@ public class Stock implements CommandExecutor
                 PLUGIN.CM.color("text") + " at " +
                 PLUGIN.CM.color("price") + ChatManager.format(listings[i].PRICE) +
                 PLUGIN.CM.color("text") + " each.";
-            PLUGIN.CM.reply(usr,msg);
+            PLUGIN.CM.reply(usr,msg,false);
         }
         
         return true;

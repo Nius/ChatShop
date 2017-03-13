@@ -10,22 +10,27 @@ commands:
         description: Buy goods for sale on the Chat Shop.
         usage: /buy <amount> <item> [maxprice]
     cancel:
-        description: Removes items from Chat Shop.
+        description: Remove items from your existing listing on the Chat Shop.
         usage: /cancel <amount> <item>
+    chatshop:
+        description: Get a list of Chat Shop commands.
+        usage: /chatshop [page]
+        aliases: [chatshop,vm,vs,cs,os,oshop,shop]
     dump:
-        description: Dumps all items in inventory which have VM listings onto the VM.
+        description: Dump your inventory to the Chat Shop.
         usage: /dump
     find:
         description: Find offers for an item.
         usage: /price <item> [page]
     history:
-        description: Show a history of ChatShop transactions.
+        description: Show a history of Chat Shop transactions.
         usage: /history [player] [page]
+        aliases: [sales]
     sell:
-        description: Put goods up for sale on the VirtualShop.
+        description: Put goods up for sale on the Chat Shop.
         usage: /sell <amount> <item | "hand"> <price | "-">
     stock:
-        description: List items for sale.
+        description: List all items available from a user on the Chat Shop.
         usage: /stock [player] [page]
 permissions:
     virtualshop.access.admin:
