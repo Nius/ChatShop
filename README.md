@@ -14,3 +14,12 @@ ChatShop updates via this repository and is not self-updating.
 The chatshop uses a CSV file to understand Minecraft items. This file (automatically generated on first run or if missing) is fully populated with all vanilla Minecraft items, their ID:DMG values, and at least one alias. This file can be edited to add or remove item aliases and rules, such as allowing users to refer to "iron ore" as "iore" or banning Bedrock from the market.
 Items not listed in ChatShop.ItemManager will not be at all understood and the ChatShop will refuse to interact with them in any way.
 This file is updated via this repository and is not self-updating.
+
+## Developer Features
+* Due to Minecraft's hints about moving away from the ID:DMG system, ChatShop's ItemManager is designed to interact with both ID:DMG and ItemStack(MATERIAL,DMG) and the entire plugin is built to prefer the new ItemStack(MATERIAL,DMG) system.
+* ChatShop comes with a full compliment of JavaDoc markup which can be generated at your discretion.
+* ChatShop's ItemManager is a robust tool which could easily be ported to other projects.
+
+## Limitations
+* ChatShop currently does not support non-vanilla items.
+* No part of this plugin is self-updating, nor will it notify you when an update is available.
