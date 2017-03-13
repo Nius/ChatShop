@@ -13,24 +13,23 @@
 # ChatShop can query items by ID, ID:DMG, real_minecrat_name, or Alias.
 #
 # ALIASES:
-# All references (in chat output) to items will be resolved to the first alias unless
-# a !DISPLAY flag is present. Aliases which contain spaces will be logged twice; once with
-# all spaces removed, and once with all spaces replaced by underscores.
+# All references (in chat output) to items will be resolved to that item's first alias.
+# Aliases which contain spaces will be logged twice; once with all spaces removed, and
+# once with all spaces replaced by underscores.
 #
-# The !S flag is not yet implemented.
-#
-# Allowed flags:
+# FLAGS:
 #  !BAN           Items with this flag will be completely ignored. ChatShop will thusly refuse to
 #                       interact with them at all. It is advised that you ban items rather than
 #                       delete them, in the interest of maintaining a complete dictionary.
+#  !TECHNICAL     Alias for !BAN, included to make this file a little more friendly.
 #
-#  !DISPLAY-"..." The shop will use the specified display name instead of the first Alias, but will recognize both.
-#
-#  !S             The shop will not allow "s" forgiveness for this item.
-#                       This flag is not yet implemented.
+# DISAGREEMENTS:
+# Minecraft and Bukkit disagree on the "true" names (real_minecraftt_name) of many items. This file must
+# use the Bukkit name in order to match Bukkit's Material enum. Such items are annotated on the preceding line
+# with the Minecraft name, commented.
 #
 
-0,air                              ,Air                                 !BAN
+0,air                              ,Air                                 !TECHNICAL
 1,stone                            ,Stone
 1:1,stone                          ,Granite
 1:2,stone                          ,Polished Granite
@@ -56,10 +55,10 @@
 6:4,sapling                        ,Acacia Sapling
 6:5,sapling                        ,Dark Oak Sapling
 7,bedrock                          ,Bedrock                             !BAN
-8,flowing_water                    ,Flowing Water                       !BAN
-9,water                            ,Still Water                         !BAN
-10,flowing_lava                    ,Flowing Lava                        !BAN
-11,lava                            ,Still Lava                          !BAN
+8,flowing_water                    ,Flowing Water                       !TECHNICAL
+9,water                            ,Still Water                         !TECHNICAL
+10,flowing_lava                    ,Flowing Lava                        !TECHNICAL
+11,lava                            ,Still Lava                          !TECHNICAL
 12,sand                            ,Sand
 12:1,sand                          ,Red Sand
 13,gravel                          ,Gravel
@@ -83,18 +82,34 @@
 24,sandstone                       ,Sandstone
 24:1,sandstone                     ,Chiseled Sandstone
 24:2,sandstone                     ,Smooth Sandstone
-25,noteblock                       ,Note Block
+
+#noteblock
+25,note_block                      ,Note Block
+
 26,bed                             ,Bed
-27,golden_rail                     ,Powered Rail
+
+#golden_rail
+27,powered_rail                    ,Powered Rail
+
 28,detector_rail                   ,Detector Rail
-29,sticky_piston                   ,Sticky Piston
+
+#sticky_piston
+29,piston_sticky_base              ,Sticky Piston
+
 30,web                             ,Cobweb
-31,tallgrass                       ,Dead Shrub
-31:1,tallgrass                     ,tall Grass
-31:2,tallgrass                     ,Fern
-32,deadbush                        ,Dead Bush
-33,piston                          ,Piston
-34,piston_head                     ,Piston Head                         !BAN
+
+#tallgrass
+31,long_grass                      ,Dead Shrub
+31:1,long_grass                    ,tall Grass
+31:2,long_grass                    ,Fern
+
+#deadbush
+32,dead_bush                       ,Dead Bush
+
+#piston
+33,piston_base                     ,Piston
+
+34,piston_head                     ,Piston Head                         !TECHNICAL
 35,wool                            ,White Wool
 35:1,wool                          ,Orange Wool
 35:2,wool                          ,Magenta Wool
@@ -111,6 +126,10 @@
 35:13,wool                         ,Green Wool
 35:14,wool                         ,Red Wool
 35:15,wool                         ,Black Wool
+
+#piston_extension
+36,piston_moving_piece             ,Piston Extension                    !TECHNICAL
+
 37,yellow_flower                   ,Dandelion
 38,red_rose                        ,Poppy,rose
 38:1,red_rose                      ,Blue Orchid
@@ -125,73 +144,107 @@
 40,red_mushroom                    ,Red Mushroom
 41,gold_block                      ,Gold Block
 42,iron_block                      ,Iron Block
-43,double_stone_slab               ,Double Stone Slab
-43:1,double_stone_slab             ,Double Sandstone Slab
-43:2,double_stone_slab             ,Double Wooden Slab
-43:3,double_stone_slab             ,Double Cobblestone Slab
-43:4,double_stone_slab             ,Double Brick Slab
-43:5,double_stone_slab             ,Double Stone Brick Slab
-43:6,double_stone_slab             ,Double Nether Brick Slab
-43:7,double_stone_slab             ,Double Quartz Slab
-44,stone_slab                      ,Stone Slab
-44:1,stone_slab                    ,Sandstone Slab
-44:2,stone_slab                    ,Wooden Slab
-44:3,stone_slab                    ,Cobblestone Slab
-44:4,stone_slab                    ,Brick Slab
-44:5,stone_slab                    ,Stone Brick Slab
-44:6,stone_slab                    ,Nether Brick Slab
-44:7,stone_slab                    ,Quartz Slab
-45,brick_block                     ,Bricks
-46,tnt                             ,TNT                                 !BAN
+
+#double_stone_slab
+43,double_step                     ,Double Stone Slab
+43:1,double_step                   ,Double Sandstone Slab
+43:2,double_step                   ,Double Wooden Slab
+43:3,double_step                   ,Double Cobblestone Slab
+43:4,double_step                   ,Double Brick Slab
+43:5,double_step                   ,Double Stone Brick Slab
+43:6,double_step                   ,Double Nether Brick Slab
+43:7,double_step                   ,Double Quartz Slab
+
+#stone_slab
+44,step                            ,Stone Slab
+44:1,step                          ,Sandstone Slab
+44:2,step                          ,Wooden Slab
+44:3,step                          ,Cobblestone Slab
+44:4,step                          ,Brick Slab
+44:5,step                          ,Stone Brick Slab
+44:6,step                          ,Nether Brick Slab
+44:7,step                          ,Quartz Slab
+
+#brick_block
+45,brick                           ,Brick Block
+
+46,tnt                             ,dynamite                            !BAN
 47,bookshelf                       ,Bookshelf
 48,mossy_cobblestone               ,Moss Stone
 49,obsidian                        ,Obsidian,obby
 50,torch                           ,Torch
 51,fire                            ,Fire                                !BAN
 52,mob_spawner                     ,Monster Spawner                     !BAN
-53,oak_stairs                      ,Oak Wood Stairs,oakstairs
+
+#oak_stairs
+53,wood_stairs                     ,Oak Wood Stairs,oakstairs
+
 54,chest                           ,Chest
 55,redstone_wire                   ,Redstone Wire
 56,diamond_ore                     ,Diamond Ore,dore
 57,diamond_block                   ,Diamond Block,dblock,diamondb
-58,crafting_table                  ,Crafting Table
-59,wheat                           ,Wheat Crops                         !BAN
-60,farmland                        ,Farmland                            !BAN
+
+#crafting_table
+58,workbench                       ,Crafting Table
+
+#wheat
+59,crops                           ,Wheat Crops                         !TECHNICAL
+
+#farmland
+60,soil                            ,Farmland                            !TECHNICAL
+
 61,furnace                         ,Furnace
-62,lit_furnace                     ,Burning Furnace                     !BAN
-63,standing_sign                   ,Standing Sign Block                 !BAN
-64,wooden_door                     ,Oak Door Block                      !BAN
+
+#lit_furnace
+62,burning_furnace                 ,Burning Furnace                     !TECHNICAL
+
+#standing_sign
+63,sign_post                       ,Standing Sign Block                 !TECHNICAL
+
+64,wooden_door                     ,Oak Door                            !TECHNICAL
 65,ladder                          ,Ladder
-66,rail                            ,Rail
-67,stone_stairs                    ,Cobblestone Stairs,cobblestairs
-68,wall_sign                       ,Wall-mounted Sign Block             !BAN
+
+#rail
+66,rails                           ,Rail
+
+#stone_stairs
+67,cobblestone_stairs              ,Cobblestone Stairs,cobblestairs
+
+68,wall_sign                       ,Wall-mounted Sign Block             !TECHNICAL
 69,lever                           ,Lever
 
-# Minecraft and Bukkit disagree on pressure plates.
-# The real Minecraft name for thhis is stone_pressure_plate
-# but Bukkit will not recognize it unless it matches Bukkit's
-# own Material enum which uses stone_plate.
+#stone_pressure_plate
 70,stone_plate                     ,Stone Pressure Plate
 
-71,iron_door                       ,Iron Door Block                     !BAN
+71,iron_door                       ,Iron Door Block                     !TECHNICAL
 
-# Minecraft and Bukkit disagree on pressure plates.
-# The real Minecraft name for thhis is wooden_pressure_plate
-# but Bukkit will not recognize it unless it matches Bukkit's
-# own Material enum which uses wooden_plate.
-72,wooden_plate                    ,Wooden Pressure Plate
+#wooden_plate
+72,wood_plate                      ,Wooden Pressure Plate,Wood Pressure Plate
 
 73,redstone_ore                    ,Redstone Ore,rore
-74,lit_redstone_ore                ,Glowing Redstone Ore                !BAN
-75,unlit_redstone_torch            ,Redstone Torch (off)                !BAN
-76,redstone_torch                  ,Redstone Torch (on)                 !DISPLAY-"Redstone Torch"
+
+#lit_redstone_ore
+74,glowing_redstone_ore            ,Glowing Redstone Ore                !TECHNICAL
+
+#unlit_redstone_torch
+75,redstone_torch_off              ,Unlit Redstone Torch                !TECHNICAL
+
+#redstone_torch
+76,redstone_torch_on               ,Redstone Torch,Lit Redstone Torch
+
 77,stone_button                    ,Stone Button
-78,snow_layer                      ,Snow                                !BAN
+
+#snow_layer
+78,snow                            ,Snow                                !TECHNICAL
+
 79,ice                             ,Ice
 80,snow                            ,Snow Block
 81,cactus                          ,Cactus
 82,clay                            ,Clay
-83,reeds                           ,Sugar Canes
+
+#reeds
+83,sugar_cane_block                ,Sugar Cane,Reeds                    !TECHNICAL
+
 84,jukebox                         ,Jukebox
 85,fence                           ,Oak Fence
 86,pumpkin                         ,Pumpkin
@@ -199,10 +252,19 @@
 88,soul_sand                       ,Soul Sand
 89,glowstone                       ,Glowstone
 90,portal                          ,Nether Portal                       !BAN
-91,lit_pumpkin                     ,Jack o'Lantern
-92,cake                            ,Cake Block                          !BAN
-93,unpowered_repeater              ,Redstone Repeater Block (off)       !BAN
-94,powered_repeater                ,Redstone Repeater Block (on)        !BAN
+
+#lit_pumpkin
+91,jack_o_lantern                  ,Jack O Lantern,Lit Pumpkin
+
+#cake
+92,cake_block                      ,Cake Block                          !TECHNICAL
+
+#unpowered_repeater
+93,diode_block_off                 ,Redstone Repeater Block (off)       !TECHNICAL
+
+#powered_repeater
+94,diode_block_on                  ,Redstone Repeater Block (on)        !TECHNICAL
+
 95,stained_glass                   ,White Stained Glass,whitesg
 95:1,stained_glass                 ,Orange Stained Glass,orangesg
 95:2,stained_glass                 ,Magenta Stained Glass,magentasg
@@ -219,88 +281,154 @@
 95:13,stained_glass                ,Green Stained Glass,greensg
 95:14,stained_glass                ,Red Stained Glass,redsg
 95:15,stained_glass                ,Black Stained Glass,blacksg
-96,trapdoor                        ,Wooden Trapdoor,trapdoor
-97,monster_egg                     ,Stone Monster Egg                   !BAN
-97:1,monster_egg                   ,Cobblestone Monster Egg             !BAN
-97:2,monster_egg                   ,Stone Brick Monster Egg             !BAN
-97:3,monster_egg                   ,Mossy Stone Brick Monster Egg       !BAN
-97:4,monster_egg                   ,Cracked Stone Brick Monster Egg     !BAN
-97:5,monster_egg                   ,Chiseled Stone Brick Monster Egg    !BAN
-98,stonebrick                      ,Stone Bricks
-98:1,stonebrick                    ,Mossy Stone Bricks
-98:2,stonebrick                    ,Cracked Stone Bricks
-98:3,stonebrick                    ,Chiseled Stone Bricks
-99,brown_mushroom_block            ,Brown Mushroom Block
-100,red_mushroom_block             ,Red Mushroom Block
-101,iron_bars                      ,Iron Bars
-102,glass_pane                     ,Glass Pane,pane
+
+#trapdoor
+96,trap_door                       ,Wooden Trapdoor,trapdoor
+
+#monster_egg
+97,monster_eggs                    ,Stone Monster Egg                   !BAN
+97:1,monster_eggs                  ,Cobblestone Monster Egg             !BAN
+97:2,monster_eggs                  ,Stone Brick Monster Egg             !BAN
+97:3,monster_eggs                  ,Mossy Stone Brick Monster Egg       !BAN
+97:4,monster_eggs                  ,Cracked Stone Brick Monster Egg     !BAN
+97:5,monster_eggs                  ,Chiseled Stone Brick Monster Egg    !BAN
+
+#stonebrick
+98,smooth_brick                    ,Stone Bricks
+98:1,smooth_brick                  ,Mossy Stone Bricks
+98:2,smooth_brick                  ,Cracked Stone Bricks
+98:3,smooth_brick                  ,Chiseled Stone Bricks
+
+#brown_mushroom_block
+99,huge_mushroom_1                 ,Brown Mushroom Block
+
+#red_mushroom_block
+100,huge_mushroom_2                ,Red Mushroom Block
+
+#iron_bars
+101,iron_fence                     ,Iron Fence,ifence
+
+#glass_pane
+102,thin_glass                     ,Glass Pane,pane
+
 103,melon_block                    ,Melon Block,melonb
-104,pumpkin_stem                   ,Pumpkin Stem                        !BAN
-105,melon_stem                     ,Melon Stem                          !BAN
+104,pumpkin_stem                   ,Pumpkin Stem                        !TECHNICAL
+105,melon_stem                     ,Melon Stem                          !TECHNICAL
 106,vine                           ,Vines
 107,fence_gate                     ,Oak Fence Gate,gate
 108,brick_stairs                   ,Brick Stairs
-109,stone_brick_stairs             ,Stone Brick Stairs
-110,mycelium                       ,Mycelium
-111,waterlily                      ,Lily Pad
-112,nether_brick                   ,Nether Brick
-113,nether_brick_fence             ,Nether Brick Fence
+
+#stone_brick_stairs
+109,smooth_stairs                  ,Stone Brick Stairs
+
+#mycelium
+110,mycel                          ,Mycelium
+
+#waterlily
+111,water_lily                     ,Lily Pad
+
+112,nether_brick                   ,Nether Brick Block,Nether Bricks Block
+
+#nether_brick_fence
+113,nether_fence                   ,Nether Brick Fence
+
 114,nether_brick_stairs            ,Nether Brick Stairs
-115,nether_wart                    ,Nether Wart
-116,enchanting_table               ,Enchantment Table
+
+#nether_wart
+115,nether_warts                   ,Nether Wart                         !TECHNICAL
+
+#enchanting_table
+116,enchantment_table              ,Enchanting Table
+
 117,brewing_stand                  ,Brewing Stand
 118,cauldron                       ,Cauldron
-119,end_portal                     ,End Portal                          !BAN
-120,end_portal_frame               ,End Portal Frame
-121,end_stone                      ,End Stone
+
+#end_portal
+119,ender_portal                   ,End Portal                          !TECHNICAL
+
+#end_portal_frame
+120,ender_portal_frame             ,End Portal Frame,Ender Portal Frame,End Frame,Ender Frame
+
+#end_stone
+121,ender_stone                    ,End Stone,Ender Stone
+
 122,dragon_egg                     ,Dragon Egg
-123,redstone_lamp                  ,Redstone Lamp (inactive)            !DISPLAY-"Redstone Lamp"
-124,lit_redstone_lamp              ,Redstone Lamp (active)              !BAN
-125,double_wooden_slab             ,Double Oak Wood Slab,doakslab
-125:1,double_wooden_slab           ,Double Spruce Wood Slab,dspruceslab
-125:2,double_wooden_slab           ,Double Birch Wood Slab,dbirchslab
-125:3,double_wooden_slab           ,Double Jungle Wood Slab,djungleslab
-125:4,double_wooden_slab           ,Double Acacia Wood Slab,dacaciaslab
-125:5,double_wooden_slab           ,Double Dark Oak Wood Slab,ddarkoakslab
-126,wooden_slab                    ,Oak Wood Slab,oakslab
-126:1,wooden_slab                  ,Spruce Wood Slab,spruceslab
-126:2,wooden_slab                  ,Birch Wood Slab,birchslab
-126:3,wooden_slab                  ,Jungle Wood Slab,jungleslab
-126:4,wooden_slab                  ,Acacia Wood Slab,acaciaslab
-126:5,wooden_slab                  ,Dark Oak Wood Slab,doakslab
-127,cocoa                          ,Cocoa                               !BAN
+
+#redstone_lamp
+123,redstone_lamp_off              ,Redstone Lamp
+
+#lit_redstone_lamp
+124,redstone_lamp_on               ,Redstone Lamp (active)              !TECHNICAL
+
+#double_wooden_slab
+125,wood_double_step               ,Double Oak Wood Slab,doakslab
+125:1,wood_double_step             ,Double Spruce Wood Slab,dspruceslab
+125:2,wood_double_step             ,Double Birch Wood Slab,dbirchslab
+125:3,wood_double_step             ,Double Jungle Wood Slab,djungleslab
+125:4,wood_double_step             ,Double Acacia Wood Slab,dacaciaslab
+125:5,wood_double_step             ,Double Dark Oak Wood Slab,ddarkoakslab
+
+#wooden_slab
+126,wood_step                      ,Oak Wood Slab,oakslab
+126:1,wood_step                    ,Spruce Wood Slab,spruceslab
+126:2,wood_step                    ,Birch Wood Slab,birchslab
+126:3,wood_step                    ,Jungle Wood Slab,jungleslab
+126:4,wood_step                    ,Acacia Wood Slab,acaciaslab
+126:5,wood_step                    ,Dark Oak Wood Slab,doakslab
+
+127,cocoa                          ,Cocoa                               !TECHNICAL
 128,sandstone_stairs               ,Sandstone Stairs
 129,emerald_ore                    ,Emerald Ore,eore
 130,ender_chest                    ,Ender Chest
 131,tripwire_hook                  ,Tripwire Hook
 132,tripwire_hook                  ,Tripwire
 133,emerald_block                  ,Emerald Block,bemerald,emeraldb
-134,spruce_stairs                  ,Spruce Wood Stairs,sprucestairs
-135,birch_stairs                   ,Birch Wood Stairs,birchstairs
-136,jungle_stairs                  ,Jungle Wood Stairs,junglestairs
-137,command_block                  ,Command Block                       !BAN
+
+#spruce_stairs
+134,spruce_wood_stairs             ,Spruce Wood Stairs,sprucestairs
+
+#birch_stairs
+135,birch_wood_stairs              ,Birch Wood Stairs,birchstairs
+
+#jungle_stairs
+136,jungle_wood_stairs             ,Jungle Wood Stairs,junglestairs
+
+#command_block
+137,command                        ,Command Block                       !BAN
+
 138,beacon                         ,Beacon
-139,cobblestone_wall               ,Cobblestone Wall,cobblewall
+
+#cobblestone_wall
+139,cobble_wall                    ,Cobblestone Wall,cobblewall
+
 139:1,cobblestone_wall             ,Mossy Cobblestone Wall,mossywall
 140,flower_pot                     ,Flower Pot
-141,carrots                        ,Carrots
-142,potatoes                       ,Potatoes,potato
-143,wooden_button                  ,Wooden Button,button
+
+#carrots
+141,carrot                         ,Carrots
+
+#potatoes
+142,potato                         ,Potatoes,potato
+
+#wooden_button
+143,wood_button                    ,Wooden Button,button
+
 144,skull                          ,Mob Head                            !BAN
 145,anvil                          ,Anvil
 146,trapped_chest                  ,Trapped Chest
 
-# Minecraft and Bukkit disagree on weighted pressure plates.
-# The real Minecraft names for these are
-# gold_plate = minecraft:light_weighted_pressure_plate
-# iron_plate = minecraft:heavy_weighted_pressure_plate
-# but Bukkit will not recognize them unless they match Bukkit's
-# own Material enum which uses gold_plate and iron_plate.
+#light_weighted_pressure_plate
 147,gold_plate                     ,Gold Pressure Plate,Light Pressure Plate,Gold Plate,gplate
+
+#heavy_weighted_pressure_plate
 148,iron_plate                     ,Iron Pressure Plate,Heavy Pressure Plate,Iron Plate,iplate
 
-149,unpowered_comparator           ,Redstone Comparator (inactive)      !BAN
-150,powered_comparator             ,Redstone Comparator (active)        !BAN
+#unpowered_comparator
+149,redstone_comparator_off        ,Redstone Comparator (inactive)      !TECHNICAL
+
+#powered_comparator
+150,redstone_comparator_on         ,Redstone Comparator (active)        !TECHNICAL
+
 151,daylight_detector              ,Daylight Sensor
 152,redstone_block                 ,Redstone Block,rstoneb,brstone
 153,quartz_ore                     ,Nether Quartz Ore,qore
@@ -311,22 +439,25 @@
 156,quartz_stairs                  ,Quartz Stairs,qstairs
 157,activator_rail                 ,Activator Rail
 158,dropper                        ,Dropper
-159,stained_hardened_clay          ,White Stained Clay,whitesc
-159:1,stained_hardened_clay        ,Orange Stained Clay,orangesc
-159:2,stained_hardened_clay        ,Magenta Stained Clay,magentasc
-159:3,stained_hardened_clay        ,Light Blue Stained Clay,lightbluesc
-159:4,stained_hardened_clay        ,Yellow Stained Clay,yellowsc
-159:5,stained_hardened_clay        ,Lime Stained Clay,limesc
-159:6,stained_hardened_clay        ,Pink Stained Clay,pinksc
-159:7,stained_hardened_clay        ,Gray Stained Clay,graysc
-159:8,stained_hardened_clay        ,Light Gray Stained Clay,lightgraysc,lgraysc
-159:9,stained_hardened_clay        ,Cyan Stained Clay,cyansc
-159:10,stained_hardened_clay       ,Purple Stained Clay,purplesc
-159:11,stained_hardened_clay       ,Blue Stained Clay,bluesc
-159:12,stained_hardened_clay       ,Brown Stained Clay,brownsc
-159:13,stained_hardened_clay       ,Green Stained Clay,greensc
-159:14,stained_hardened_clay       ,Red Stained Clay,redsc
-159:15,stained_hardened_clay       ,Black Stained Clay,blacksc
+
+#stained_hardened_clay
+159,stained_clay                   ,White Stained Clay,whitesc
+159:1,stained_clay                 ,Orange Stained Clay,orangesc
+159:2,stained_clay                 ,Magenta Stained Clay,magentasc
+159:3,stained_clay                 ,Light Blue Stained Clay,lightbluesc
+159:4,stained_clay                 ,Yellow Stained Clay,yellowsc
+159:5,stained_clay                 ,Lime Stained Clay,limesc
+159:6,stained_clay                 ,Pink Stained Clay,pinksc
+159:7,stained_clay                 ,Gray Stained Clay,graysc
+159:8,stained_clay                 ,Light Gray Stained Clay,lightgraysc,lgraysc
+159:9,stained_clay                 ,Cyan Stained Clay,cyansc
+159:10,stained_clay                ,Purple Stained Clay,purplesc
+159:11,stained_clay                ,Blue Stained Clay,bluesc
+159:12,stained_clay                ,Brown Stained Clay,brownsc
+159:13,stained_clay                ,Green Stained Clay,greensc
+159:14,stained_clay                ,Red Stained Clay,redsc
+159:15,stained_clay                ,Black Stained Clay,blacksc
+
 160,stained_glass_pane             ,White Stained Glass Pane,whitepane
 160:1,stained_glass_pane           ,Orange Stained Glass Pane,orangepane
 160:2,stained_glass_pane           ,Magenta Stained Glass Pane,magentapane
@@ -343,13 +474,21 @@
 160:13,stained_glass_pane          ,Green Stained Glass Pane,greenpane
 160:14,stained_glass_pane          ,Red Stained Glass Pane,redpane
 160:15,stained_glass_pane          ,Black Stained Glass Pane,blackpane
-161,leaves2                        ,Acacia Leaves
-161:1,leaves2                      ,Dark Oak Leaves
-162,log2                           ,Acacia Wood
-162:1,log2                         ,Dark Oak Wood
+
+#leaves2
+161,leaves_2                       ,Acacia Leaves
+161:1,leaves_2                     ,Dark Oak Leaves
+
+#log2
+162,log_2                          ,Acacia Wood
+162:1,log_2                        ,Dark Oak Wood
+
 163,acacia_stairs                  ,Acacia Wood Stairs
 164,dark_oak_stairs                ,Dark Oak Wood Stairs
-165,slime                          ,Slime Block,sblock,bslime
+
+#slime
+165,slime_block                    ,Slime Block,sblock,bslime
+
 166,barrier                        ,Barrier                             !BAN
 167,iron_trapdoor                  ,Iron Trapdoor,itrapdoor
 168,prismarine                     ,Prismarine
@@ -373,18 +512,21 @@
 171:13,carpet                      ,Green Carpet,greenc
 171:14,carpet                      ,Red Carpet,redc
 171:15,carpet                      ,Black Carpet,blackc
-172,hardened_clay                  ,Hardened Clay
+
+#hardened_clay
+172,hard_clay                      ,Hardened Clay
+
 173,coal_block                     ,Block of Coal,bcoal,coalb
 174,packed_ice                     ,Packed Ice
 175,double_plant                   ,Sunflower
-175:1,double_plant                 ,Lilac                               !BAN
-175:2,double_plant                 ,Double Tallgrass                    !BAN
-175:3,double_plant                 ,Large Fern                          !BAN
-175:4,double_plant                 ,Rose Bush                           !BAN
-175:5,double_plant                 ,Peony                               !BAN
-176,standing_banner                ,Free-standing Banner                !BAN
-177,wall_banner                    ,Wall-mounted Banner                 !BAN
-178,daylight_detector_inverted     ,Inverted Daylight Sensor            !BAN
+175:1,double_plant                 ,Lilac
+175:2,double_plant                 ,Double Tallgrass                    !TECHNICAL
+175:3,double_plant                 ,Large Fern                          !TECHNICAL
+175:4,double_plant                 ,Rose Bush
+175:5,double_plant                 ,Peony
+176,standing_banner                ,Free-standing Banner                !TECHNICAL
+177,wall_banner                    ,Wall-mounted Banner                 !TECHNICAL
+178,daylight_detector_inverted     ,Inverted Daylight Sensor            !TECHNICAL
 179,red_sandstone                  ,Red Sandstone
 179:1,red_sandstone                ,Chiseled Red Sandstone
 179:2,red_sandstone                ,Smooth Red Sandstone
@@ -401,11 +543,11 @@
 190,jungle_fence                   ,Jungle Fence
 191,dark_oak_fence                 ,Dark Oak Fence
 192,acacia_fence                   ,Acacia Fence
-193,spruce_door                    ,Spruce Door Block                   !BAN
-194,birch_door                     ,Birch Door Block                    !BAN
-195,jungle_door                    ,Jungle Door Block                   !BAN
-196,acacia_door                    ,Acacia Door Block                   !BAN
-197,dark_oak_door                  ,Dark Oak Door Block                 !BAN
+193,spruce_door                    ,Spruce Door Block                   !TECHNICAL
+194,birch_door                     ,Birch Door Block                    !TECHNICAL
+195,jungle_door                    ,Jungle Door Block                   !TECHNICAL
+196,acacia_door                    ,Acacia Door Block                   !TECHNICAL
+197,dark_oak_door                  ,Dark Oak Door Block                 !TECHNICAL
 198,end_rod                        ,End Rod
 199,chorus_plant                   ,Chorus Plant
 200,chorus_flower                  ,Chorus Flower
@@ -415,12 +557,20 @@
 204,purpur_double_slab             ,Purpur Double Slab
 205,purpur_slab                    ,Purpur Slab
 206,end_bricks                     ,End Stone Bricks
-207,beetroots                      ,Beetroot Block
-208,grass_path                     ,Grass Path                          !BAN
+
+#beetroots
+207,beetroot_block                 ,Beetroot Block                      !TECHNICAL
+
+208,grass_path                     ,Grass Path                          !TECHNICAL
 209,end_gateway                    ,End Gateway
-210,repeating_command_block        ,Repeating Command Block             !BAN
-211,chain_command_block            ,Chain Command Block                 !BAN
-212,frosted_ice                    ,Frosted Ice                         !BAN
+
+#repeating_command_block
+210,command_repeating              ,Repeating Command Block             !BAN
+
+#chain_command_block
+211,command_chain                  ,Chain Command Block                 !BAN
+
+212,frosted_ice                    ,Frosted Ice                         !TECHNICAL
 213,magma                          ,Magma Block
 214,nether_wart_block              ,Nether Wart Block
 215,red_nether_brick               ,Red Nether Brick
@@ -443,10 +593,16 @@
 232,green_shulker_box              ,Green Shulker Box,greenshulker                              !BAN
 233,red_shulker_box                ,Red Shulker Box,redshulker                                  !BAN
 234,black_shulker_box              ,Black Shulker Box,blackshulker                              !BAN
-255,structure_block                ,Structure Block                                             !BAN
-256,iron_shovel                    ,Iron Shovel
-257,iron_pickaxe                   ,Iron Pickaxe
-258,iron_axe                       ,Iron Axe
+
+#ID's 235-254 do not exist in any library.
+
+255,structure_block                ,Structure Block                     !BAN
+
+#iron_shovel
+256,iron_spade                     ,Iron Shovel,Iron Spade,ishovel,ispade
+
+257,iron_pickaxe                   ,Iron Pickaxe,ipick
+258,iron_axe                       ,Iron Axe,iaxe
 259,flint_and_steel                ,Flint and Steel
 260,apple                          ,Apple
 261,bow                            ,Bow
@@ -454,67 +610,117 @@
 263,coal                           ,Coal
 263:1,coal                         ,Charcoal
 264,diamond                        ,Diamond,dia
-265,iron_ingot                     ,Iron Ingot,ibar                                             !S
+265,iron_ingot                     ,Iron Ingot,ibar
 266,gold_ingot                     ,Gold Ingot,gbar
-267,iron_sword                     ,Iron Sword
-268,wooden_sword                   ,Wooden Sword
-269,wooden_shovel                  ,Wooden Shovel
-270,wooden_pickaxe                 ,Wooden Pickaxe
-271,wooden_axe                     ,Wooden Axe
-272,stone_sword                    ,Stone Sword
-273,stone_shovel                   ,Stone Shovel
-274,stone_pickaxe                  ,Stone Pickaxe
-275,stone_axe                      ,Stone Axe
-276,diamond_sword                  ,Diamond Sword
-277,diamond_shovel                 ,Diamond Shovel
-278,diamond_pickaxe                ,Diamond Pickaxe
-279,diamond_axe                    ,Diamond Axe
+267,iron_sword                     ,Iron Sword,isword
+
+#wooden_sword
+268,wood_sword                     ,Wooden Sword,Wood Sword,wsword
+
+#wooden_shovel
+269,wood_spade                     ,Wooden Shovel,Wooden Spade,Wood Shovel,Wood Spade,wshovel
+
+#wooden_pickaxe
+270,wood_pickaxe                   ,Wooden Pickaxe,Wood Pickaxe,Wooden Pick,Wood Pick,wpick
+
+#wooden_axe
+271,wood_axe                       ,Wooden Axe,Wood Axe,waxe
+
+272,stone_sword                    ,Stone Sword,ssword
+
+#stone_shovel
+273,stone_spade                    ,Stone Shovel,Stone Spade,sshovel,sspade
+
+274,stone_pickaxe                  ,Stone Pickaxe,Stone Pick
+275,stone_axe                      ,Stone Axe,saxe
+276,diamond_sword                  ,Diamond Sword,dsword
+
+#diamond_shovel
+277,diamond_spade                  ,Diamond Shovel,Diamond Spade,dshovel,dspade
+
+278,diamond_pickaxe                ,Diamond Pickaxe,Diamond Pick,dpick
+279,diamond_axe                    ,Diamond Axe,daxe
 280,stick                          ,Stick
 281,bowl                           ,Bowl
-282,mushroom_stew                  ,Mushroom Stew
-283,golden_sword                   ,Golden Sword
-284,golden_shovel                  ,Golden Shovel
-285,golden_pickaxe                 ,Golden Pickaxe
-286,golden_axe                     ,Golden Axe
+
+#mushroom_stew
+282,mushroom_soup                  ,Mushroom Soup,Mushroom Stew
+
+#golden_sword
+283,gold_sword                     ,Golden Sword,Gold Sword,gsword
+
+#golden_shovel
+284,gold_spade                     ,Golden Shovel,Gold Shovel,Golden Spade,Gold Spade,gshovel,gspade
+
+#golden_pickaxe
+285,gold_pickaxe                   ,Golden Pickaxe,Gold Pickaxe,Golden Pick,Gold Pick,gpick
+
+#golden_axe
+286,gold_axe                       ,Golden Axe,Gold Axe,gaxe
+
 287,string                         ,String
 288,feather                        ,Feather
-289,gunpowder                      ,Gunpowder
-290,wooden_hoe                     ,Wooden Hoe
-291,stone_hoe                      ,Stone Hoe
-292,iron_hoe                       ,Iron Hoe
-293,diamond_hoe                    ,Diamond Hoe
-294,golden_hoe                     ,Golden Hoe
-295,wheat_seeds                    ,Wheat Seeds
+
+#gunpowder
+289,sulphur                        ,Gunpowder,Sulphur
+
+#wooden_hoe
+290,wood_hoe                       ,Wooden Hoe,Wood Hoe,whoe
+
+291,stone_hoe                      ,Stone Hoe,shoe
+292,iron_hoe                       ,Iron Hoe,ihoe
+293,diamond_hoe                    ,Diamond Hoe,dhoe
+
+#golden_hoe
+294,gold_hoe                       ,Golden Hoe,Gold Hoe,ghoe
+
+#wheat_seeds
+295,seeds                          ,Wheat Seeds
+
 296,wheat                          ,Wheat
 297,bread                          ,Bread
-298,leather_helmet                 ,Leather Helmet
-299,leather_chestplate             ,Leather Tunic
-300,leather_leggings               ,Leather Pants
-301,leather_boots                  ,Leather Boots
-302,chainmail_helmet               ,Chainmail Helmet
-303,chainmail_chestplate           ,Chainmail Chestplate
-304,chainmail_leggings             ,Chainmail Leggings
-305,chainmail_boots                ,Chainmail Boots
-306,iron_helmet                    ,Iron Helmet
-307,iron_chestplate                ,Iron Chestplate
-308,iron_leggings                  ,Iron Leggings
-309,iron_boots                     ,Iron Boots
-310,diamond_helmet                 ,Diamond Helmet
-311,diamond_chestplate             ,Diamond Chestplate
-312,diamond_leggings               ,Diamond Leggings
-313,diamond_boots                  ,Diamond Boots
-314,golden_helmet                  ,Golden Helmet
-315,golden_chestplate              ,Golden Chestplate
-316,golden_leggings                ,Golden Leggings
-317,golden_boots                   ,Golden Boots
+298,leather_helmet                 ,Leather Helmet,Leather Helm,lhelmet,lhelm
+299,leather_chestplate             ,Leather Tunic,ltunic
+300,leather_leggings               ,Leather Leggings,Leather Pants,llegs,lpants
+301,leather_boots                  ,Leather Boots,lboots
+302,chainmail_helmet               ,Chainmail Helmet,Chainmail Helm,chelmet,chelm
+303,chainmail_chestplate           ,Chainmail Chestplate,cchest
+304,chainmail_leggings             ,Chainmail Leggings,Chainmail Pants,clegs,cpants
+305,chainmail_boots                ,Chainmail Boots,cboots
+306,iron_helmet                    ,Iron Helmet,Iron Helm,ihelmet,ihelm
+307,iron_chestplate                ,Iron Chestplate,ichest
+308,iron_leggings                  ,Iron Leggings,Iron Pants,ilegs,ipants
+309,iron_boots                     ,Iron Boots,iboots
+310,diamond_helmet                 ,Diamond Helmet,Diamond Helm,dhelmet,dhelm
+311,diamond_chestplate             ,Diamond Chestplate,dchest
+312,diamond_leggings               ,Diamond Leggings,Diamond Pants,dlegs,dpants
+313,diamond_boots                  ,Diamond Boots,dboots
+
+#golden_helmet
+314,gold_helmet                    ,Golden Helmet,Golden Helm,Gold Helmet,GoldHelm,ghelmet,ghelm
+
+#golden_chestplate
+315,gold_chestplate                ,Golden Chestplate,Gold Chestplate,gchest
+
+#golden_leggings
+316,gold_leggings                  ,Golden Leggings,Gold Leggings,glegs
+
+#golden_boots
+317,gold_boots                     ,Golden Boots,Gold Boots,gboots
+
 318,flint                          ,Flint
-319,porkchop                       ,Raw Porkchop
-320,cooked_porkchop                ,Cooked Porkchop
+
+#porkchop
+319,pork                           ,Raw Porkchop,raw pork,rpork
+
+#cooked_porkchop
+320,grilled_pork                   ,Cooked Porkchop,porkchop,cpork
+
 321,painting                       ,Painting
 322,golden_apple                   ,Golden Apple
 322:1,golden_apple                 ,Enchanted Golden Apple
 323,sign                           ,Sign
-324,wooden_door                    ,Oak Door
+324,wooden_door                    ,Oak Door,Door,Wood Door,Wooden Door
 325,bucket                         ,Bucket
 326,water_bucket                   ,Water Bucket
 327,lava_bucket                    ,Lava Bucket
@@ -522,66 +728,100 @@
 329,saddle                         ,Saddle
 330,iron_door                      ,Iron Door,idoor
 331,redstone                       ,Redstone
-332,snowball                       ,Snowball
+
+#snowball
+332,snow_ball                      ,Snowball,Snow Ball
+
 333,boat                           ,Oak Boat
 334,leather                        ,Leather
 335,milk_bucket                    ,Milk Bucket
 336,brick                          ,Brick
 337,clay_ball                      ,Clay
-338,reeds                          ,Sugar Canes
+
+#reeds
+338,sugar_cane                     ,Sugar Cane
+
 339,paper                          ,Paper
 340,book                           ,Book
 341,slime_ball                     ,Slimeball
-342,chest_minecart                 ,Minecart with Chest
-343,furnace_minecart               ,Minecart with Furnace
+
+#chest_minecart
+342,storage_minecart               ,Minecart With Chest,Chest Minecart,Storage Minecart,Storage Cart,Chest Cart,scart,ccart
+
+#furnace_minecart
+343,powered_minecart               ,Minecart With Furnace,Powered Minecart,Furnace Minecart,Powered Cart,Furnace Cart,fcart,pcart
+
 344,egg                            ,Egg
 345,compass                        ,Compass
 346,fishing_rod                    ,Fishing Rod
-347,clock                          ,Clock
+
+#clock
+347,watch                          ,Clock,watch
+
 348,glowstone_dust                 ,Glowstone Dust
-349,fish                           ,Raw Fish
-349:1,fish                         ,Raw Salmon
-349:2,fish                         ,Clownfish
-349:3,fish                         ,Pufferfish
-350,cooked_fish                    ,Cooked Fish
-350:1,cooked_fish                  ,Cooked Salmon
-351,dye                            ,Ink Sack,black
-351:1,dye                          ,Rose Red,red
-351:2,dye                          ,Cactus Green,green
-351:3,dye                          ,Coco Beans,brown
-351:4,dye                          ,Lapis Lazuli,lapis,blue
-351:5,dye                          ,Purple Dye,purple
-351:6,dye                          ,Cyan Dye,cyan
-351:7,dye                          ,Light Gray Dye,lightgray,lgray
-351:8,dye                          ,Gray Dye,gray
-351:9,dye                          ,Pink Dye,pink
-351:10,dye                         ,Lime Dye,lime
-351:11,dye                         ,Dandelion Yellow,yellow
-351:12,dye                         ,Light Blue Dye,lightblue,lblue
-351:13,dye                         ,Magenta Dye,magenta
-351:14,dye                         ,Orange Dye,orange
-351:15,dye                         ,Bone Meal,white
+
+#fish
+349,raw_fish                       ,Raw Fish,rfish
+349:1,raw_fish                     ,Raw Salmon,rsalmon
+349:2,raw_fish                     ,Clownfish
+349:3,raw_fish                     ,Pufferfish,pfish
+
+350,cooked_fish                    ,Cooked Fish,cfish
+350:1,cooked_fish                  ,Cooked Salmon,csalmon
+
+#dye
+351,ink_sack                       ,Ink Sack,black
+351:1,ink_sack                     ,Rose Red,red
+351:2,ink_sack                     ,Cactus Green,green
+351:3,ink_sack                     ,Coco Beans,brown
+351:4,ink_sack                     ,Lapis Lazuli,lapis,blue
+351:5,ink_sack                     ,Purple Dye,purple
+351:6,ink_sack                     ,Cyan Dye,cyan
+351:7,ink_sack                     ,Light Gray Dye,lightgray,lgray
+351:8,ink_sack                     ,Gray Dye,gray
+351:9,ink_sack                     ,Pink Dye,pink
+351:10,ink_sack                    ,Lime Dye,lime
+351:11,ink_sack                    ,Dandelion Yellow,yellow
+351:12,ink_sack                    ,Light Blue Dye,lightblue,lblue
+351:13,ink_sack                    ,Magenta Dye,magenta
+351:14,ink_sack                    ,Orange Dye,orange
+351:15,ink_sack                    ,Bone Meal,white
+
 352,bone                           ,Bone
 353,sugar                          ,Sugar
 354,cake                           ,Cake
 355,bed                            ,Bed
-356,repeater                       ,Redstone Repeater
+
+#repeater
+356,diode                          ,Redstone Repeater,rstone repeater,rstoner
+
 357,cookie                         ,Cookie
-358,filled_map                     ,Map                                 !BAN
+
+#filled_map
+358,map                            ,Map                                 !BAN
 359,shears                         ,Shears
 360,melon                          ,Melon
 361,pumpkin_seeds                  ,Pumpkin Seeds
 362,melon_seeds                    ,Melon Seeds
-363,beef                           ,Raw Beef
-364,cooked_beef                    ,Steak
-365,chicken                        ,Raw Chicken
-366,cooked_chicken                 ,Cooked Chicken
+
+#beef
+363,raw_beef                       ,Raw Beef,rbeef
+
+364,cooked_beef                    ,Steak,cbeef
+
+#chicken
+365,raw_chicken                    ,Raw Chicken,rchicken
+
+366,cooked_chicken                 ,Cooked Chicken,cchicken
 367,rotten_flesh                   ,Rotten Flesh
 368,ender_pearl                    ,Ender Pearl
 369,blaze_rod                      ,Blaze Rod
 370,ghast_tear                     ,Ghast Tear
 371,gold_nugget                    ,Gold Nugget
-372,nether_wart                    ,Nether Wart
+
+#nether_wart
+372,nether_stalk                   ,Nether Wart
+
 373,potion                         ,Potion
 374,glass_bottle                   ,Glass Bottle
 375,spider_eye                     ,Spider Eye
@@ -590,53 +830,65 @@
 378,magma_cream                    ,Magma Cream
 379,brewing_stand                  ,Brewing Stand
 380,cauldron                       ,Cauldron
-381,ender_eye                      ,Eye of Ender
+
+#ender_eye
+381,eye_of_ender                   ,Eye of Ender,ender eye
+
 382,speckled_melon                 ,Glistering Melon
-383:4,spawn_egg                    ,Spawn Elder Guardian                !BAN
-383:5,spawn_egg                    ,Spawn Wither Skeleton               !BAN
-383:6,spawn_egg                    ,Spawn Stray                         !BAN
-383:23,spawn_egg                   ,Spawn Husk                          !BAN
-383:27,spawn_egg                   ,Spawn Zombie Villager               !BAN
-383:28,spawn_egg                   ,Spawn Skeleton Horse                !BAN
-383:29,spawn_egg                   ,Spawn Zombie Horse                  !BAN
-383:31,spawn_egg                   ,Spawn Donkey                        !BAN
-383:32,spawn_egg                   ,Spawn Mule                          !BAN
-383:34,spawn_egg                   ,Spawn Evoker                        !BAN
-383:35,spawn_egg                   ,Spawn Vex                           !BAN
-383:36,spawn_egg                   ,Spawn Vindicator                    !BAN
-383:50,spawn_egg                   ,Spawn Creeper                       !BAN
-383:51,spawn_egg                   ,Spawn Skeleton                      !BAN
-383:52,spawn_egg                   ,Spawn Spider                        !BAN
-383:54,spawn_egg                   ,Spawn Zombie                        !BAN
-383:55,spawn_egg                   ,Spawn Slime                         !BAN
-383:56,spawn_egg                   ,Spawn Ghast                         !BAN
-383:57,spawn_egg                   ,Spawn Zombie Pigman                 !BAN
-383:58,spawn_egg                   ,Spawn Enderman                      !BAN
-383:59,spawn_egg                   ,Spawn Cave Spider                   !BAN
-383:60,spawn_egg                   ,Spawn Silverfish                    !BAN
-383:61,spawn_egg                   ,Spawn Blaze                         !BAN
-383:62,spawn_egg                   ,Spawn Magma Cube                    !BAN
-383:65,spawn_egg                   ,Spawn Bat                           !BAN
-383:66,spawn_egg                   ,Spawn Witch                         !BAN
-383:67,spawn_egg                   ,Spawn Endermite                     !BAN
-383:68,spawn_egg                   ,Spawn Guardian                      !BAN
-383:69,spawn_egg                   ,Spawn Shulker                       !BAN
-383:90,spawn_egg                   ,Spawn Pig                           !BAN
-383:91,spawn_egg                   ,Spawn Sheep                         !BAN
-383:92,spawn_egg                   ,Spawn Cow                           !BAN
-383:93,spawn_egg                   ,Spawn Chicken                       !BAN
-383:94,spawn_egg                   ,Spawn Squid                         !BAN
-383:95,spawn_egg                   ,Spawn Wolf                          !BAN
-383:96,spawn_egg                   ,Spawn Mooshroom                     !BAN
-383:98,spawn_egg                   ,Spawn Ocelot                        !BAN
-383:100,spawn_egg                  ,Spawn Horse                         !BAN
-383:101,spawn_egg                  ,Spawn Rabbit                        !BAN
-383:102,spawn_egg                  ,Spawn Polar Bear                    !BAN
-383:103,spawn_egg                  ,Spawn Llama                         !BAN
-383:120,spawn_egg                  ,Spawn Villager                      !BAN
-384,experience_bottle              ,Bottle o' Enchanting                !BAN
-385,fire_charge                    ,Fire Charge                         !BAN
-386,writable_book                  ,Book and Quill
+
+#spawn_egg
+383:4,monster_egg                  ,Spawn Elder Guardian                !BAN
+383:5,monster_egg                  ,Spawn Wither Skeleton               !BAN
+383:6,monster_egg                  ,Spawn Stray                         !BAN
+383:23,monster_egg                 ,Spawn Husk                          !BAN
+383:27,monster_egg                 ,Spawn Zombie Villager               !BAN
+383:28,monster_egg                 ,Spawn Skeleton Horse                !BAN
+383:29,monster_egg                 ,Spawn Zombie Horse                  !BAN
+383:31,monster_egg                 ,Spawn Donkey                        !BAN
+383:32,monster_egg                 ,Spawn Mule                          !BAN
+383:34,monster_egg                 ,Spawn Evoker                        !BAN
+383:35,monster_egg                 ,Spawn Vex                           !BAN
+383:36,monster_egg                 ,Spawn Vindicator                    !BAN
+383:50,monster_egg                 ,Spawn Creeper                       !BAN
+383:51,monster_egg                 ,Spawn Skeleton                      !BAN
+383:52,monster_egg                 ,Spawn Spider                        !BAN
+383:54,monster_egg                 ,Spawn Zombie                        !BAN
+383:55,monster_egg                 ,Spawn Slime                         !BAN
+383:56,monster_egg                 ,Spawn Ghast                         !BAN
+383:57,monster_egg                 ,Spawn Zombie Pigman                 !BAN
+383:58,monster_egg                 ,Spawn Enderman                      !BAN
+383:59,monster_egg                 ,Spawn Cave Spider                   !BAN
+383:60,monster_egg                 ,Spawn Silverfish                    !BAN
+383:61,monster_egg                 ,Spawn Blaze                         !BAN
+383:62,monster_egg                 ,Spawn Magma Cube                    !BAN
+383:65,monster_egg                 ,Spawn Bat                           !BAN
+383:66,monster_egg                 ,Spawn Witch                         !BAN
+383:67,monster_egg                 ,Spawn Endermite                     !BAN
+383:68,monster_egg                 ,Spawn Guardian                      !BAN
+383:69,monster_egg                 ,Spawn Shulker                       !BAN
+383:90,monster_egg                 ,Spawn Pig                           !BAN
+383:91,monster_egg                 ,Spawn Sheep                         !BAN
+383:92,monster_egg                 ,Spawn Cow                           !BAN
+383:93,monster_egg                 ,Spawn Chicken                       !BAN
+383:94,monster_egg                 ,Spawn Squid                         !BAN
+383:95,monster_egg                 ,Spawn Wolf                          !BAN
+383:96,monster_egg                 ,Spawn Mooshroom                     !BAN
+383:98,monster_egg                 ,Spawn Ocelot                        !BAN
+383:100,monster_egg                ,Spawn Horse                         !BAN
+383:101,monster_egg                ,Spawn Rabbit                        !BAN
+383:102,monster_egg                ,Spawn Polar Bear                    !BAN
+383:103,monster_egg                ,Spawn Llama                         !BAN
+383:120,monster_egg                ,Spawn Villager                      !BAN
+
+#experience_bottle
+384,exp_bottle                     ,Bottle of Enchanting                !BAN
+
+#fire_charge
+385,fireball                       ,Fire Charge                         !BAN
+
+#writable_book
+386,book_and_quill                 ,Book and Quill
+
 387,written_book                   ,Written Book                        !BAN
 388,emerald                        ,Emerald
 389,item_frame                     ,Item Frame
@@ -647,23 +899,37 @@
 394,poisonous_potato               ,Poisonous Potato
 395,map                            ,Empty Map,map
 396,golden_carrot                  ,Golden Carrot
-397,skull                          ,Mob Head (Skeleton),skeletonhead
-397:1,skull                        ,Mob Head (Wither Skeleton),witherhead,witherskull
-397:2,skull                        ,Mob Head (Zombie),zombiehead
+397,skull                          ,Skeleton Head,skeleton skull
+397:1,skull                        ,Wither Skull,witherhead
+397:2,skull                        ,Zombie Head,Zombie Skull
 397:3,skull                        ,Mob Head (Human)                    !BAN
-397:4,skull                        ,Mob Head (Creeper),creeperhead
-397:5,skull                        ,Mob Head (Dragon),dragonhead
-398,carrot_on_a_stick              ,Carrot on a Stick
+397:4,skull                        ,Creeper Head,creeper skull
+397:5,skull                        ,Dragon Head,dragon skull
+
+#carrot_on_a_stick
+398,carrot_stick                   ,Carrot on a Stick,Carrot Stick
+
 399,nether_star                    ,Nether Star
 400,pumpkin_pie                    ,Pumpkin Pie
-401,fireworks                      ,Firework Rocket
+
+#fireworks
+401,firework                       ,Fireworks Rocket,Firework Rocket
+
 402,firework_charge                ,Firework Star
 403,enchanted_book                 ,Enchanted Book
-404,comparator                     ,Redstone Comparator
-405,netherbrick                    ,Nether Brick
+
+#comparator
+404,redstone_comparator            ,Redstone Comparator,rstone comparator,rstonec
+
+#netherbrick
+405,nether_brick_item              ,Nether Brick
+
 406,quartz                         ,Nether Quartz
-407,tnt_minecart                   ,Minecart with TNT                   !BAN
-408,hopper_minecart                ,Minecart with Hopper
+
+#tnt_minecart
+407,explosive_minecart             ,Minecart With TNT                   !BAN
+
+408,hopper_minecart                ,Minecart With Hopper,Hopper Cart,Hopper Minecart,hcart
 409,prismarine_shard               ,Prismarine Shard
 410,prismarine_crystals            ,Prismarine Crystals
 411,rabbit                         ,Raw Rabbit
@@ -672,49 +938,111 @@
 414,rabbit_foot                    ,Rabbit's Foot
 415,rabbit_hide                    ,Rabbit Hide
 416,armor_stand                    ,Armor Stand
-417,iron_horse_armor               ,Iron Horse Armor
-418,golden_horse_armor             ,Golden Horse Armor
-419,diamond_horse_armor            ,Diamond Horse Armor
-420,lead                           ,Lead
+
+#iron_horse_armor
+417,iron_barding                   ,Iron Horse Armor,iron barding,ihorsearmor,ibarding
+
+#golden_horse_armor
+418,gold_barding                   ,Golden Horse Armor,Gold Horse Armor,Golden Barding,Gold Barding,ghorsearmor,gbarding
+
+#diamond_horse_armor
+419,diamond_barding                ,Diamond Horse Armor,Diamond Barding,dhorsearmor,dbarding
+
+#lead
+420,leash                          ,Lead
+
 421,name_tag                       ,Name Tag
-422,command_block_minecart         ,Minecart with Command Block         !BAN
+
+#command_block_minecart
+422,command_minecart               ,Minecart With Command Block         !BAN
+
 423,mutton                         ,Raw Mutton
 424,cooked_mutton                  ,Cooked Mutton
-425,banner                         ,Banner
+425,banner                         ,Banner                              !BAN
+
+#ender_crystal
+426,end_crystal                    ,End Crystal,Ender Crystal           !TECHNICAL
+
 427,spruce_door                    ,Spruce Door
 428,birch_door                     ,Birch Door
 429,jungle_door                    ,Jungle Door
 430,acacia_door                    ,Acacia Door
-431,dark_oak_door                  ,Dark Oak Door
-432,chorus_fruit                   ,Chorus Fruit
-433,popped_chorus_fruit            ,Popped Chorus Fruit
+431,dark_oak_door                  ,Dark Oak Door,doak door
+432,chorus_fruit                   ,Chorus Fruit,cfruit
+
+#popped_chorus_fruit
+433,chorus_fruit_popped            ,Popped Chorus Fruit,poppedcfruit,pcfruit
+
 434,beetroot                       ,Beetroot
 435,beetroot_seeds                 ,Beetroot Seeds
 436,beetroot_soup                  ,Beetroot Soup
-437,dragon_breath                  ,Dragon's Breath
+
+#dragon_breath
+437,dragons_breath                 ,Dragon Breath,Dragons Breath
+
 438,splash_potion                  ,Splash Potion                       !BAN
-439,spectral_arrow                 ,Spectral Arrow
-440,tipped_arrow                   ,Tipped Arrow
-441,lingering_potion               ,Lingering Potion
-442,shield                         ,Shield
+439,spectral_arrow                 ,Spectral Arrow                      !BAN
+440,tipped_arrow                   ,Tipped Arrow                        !BAN
+441,lingering_potion               ,Lingering Potion                    !BAN
+442,shield                         ,Shield                              !BAN
 443,elytra                         ,Elytra
-444,spruce_boat                    ,Spruce Boat
-445,birch_boat                     ,Birch Boat
-446,jungle_boat                    ,Jungle Boat
-447,acacia_boat                    ,Acacia Boat
-448,dark_oak_boat                  ,Dark Oak Boat
-449,totem_of_undying               ,Totem of Undying
+
+#spruce_boat
+444,boat_spruce                    ,Spruce Boat
+
+#birch_boat
+445,boat_birch                     ,Birch Boat
+
+#jungle_boat
+446,boat_jungle                    ,Jungle Boat
+
+#acacia_boat
+447,boat_acacia                    ,Acacia Boat
+
+#dark_oak_boat
+448,boat_dark_oak                  ,Dark Oak Boat,doak boat
+
+#totem_of_undying
+449,totem                          ,Totem of Undying,totem
+
 450,shulker_shell                  ,Shulker Shell
+
+#ID 451 does not exist in any library.
+
 452,iron_nugget                    ,Iron Nugget
-2256,record_13                     ,13 Disc
-2257,record_cat                    ,Cat Disc
-2258,record_blocks                 ,Blocks Disc
-2259,record_chirp                  ,Chirp Disc
-2260,record_far                    ,Far Disc
-2261,record_mall                   ,Mall Disc
-2262,record_mellohi                ,Mellohi Disc
-2263,record_stal                   ,Stal Disc
-2264,record_strad                  ,Strad Disc
-2265,record_ward                   ,Ward Disc
-2266,record_11                     ,11 Disc
-2267,record_wait                   ,Wait Disc
+
+#record_13
+2256,gold_record                   ,13 Disc,13 record,gold disc,gold record
+
+#record_cat
+2257,green_record                  ,Cat Disc,Cat record,green disc,green record
+
+#record_blocks
+2258,record_3                      ,Blocks Disc,Blocks record,orange disc,orange record
+
+#record_chirp
+2259,record_4                      ,Chirp Disc,chirp record,red disc,red record
+
+#record_far
+2260,record_5                      ,Far Disc,far record,lime disc,lime record
+
+#record_mall
+2261,record_6                      ,Mall Disc,mall record,purple disc,purple record
+
+#record_mellohi
+2262,record_7                      ,Mellohi Disc,mellohi record,magenta disc,magenta record
+
+#record_stal
+2263,record_8                      ,Stal Disc,stal disc,black disc, black record
+
+#record_strad
+2264,record_9                      ,Strad Disc,strad record,white disc,white record
+
+#record_ward
+2265,record_10                     ,Ward Disc,ward record,aqua disc,aqua record
+
+#record_11
+2266,record_11                     ,11 Disc,11 record,ruined disc,ruined record
+
+#record_wait
+2267,record_12                     ,Wait Disc,wait record,blue disc,blue record

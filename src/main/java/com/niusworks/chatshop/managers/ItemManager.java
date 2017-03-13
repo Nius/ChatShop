@@ -93,7 +93,7 @@ public class ItemManager
                     boolean isban = false;
                     String[] flags = line.split("!");
                     for(String flag : flags)
-                        if(flag.trim().equalsIgnoreCase("BAN"))
+                        if(flag.trim().equalsIgnoreCase("BAN") || flag.trim().equalsIgnoreCase("TECHNICAL"))
                         {
                             isban = true;
                             break;
@@ -134,26 +134,20 @@ public class ItemManager
                     }
                     
                     //Read remaining flags
-                    boolean s = true;
-                    String display = "";
-                    for(String flag : flags)
-                        if(flag.trim().equalsIgnoreCase("S"))
-                            s = false;
-                        else if(flag.trim().toLowerCase().startsWith("display-"))
-                        {
-                            int findex = flag.indexOf("\"");
-                            display = flag.substring(findex + 1);
-                            display = display.substring(0,display.indexOf("\""));
-                        }
+//                    for(String flag : flags)
+//                        if(flag.trim().toLowerCase().startsWith("SOMEFLAG"))
+//                        {
+//                            
+//                        }
                     
-                    //If the display name was not set by a flag,
-                    //read it from the first alias but maintain capitalization.
+                    //Read the display name from the first alias but maintain capitalization.
+                    String display = "";
                     if(display.length() == 0)
                         display = tokens[2].trim().replaceAll("\\s","");
                     
                     //Store the new item in the items 2D-hash
                     //In case of duplicates, the latest entry will prevail.
-                    Item itm = new Item(id, dam, mname.trim().toUpperCase(),(display.length() > 0 ? display.trim() : alii[0].trim()), s);
+                    Item itm = new Item(id, dam, mname.trim().toUpperCase(),(display.length() > 0 ? display.trim() : alii[0].trim()));
                     if(!items.containsKey(id))                      //If this ID is undefined...
                         items.put(id,new HashMap<Integer,Item>());  //...create a new map for it.
                     if(!items.get(id).containsKey(dam))             //If this exact item is undefined...
@@ -338,6 +332,9 @@ public class ItemManager
         //ALIAS
         if(aliases.containsKey(query.toUpperCase()))
             return lookup(aliases.get(query.toUpperCase()).ID,aliases.get(query.toUpperCase()).DMG);
+        query = (query.toUpperCase().endsWith("S") ? query.substring(0,query.length() - 1) : query + "s");
+        if(aliases.containsKey(query.toUpperCase()))
+            return lookup(aliases.get(query.toUpperCase()).ID,aliases.get(query.toUpperCase()).DMG);
         
         //NO RESULT
         return null;
@@ -469,8 +466,6 @@ public class ItemManager
         public final String MNAME;
         /** The display name for this item; usually its first alias. **/
         public final String DISPLAY;
-        /** Whether this item can be found using "s" forgiveness; usually true. **/
-        public final boolean S;
         
         /**
          * Instantiate a new Item.
@@ -482,25 +477,10 @@ public class ItemManager
          */
         public Item(int id, int damage,String mname,String display)
         {
-            this(id,damage,mname,display,true);
-        }
-        
-        /**
-         * Instantiate a new Item.
-         * 
-         * @param id        The primary ID of the item.
-         * @param damage    The data value of the item. 0 if not needed.
-         * @param mname     The official Minecraft name for this item.
-         * @param display   The display name for this item.
-         * @param s         Whether this item can be found using "s" forgiveness.
-         */
-        public Item(int id, int damage,String mname,String display,boolean s)
-        {
             ID = id;
             DMG = damage;
             MNAME = mname;
             DISPLAY = display;
-            S = s;
         }
     }
 }
