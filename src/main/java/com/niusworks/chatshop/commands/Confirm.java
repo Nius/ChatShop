@@ -43,10 +43,10 @@ public class Confirm implements CommandExecutor
         
         //No console
         if(!(sender instanceof Player))
-            return PLUGIN.CM.reply(sender,"ChatShop.dump cannot be executed as console.");
+            return PLUGIN.CM.reply(sender,"ChatShop.confirm cannot be executed as console.");
         Player usr = (Player)sender;
         //Permissions
-        if(!sender.hasPermission("chatshop.dump"))
+        if(!sender.hasPermission("chatshop.confirm"))
             return PLUGIN.CM.denyPermission(sender);
         //Gamemode
         Object[] modes = PLUGIN.getConfig().getList("allowed-modes").toArray();

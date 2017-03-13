@@ -183,8 +183,8 @@ public class Buy implements CommandExecutor
         
         //Notify the buyer of any metadata.
         if(res.BROKE)
-            PLUGIN.CM.error(usr,"Ran out of cash.");
-        if(res.QUANTITY < merchandise.getAmount())
+            PLUGIN.CM.error(usr,"Ran out of money.");
+        else if(res.QUANTITY < merchandise.getAmount())
             PLUGIN.CM.error(usr,"Exhausted shop stock.");
         
         //Charge the player for the purchase.

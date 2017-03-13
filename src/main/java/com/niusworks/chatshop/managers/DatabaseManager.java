@@ -405,10 +405,18 @@ public class DatabaseManager
      * @return          The total price the player would pay if they
      *                  had, at this moment, executed a buy with the
      *                  same arguments.
+     *                  Returns -1 on SQL fail.
+     *                  If the requested amount is more than is available
+     *                  then the total available amount will be returned.
      */
     public synchronized double price(Player usr, ItemStack merch, double maxp)
     {
-        return buy(usr,merch,maxp,true).COST;
+        Tender res = buy(usr,merch,maxp,true);
+        if(res == null)
+            return -1;
+        if(res.QUANTITY < merch.getAmount())
+            return -1 * res.QUANTITY;
+        return res.COST;
     }
     
     /**
@@ -489,7 +497,7 @@ public class DatabaseManager
                 int thisQuantity = 0;
                 
                 double listingCost = listing.PRICE * listing.QUANTITY;
-                if(totalCost + listingCost > avbal ||
+                if((!pricingOnly && totalCost + listingCost > avbal) ||
                         totalMerch + listing.QUANTITY > merch.getAmount())
                 {
                     //This is the last listing, because it meets or exceeds the limit
@@ -499,11 +507,14 @@ public class DatabaseManager
                     broke = totalCost + listingCost > avbal;
                     
                     isLast = true;
-                    thisQuantity = Math.min(
-                            //The amount the user can afford
-                            (int)((avbal - totalCost) / listing.PRICE),
-                            //The amount the user asked for
-                            merch.getAmount() - totalMerch);
+                    if(pricingOnly)
+                        thisQuantity = merch.getAmount() - totalMerch;
+                    else
+                        thisQuantity = Math.min(
+                                //The amount the user can afford
+                                (int)((avbal - totalCost) / listing.PRICE),
+                                //The amount the user asked for
+                                merch.getAmount() - totalMerch);
                     
                     //If no more can be bought, stop processing this final listing.
                     if(thisQuantity == 0)
