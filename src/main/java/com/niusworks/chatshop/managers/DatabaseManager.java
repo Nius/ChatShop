@@ -60,14 +60,13 @@ public class DatabaseManager
                     host +
                     ":" + port +
                     "/" + database +
-                    "?user=" + user +
-                    "&password=" + password;
+                    "?user=" + user;
             
             //Load the database driver, and connect.
             PLUGIN.CM.log("Connecting to database " + path);
             
             Class.forName("com.mysql.jdbc.Driver");
-            connect = DriverManager.getConnection(path);
+            connect = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database,user,password);
             
             //Verify database schema.
             String query; int result;
