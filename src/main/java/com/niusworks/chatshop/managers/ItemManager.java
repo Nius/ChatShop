@@ -199,7 +199,7 @@ public class ItemManager
         }
         
         PLUGIN.CM.log("Loaded " + totalLoaded + " items. (" + totalBanned
-            + " banned items and " + totalCommented + " commentes, totaling "
+            + " ignored items and " + totalCommented + " comments, totaling "
             + (totalLoaded + totalBanned + totalCommented) + " lines.)");
         return -1;
     }

@@ -42,33 +42,33 @@ commands:
         description: List all items available from a user on the Chat Shop.
         usage: /stock [player] [page]
 permissions:
-    virtualshop.access.admin:
+    chatshop.access.admin:
         description: Access to administrator commands
         default: OP
-    virtualshop.buy:
+    chatshop.buy:
         description: Allow usage of /buy
         default: true
-    virtualshop.cancel:
+    chatshop.cancel:
         description: Allow usage of /cancel
         default: true
-    virtualshop.dump:
+    chatshop.dump:
         description: Allow usage of /dump
         default: true
-    virtualshop.find:
+    chatshop.find:
         description: Allow usage of /find
         default: true
-    virtualshop.help:
+    chatshop.help:
         description: Allow usage of /chatshop
         default: true
-    virtualshop.history:
+    chatshop.history:
         description: Allow usage of /history
         default: true
-    virtualshop.reprice:
+    chatshop.reprice:
         description: Allow usage of /reprice
         default: true
-    virtualshop.sell:
+    chatshop.sell:
         description: Allow usage of /sell
         default: true
-    virtualshop.stock:
+    chatshop.stock:
         description: Allow usage of /stock
         default: true
