@@ -731,6 +731,19 @@ public class DatabaseManager
         PLUGIN.CM.severe("Unexpected error occurred with query: \"" + query + "\"");
     }
     
+    /** Close the database connection. **/
+    public void close()
+    {
+       try
+       {
+           connect.close();
+       }
+       catch (SQLException e)
+       {
+           PLUGIN.CM.severe("Unexpected error attempting to close the database connection.");
+       }
+    }
+    
     /**
      * A simple vehicle for expressing the results of a buy order.
      * @author ObsidianCraft Staff

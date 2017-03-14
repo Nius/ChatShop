@@ -96,6 +96,12 @@ public class ChatShop extends JavaPlugin
         this.getCommand("sell").setExecutor(new Sell(this));
         this.getCommand("stock").setExecutor(new Stock(this));
     }
+    
+    @Override
+    public void onDisable()
+    {
+        DB.close();
+    }
         
     /**
      * Send a severe message to the console and terminate this plugin.

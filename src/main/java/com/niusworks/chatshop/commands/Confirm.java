@@ -138,7 +138,7 @@ public class Confirm implements CommandExecutor
         
         //Stop if the pending order is older than 5 seconds.
         Order pending = PLUGIN.PENDING.get(usr);
-        if(System.currentTimeMillis() - pending.TIME > 5000)
+        if(System.currentTimeMillis() - pending.TIME > PLUGIN.getConfig().getInt("confirm-timeout",10000))
             return PLUGIN.CM.error(usr,"Your pending order has expired.");
         
         //Execute the pending order appropriately, then defer to the normal CommandExecutor of that order

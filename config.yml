@@ -17,7 +17,12 @@ MySQL:
 # Market Policy
 #
 
+#Global maximum price for all items.
+#items.csv does NOT override this.
 global-max-price:   10000000
+
+#Time in milliseconds a user has to /confirm.
+confirm-timeout:    10000
 
 #
 # Gamemode and World Configuration
