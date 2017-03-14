@@ -71,6 +71,15 @@ public class History implements CommandExecutor
                         allowed = true;
             if(!allowed)
                 return PLUGIN.CM.denyGameMode(sender);
+            
+            allowed = false;
+            Object[] worlds = PLUGIN.getConfig().getList("allowed-worlds").toArray();
+            for(int i = 0; i < worlds.length; i ++)
+                if(worlds[i] instanceof String)
+                    if(((String)worlds[i]).equalsIgnoreCase(usr.getWorld().getName()))
+                        allowed = true;
+            if(!allowed)
+                return PLUGIN.CM.denyWorld(sender);
         }
         
         //

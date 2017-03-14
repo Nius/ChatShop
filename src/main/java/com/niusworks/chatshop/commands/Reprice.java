@@ -51,14 +51,26 @@ public class Reprice implements CommandExecutor
         if(!sender.hasPermission("chatshop.reprice"))
             return PLUGIN.CM.denyPermission(sender);
         //Gamemode
-        Object[] modes = PLUGIN.getConfig().getList("allowed-modes").toArray();
-        boolean allowed = false;
-        for(int i = 0; i < modes.length; i ++)
-            if(modes[i] instanceof String)
-                if(((String)modes[i]).equalsIgnoreCase(usr.getGameMode().toString()))
-                    allowed = true;
-        if(!allowed)
-            return PLUGIN.CM.denyGameMode(sender);
+        if(!PLUGIN.getConfig().getBoolean("query-anyone"))
+        {
+            Object[] modes = PLUGIN.getConfig().getList("allowed-modes").toArray();
+            boolean allowed = false;
+            for(int i = 0; i < modes.length; i ++)
+                if(modes[i] instanceof String)
+                    if(((String)modes[i]).equalsIgnoreCase(usr.getGameMode().toString()))
+                        allowed = true;
+            if(!allowed)
+                return PLUGIN.CM.denyGameMode(sender);
+            
+            allowed = false;
+            Object[] worlds = PLUGIN.getConfig().getList("allowed-worlds").toArray();
+            for(int i = 0; i < worlds.length; i ++)
+                if(worlds[i] instanceof String)
+                    if(((String)worlds[i]).equalsIgnoreCase(usr.getWorld().getName()))
+                        allowed = true;
+            if(!allowed)
+                return PLUGIN.CM.denyWorld(sender);
+        }
         
         //
         //  VALIDATION

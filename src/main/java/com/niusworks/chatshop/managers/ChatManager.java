@@ -329,4 +329,16 @@ public class ChatManager
     {
         return error(sender, "You cannot use that command in your current game mode.");
     }
+    
+    /**
+     * Notify the user that they are in the wrong world.
+     * 
+     * @param sender    The source of the action to which we are to reply.
+     * @return          Always returns true, to allow command executors to
+     *                  send a message and terminate in one line.
+     */
+    public boolean denyWorld(CommandSender sender)
+    {
+        return error(sender, "You cannot use that command in your current world.");
+    }
 }

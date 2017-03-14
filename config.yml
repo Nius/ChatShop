@@ -20,13 +20,20 @@ MySQL:
 global-max-price:   10000000
 
 #
-# Gamemode Configuration
+# Gamemode and World Configuration
 #
 
 # Only players in these gamemodes can buy, sell, etc.
 allowed-modes:
   - SURVIVAL
-# Whether players in the wrong gamemode can query the
+  
+#Only players in these worlds can buy, sell, etc.
+allowed-worlds:
+  - Survival
+  - Survival_the_end
+  - Survival_nether
+
+# Whether players in the wrong gamemode or world can query the
 # shop (/find, /sales, etc.)
 query-anyone:       true
 
