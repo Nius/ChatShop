@@ -237,7 +237,7 @@ public class ChatManager
      */
     public void log(String message)
     {
-        PLUGIN.getLogger().info(PREFIX + message);
+        PLUGIN.getLogger().info(message);
     }
     
     /**
@@ -247,7 +247,7 @@ public class ChatManager
      */
     public void severe(String message)
     {
-        PLUGIN.getLogger().severe(PREFIX + message);
+        PLUGIN.getLogger().severe(message);
     }
     
     /**

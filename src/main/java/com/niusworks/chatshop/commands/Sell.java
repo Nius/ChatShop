@@ -13,6 +13,7 @@ import com.niusworks.chatshop.managers.DatabaseManager.Listing;
 import com.niusworks.chatshop.managers.ChatManager;
 import com.niusworks.chatshop.managers.DatabaseManager;
 import com.niusworks.chatshop.managers.ItemManager;
+import com.niusworks.chatshop.managers.ItemManager.Item;
 
 /**
  * Executor for the "sell" command for
@@ -69,26 +70,6 @@ public class Sell implements CommandExecutor
         if(args.length != 3)
             return PLUGIN.CM.error(sender,USAGE);
                
-        //Price check
-        //User entry of "-" results in a price of -1, which resolves
-        //  within DatabaseManager#sell to the current listed price.
-        double price = 0;
-        try
-        {
-            price = Double.parseDouble(args[2]);
-            if(price < .01)
-                return PLUGIN.CM.error(sender,"Minimum price is $0.01.");
-            double globalmax = PLUGIN.getConfig().getDouble("global-max-price");
-            if(price > globalmax)
-                return PLUGIN.CM.error(sender,"Maximum price is " + ChatManager.format(globalmax) + ".");
-        } catch (NumberFormatException e)
-        {
-            if(args[2].equals("-"))
-                price = -1;
-            else
-                return PLUGIN.CM.error(sender,USAGE);
-        }
-        
         //Item check
         Object parse = PLUGIN.IM.parse(usr,args[1]);
         if(parse instanceof Integer)
@@ -100,7 +81,8 @@ public class Sell implements CommandExecutor
                 default: return PLUGIN.CM.err500(usr);
             }
         ItemStack merchandise = (ItemStack)parse;
-        String displayName = PLUGIN.IM.getDisplayName(merchandise);
+        Item cfg = PLUGIN.IM.lookup(merchandise);
+        String displayName = cfg.DISPLAY;
         
         //Check whether the user has any of the specified item.
         int has = 0;
@@ -111,6 +93,39 @@ public class Sell implements CommandExecutor
                 has += item.getAmount();
         if(has == 0)
             return PLUGIN.CM.error(sender,"You do not have any " + displayName + ".");
+        
+        //Price check
+        //User entry of "-" results in a price of -1, which resolves
+        //  within DatabaseManager#sell to the current listed price.
+        double price = 0;
+        try
+        {
+            price = Double.parseDouble(args[2]);
+            if(price < .01)
+                return PLUGIN.CM.error(sender,
+                    "No item may be priced lower than " +
+                    PLUGIN.CM.color("price") + "$0.01" +
+                    PLUGIN.CM.color("error") + ".");
+            double globalmax = PLUGIN.getConfig().getDouble("global-max-price");
+            if(price > globalmax)
+                return PLUGIN.CM.error(sender,
+                    "No item may be priced higher than " +
+                    PLUGIN.CM.color("price") + ChatManager.format(globalmax) +
+                    PLUGIN.CM.color("error") + ".");
+            if(cfg.MAXPRICE > 0 && price > cfg.MAXPRICE)
+                return PLUGIN.CM.error(sender,
+                    "The maximum allowed price for " +
+                    PLUGIN.CM.color("item") + cfg.DISPLAY +
+                    PLUGIN.CM.color("error") + " is " + 
+                    PLUGIN.CM.color("price") + ChatManager.format(cfg.MAXPRICE) +
+                    PLUGIN.CM.color("error") + ".");
+        } catch (NumberFormatException e)
+        {
+            if(args[2].equals("-"))
+                price = -1;
+            else
+                return PLUGIN.CM.error(sender,USAGE);
+        }
         
         //Quantity Check
         //A user must enter a valid number greater than zero, or "all".
@@ -127,6 +142,19 @@ public class Sell implements CommandExecutor
             if(merchandise.getAmount() < 1)
                 return PLUGIN.CM.error(sender,"You must sell at least one item.");
         }
+        //Check the quantity against the defined maximum quantity.
+        //This check is performed again by the DatabaseManager when attempting
+        // to carry out the sell operation, in the provided number is less than
+        // the limit but the provided number plus the already-existing stock is
+        // in excess of the limit.
+        //In such a situation the DatabaseManager reports to ProcessResults, and
+        // a denial identical to this one is returned.
+        if(cfg.MAXQUANTITY > 0 && merchandise.getAmount() > cfg.MAXQUANTITY)
+            return PLUGIN.CM.error(sender,
+                "You may not offer more than " +
+                PLUGIN.CM.color("quantity") + ChatManager.format(cfg.MAXQUANTITY) + " " +
+                PLUGIN.CM.color("item") + cfg.DISPLAY +
+                PLUGIN.CM.color("error") + " at a time.");
         
         //
         //  EXECUTION
@@ -136,7 +164,7 @@ public class Sell implements CommandExecutor
         if(PLUGIN.DB.getPlayerFlag(usr,1) != 'X')
         {
            //The player is using /confirm for sells.
-           SellOrder order = new SellOrder(usr,merchandise,displayName,price,System.currentTimeMillis());
+           SellOrder order = new SellOrder(usr,merchandise,cfg,price,System.currentTimeMillis());
            PLUGIN.PENDING.put(usr,order);
            String textCol = PLUGIN.CM.color("text");
            String msg =
@@ -161,7 +189,7 @@ public class Sell implements CommandExecutor
         //  RESULT
         //
         
-        return processResults(usr,merchandise,displayName,price,res);
+        return processResults(usr,merchandise,cfg,price,res);
     }
     
     /**
@@ -172,21 +200,29 @@ public class Sell implements CommandExecutor
      * 
      * @param usr           The user who is executing the buy operaion.
      * @param merchandise   The merchandise (including amount) the user tried to buy.
-     * @param displayName   The already-looked-up display name of the items.
+     * @param cfg           The item, as configured from file.
      * @param price         The user-provided price for these items.
      * @param res           The results of {@link DatabaseManager#sell}.
      * @return              Always returns true, so that calling methods can finalize
      *                      the buy order and terminate in one line.
      */
-    public boolean processResults(Player usr,ItemStack merchandise,String displayName,double price,Object res)
+    public boolean processResults(Player usr,ItemStack merchandise,Item cfg,double price,Object res)
     {
-        // On fail...
+        // On SQL fail...
         if(res instanceof Integer && ((Integer)res).intValue() == -2)
             return PLUGIN.CM.err500(usr);
         
+        // On updated listing exceeds quantity limit...
+        if(res instanceof Integer && ((Integer)res).intValue() == -3)
+            return PLUGIN.CM.error(usr,
+                "You may not offer more than " +
+                        PLUGIN.CM.color("quantity") + ChatManager.format(cfg.MAXQUANTITY) + " " +
+                        PLUGIN.CM.color("item") + cfg.DISPLAY +
+                        PLUGIN.CM.color("error") + " at a time.");
+        
         // On "-" price but no listing found...
         if(res instanceof Integer && ((Integer)res).intValue() == -1)
-            return PLUGIN.CM.error(usr,"You do not have any " + displayName + " for sale and must specify a price.");
+            return PLUGIN.CM.error(usr,"You do not have any " + cfg.DISPLAY + " for sale and must specify a price.");
         
         //Remove the specified items from the player's inventory.
         int removed = 0;
@@ -232,7 +268,7 @@ public class Sell implements CommandExecutor
             broadcast += ChatManager.format(merchandise.getAmount()) + " ";
         
         // Indicate the appropriate item.
-        broadcast += PLUGIN.CM.color("item") + displayName;
+        broadcast += PLUGIN.CM.color("item") + cfg.DISPLAY;
         
         broadcast += textColor + " for ";
         

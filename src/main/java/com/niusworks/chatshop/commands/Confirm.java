@@ -8,6 +8,7 @@ import org.bukkit.inventory.ItemStack;
 
 import com.niusworks.chatshop.ChatShop;
 import com.niusworks.chatshop.managers.DatabaseManager.Tender;
+import com.niusworks.chatshop.managers.ItemManager.Item;
 
 import net.md_5.bungee.api.ChatColor;
 
@@ -109,8 +110,8 @@ public class Confirm implements CommandExecutor
             PLUGIN.DB.writePlayerFlag(usr,index,(wasOn ? 'X' : ' '));
             
             String msg =
-                PLUGIN.CM.color("text") + args[1].substring(0,1).toUpperCase() + args[1].substring(1) +
-                " confirmations are now " +
+                PLUGIN.CM.color("helpUsage") + args[1].substring(0,1).toUpperCase() + args[1].substring(1) +
+                PLUGIN.CM.color("text") + " confirmations are now " +
                 (wasOn ? ChatColor.RED : ChatColor.GREEN) +
                 (wasOn ? "off" : "on") +
                 PLUGIN.CM.color("text") + ".";
@@ -137,12 +138,12 @@ public class Confirm implements CommandExecutor
         if(pending instanceof BuyOrder)
         {
             Tender res = PLUGIN.DB.buy(usr,pending.MERCH,((BuyOrder) pending).MAXP);
-            return ((Buy)PLUGIN.getCommand("buy").getExecutor()).processResults(usr,pending.MERCH,pending.DISPLAY,res);
+            return ((Buy)PLUGIN.getCommand("buy").getExecutor()).processResults(usr,pending.MERCH,pending.CONFIG.DISPLAY,res);
         }
         if(pending instanceof SellOrder)
         {
             Object res = PLUGIN.DB.sell(usr,pending.MERCH,((SellOrder) pending).PRICE);
-            return ((Sell)PLUGIN.getCommand("sell").getExecutor()).processResults(usr,pending.MERCH,pending.DISPLAY,((SellOrder) pending).PRICE,res);
+            return ((Sell)PLUGIN.getCommand("sell").getExecutor()).processResults(usr,pending.MERCH,pending.CONFIG,((SellOrder) pending).PRICE,res);
         }
         
         return true;
@@ -158,20 +159,20 @@ public class Confirm implements CommandExecutor
         public final Player PLAYER;
         /** The merchandise (including quantity) to purchse. **/
         public final ItemStack MERCH;
-        /** The already-looked-up display name of this item. **/
-        public final String DISPLAY;
+        /** The already-looked-up configuration for this item. **/
+        public final Item CONFIG;
         /** The time at which this order was created. **/
         public final long TIME;
         
         /**
          * @param usr       The player who created this order.
          * @param merch     The merchandise (including quantity) to purchse.
-         * @param display   The already-looked-up display name of this item.
+         * @param cfg       The already-looked-up configuration for this item.
          * @param time      The time at which this order was created.
          */
-        public Order(Player usr,ItemStack merch,String display,long time)
+        public Order(Player usr,ItemStack merch,Item cfg,long time)
         {
-            PLAYER = usr; MERCH = merch; DISPLAY = display; TIME = time;
+            PLAYER = usr; MERCH = merch; CONFIG = cfg; TIME = time;
         }
     }
     
@@ -187,13 +188,13 @@ public class Confirm implements CommandExecutor
         /**
          * @param usr       The player who created this order.
          * @param merch     The merchandise (including quantity) to purchse.
-         * @param display   The already-looked-up display name of this item.
+         * @param cfg       The already-looked-up configuration for this item.
          * @param price     The price per item for this sale.
          * @param time      The time at which this order was created.
          */
-        public SellOrder(Player usr,ItemStack merch,String display,double price,long time)
+        public SellOrder(Player usr,ItemStack merch,Item cfg,double price,long time)
         {
-            super(usr,merch,display,time);
+            super(usr,merch,cfg,time);
             PRICE = price;
         }
     }
@@ -210,16 +211,16 @@ public class Confirm implements CommandExecutor
         public final double TOTAL;
         
         /**
-         * @param usr    The player who created this order.
+         * @param usr     The player who created this order.
          * @param merch   The merchandise (including quantity) to purchse.
-         * @param display The already-looked-up display name of this item.
+         * @param cfg     The already-looked-up configuration for this item.
          * @param maxp    The maximum price for the buy order.
          * @param total   The calculated total price for the buy order at the time of its creation.
          * @param time    The time at which this order was created.
          */
-        public BuyOrder(Player usr,ItemStack merch,String display,double maxp,double total,long time)
+        public BuyOrder(Player usr,ItemStack merch,Item cfg,double maxp,double total,long time)
         {
-            super(usr,merch,display,time);
+            super(usr,merch,cfg,time);
             MAXP = maxp; TOTAL = total;
         }
     }

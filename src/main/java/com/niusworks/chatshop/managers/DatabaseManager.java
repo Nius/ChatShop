@@ -629,9 +629,11 @@ public class DatabaseManager
      * @param merch     The (validated) items to sell.
      * @param price     The price (each, not total) for the merchandise.
      *                  -1 indicates the previously existing price should be used.
-     * @return          -2 on SQL fail, -1 if the user used "-" as price and
-     *                  does not have a listing, 0 on new listing, or else
-     *                  the original pre-existing listing.
+     * @return          -3 on maximum quantity exceeded.
+     *                  -2 on SQL fail.
+     *                  -1 if the user used "-" as price and does not have a listing.
+     *                  0 on new listing.
+     *                  else the original pre-existing listing.
      */
     @SuppressWarnings("unused")
     public synchronized Object sell(Player usr, ItemStack merch, double price)
@@ -649,6 +651,10 @@ public class DatabaseManager
                 // used.
                 if(price == -1)
                     price = current.PRICE;
+                
+                int maxq = PLUGIN.IM.lookup(merch).MAXQUANTITY;
+                if(maxq > 0 && current.QUANTITY + merch.getAmount() > maxq)
+                    return -3;
                 
                 query = "UPDATE ChatShop_listings SET quantity = " + (merch.getAmount() + current.QUANTITY)
                         + ", price = " + price

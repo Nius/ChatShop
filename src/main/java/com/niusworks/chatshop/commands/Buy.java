@@ -11,6 +11,7 @@ import com.niusworks.chatshop.commands.Confirm.BuyOrder;
 import com.niusworks.chatshop.managers.ChatManager;
 import com.niusworks.chatshop.managers.DatabaseManager;
 import com.niusworks.chatshop.managers.DatabaseManager.Tender;
+import com.niusworks.chatshop.managers.ItemManager.Item;
 
 /**
  * Executor for the "buy" command for
@@ -91,7 +92,8 @@ public class Buy implements CommandExecutor
                 default: return PLUGIN.CM.err500(usr);
             }
         ItemStack merchandise = (ItemStack)parse;
-        String displayName = PLUGIN.IM.getDisplayName(merchandise);
+        Item cfg = PLUGIN.IM.lookup(merchandise);
+        String displayName = cfg.DISPLAY;
         
         //Quantity check
         int qty = 0;
@@ -121,7 +123,7 @@ public class Buy implements CommandExecutor
         {
            //The player is using /confirm for buys.
            double tprice = PLUGIN.DB.price(usr,merchandise,maxp);
-           BuyOrder order = new BuyOrder(usr,merchandise,displayName,maxp,tprice,System.currentTimeMillis());
+           BuyOrder order = new BuyOrder(usr,merchandise,cfg,maxp,tprice,System.currentTimeMillis());
            PLUGIN.PENDING.put(usr,order);
            
            String textCol = PLUGIN.CM.color("text");

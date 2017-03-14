@@ -22,9 +22,11 @@
 #                       interact with them at all. It is advised that you ban items rather than
 #                       delete them, in the interest of maintaining a complete dictionary.
 #  !TECHNICAL     Alias for !BAN, included to make this file a little more friendly.
+#  !MAXPRICE=     The maximum allowed price for an item. Do not include quotes or a currency symbol.
+#  !MAXQTY=       The maximum allowed quantity for an item. Do not include commas (such as "1,024").
 #
 # DISAGREEMENTS:
-# Minecraft and Bukkit disagree on the "true" names (real_minecraftt_name) of many items. This file must
+# Minecraft and Bukkit disagree on the "true" names (real_minecraft_name) of many items. In such cases, ChatShop must
 # use the Bukkit name in order to match Bukkit's Material enum. Such items are annotated on the preceding line
 # with the Minecraft name, commented.
 #
@@ -38,7 +40,7 @@
 1:5,stone                          ,Andesite
 1:6,stone                          ,Polished Andesite
 2,grass                            ,Grass
-3,dirt                             ,Dirt
+3,dirt                             ,Dirt                                !MAXPRICE=0.01
 3:1,dirt                           ,Coarse Dirt
 3:2,dirt                           ,Podzol
 4,cobblestone                      ,Cobblestone,cobble
@@ -181,8 +183,8 @@
 
 54,chest                           ,Chest
 55,redstone_wire                   ,Redstone Wire
-56,diamond_ore                     ,Diamond Ore,dore
-57,diamond_block                   ,Diamond Block,dblock,diamondb
+56,diamond_ore                     ,Diamond Ore,dore                    !MAXQTY=3
+57,diamond_block                   ,Diamond Block,dblock,diamondb       !MAXQTY=1
 
 #crafting_table
 58,workbench                       ,Crafting Table
@@ -609,7 +611,7 @@
 262,arrow                          ,Arrow
 263,coal                           ,Coal
 263:1,coal                         ,Charcoal
-264,diamond                        ,Diamond,dia
+264,diamond                        ,Diamond,dia                         !MAXQTY=9
 265,iron_ingot                     ,Iron Ingot,ibar
 266,gold_ingot                     ,Gold Ingot,gbar
 267,iron_sword                     ,Iron Sword,isword

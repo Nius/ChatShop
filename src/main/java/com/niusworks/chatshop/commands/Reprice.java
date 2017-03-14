@@ -9,6 +9,7 @@ import org.bukkit.inventory.ItemStack;
 import com.niusworks.chatshop.ChatShop;
 import com.niusworks.chatshop.managers.ChatManager;
 import com.niusworks.chatshop.managers.DatabaseManager.Listing;
+import com.niusworks.chatshop.managers.ItemManager.Item;
 
 import net.md_5.bungee.api.ChatColor;
 
@@ -67,21 +68,6 @@ public class Reprice implements CommandExecutor
         if(args.length != 2)
             return PLUGIN.CM.error(sender,USAGE);
                
-        //Price check
-        double price = 0;
-        try
-        {
-            price = Double.parseDouble(args[1]);
-            if(price < .01)
-                return PLUGIN.CM.error(sender,"Minimum price is $0.01.");
-            double globalmax = PLUGIN.getConfig().getDouble("global-max-price");
-            if(price > globalmax)
-                return PLUGIN.CM.error(sender,"Maximum price is " + ChatManager.format(globalmax) + ".");
-        } catch (NumberFormatException e)
-        {
-            return PLUGIN.CM.error(sender,USAGE);
-        }
-        
         //Item check
         Object parse = PLUGIN.IM.parse(usr,args[0]);
         if(parse instanceof Integer)
@@ -93,7 +79,33 @@ public class Reprice implements CommandExecutor
                 default: return PLUGIN.CM.err500(usr);
             }
         ItemStack merchandise = (ItemStack)parse;
-        String displayName = PLUGIN.IM.getDisplayName(merchandise);
+        Item cfg = PLUGIN.IM.lookup(merchandise);
+        String displayName = cfg.DISPLAY;
+        
+        //Price check
+        double price = 0;
+        try
+        {
+            price = Double.parseDouble(args[1]);
+            if(price < .01)
+                return PLUGIN.CM.error(sender,"Minimum price is $0.01.");
+            double globalmax = PLUGIN.getConfig().getDouble("global-max-price");
+            if(price > globalmax)
+                return PLUGIN.CM.error(sender,
+                    "No item may be priced higher than " +
+                    PLUGIN.CM.color("price") + ChatManager.format(globalmax) +
+                    PLUGIN.CM.color("error") + ".");
+            if(cfg.MAXPRICE > 0 && price > cfg.MAXPRICE)
+                return PLUGIN.CM.error(sender,
+                        "The maximum allowed price for " +
+                        PLUGIN.CM.color("item") + cfg.DISPLAY +
+                        PLUGIN.CM.color("error") + " is " + 
+                        PLUGIN.CM.color("price") + ChatManager.format(cfg.MAXPRICE) +
+                        PLUGIN.CM.color("error") + ".");
+        } catch (NumberFormatException e)
+        {
+            return PLUGIN.CM.error(sender,USAGE);
+        }
         
         //
         //  EXECUTION

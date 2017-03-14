@@ -22,10 +22,20 @@ import com.niusworks.chatshop.ChatShop;
  */
 public class ItemManager
 {
-    /** A map of aliases to items. **/
+    /**
+     * A map of aliases, including the official Bukkit material name, to items.
+     * This is the primary means of item lookup.
+     */
     protected HashMap<String,Item> aliases = new HashMap<String,Item>();
     
-    /** A two-dimensional hash map of items; dim1 being item ID and dim2 being damage value. **/
+    /**
+     * A two-dimensional hash map of items; dimension 1 being item ID and dimension 2 being damage value.
+     * {@link #aliases} maintains a list of all aliases for each item, including the Bukkit material name,
+     * and is the primary means of item lookups considering that most users will search by string rather
+     * than by ID.
+     * This list serves to make lookups by ID:DMG much more efficient by removing the need to search through
+     * all named items and compare their attributes.
+     */
     protected HashMap<Integer,HashMap<Integer,Item>> items = new HashMap<Integer,HashMap<Integer,Item>>();
     
     /** The master plugin for this manager. **/
@@ -134,11 +144,19 @@ public class ItemManager
                     }
                     
                     //Read remaining flags
-//                    for(String flag : flags)
-//                        if(flag.trim().toLowerCase().startsWith("SOMEFLAG"))
-//                        {
-//                            
-//                        }
+                    double maxPrice = 0;
+                    int maxQuantity = 0;
+                    for(String flag : flags)
+                        if(flag.trim().toUpperCase().startsWith("MAXPRICE="))
+                        {
+                            try { maxPrice = Double.parseDouble(flag.substring(9)); }
+                            catch(NumberFormatException e){ return i; }
+                        }
+                        else if(flag.trim().toUpperCase().startsWith("MAXQTY="))
+                        {
+                            try { maxQuantity = Integer.parseInt(flag.substring(7)); }
+                            catch(NumberFormatException e){ return i; }
+                        }
                     
                     //Read the display name from the first alias but maintain capitalization.
                     String display = "";
@@ -147,7 +165,7 @@ public class ItemManager
                     
                     //Store the new item in the items 2D-hash
                     //In case of duplicates, the latest entry will prevail.
-                    Item itm = new Item(id, dam, mname.trim().toUpperCase(),(display.length() > 0 ? display.trim() : alii[0].trim()));
+                    Item itm = new Item(id, dam, mname.trim().toUpperCase(),(display.length() > 0 ? display.trim() : alii[0].trim()),maxPrice,maxQuantity);
                     if(!items.containsKey(id))                      //If this ID is undefined...
                         items.put(id,new HashMap<Integer,Item>());  //...create a new map for it.
                     if(!items.get(id).containsKey(dam))             //If this exact item is undefined...
@@ -254,28 +272,46 @@ public class ItemManager
     }
           
     /**
-     * Get the display name of the specified item, as
-     * defined by either the first alias of the item
-     * or, preferably, the !DISPLAY-"" flag.
+     * Look up a valid Minecraft item by ItemStack.
+     * This is essentially a reverse-lookup from validated
+     * item to dictionary definition, useful for getting
+     * configuration information such as maximum price.
      * 
-     * @param item  The item to resolve to displayname.
-     * @return      The display name, or null on fail.
+     * @param item  The item to look up.
+     * @return      The item definition.
      */
-    public String getDisplayName(ItemStack item)
+    public Item lookup(ItemStack item)
     {        
         Item sibling = aliases.get(item.getType().toString());
         if(sibling == null)
         {
-            PLUGIN.CM.severe("Error getting display name: alias not found: \"" + item.getType().toString() + "\".");
+            PLUGIN.CM.severe("Error resolving item: type not found: \"" + item.getType().toString() + "\".");
             return null;
         }
+        if(item.getDurability() == sibling.DMG)
+            return sibling;
+        
         Item self = lookup(sibling.ID,item.getDurability());
         if(self == null)
         {
-            PLUGIN.CM.severe("Error getting display name: item not found: " + sibling.ID + ":" + item.getDurability() + ".");
+            PLUGIN.CM.severe("Error resolving item: item not found: " + sibling.ID + ":" + item.getDurability() + ".");
             return null;
         }
-        return self.DISPLAY;
+        return self;
+    }
+    
+    /**
+     * Resolve a (validated) item to its configured display name.
+     * 
+     * @param item  The item to resolve to displayname.
+     * @return      The display name of the specified item.
+     */
+    public String getDisplayName(ItemStack item)
+    {
+        Item itm = lookup(item);
+        if(itm == null)
+            return "~INVALID";
+        return itm.DISPLAY;
     }
 
     /**
@@ -331,11 +367,10 @@ public class ItemManager
         
         //ALIAS
         if(aliases.containsKey(query.toUpperCase()))
-            return lookup(aliases.get(query.toUpperCase()).ID,aliases.get(query.toUpperCase()).DMG);
+            return aliases.get(query.toUpperCase());
         query = (query.toUpperCase().endsWith("S") ? query.substring(0,query.length() - 1) : query + "s");
         if(aliases.containsKey(query.toUpperCase()))
-            return lookup(aliases.get(query.toUpperCase()).ID,aliases.get(query.toUpperCase()).DMG);
-        
+            return aliases.get(query.toUpperCase());
         //NO RESULT
         return null;
     }
@@ -466,21 +501,29 @@ public class ItemManager
         public final String MNAME;
         /** The display name for this item; usually its first alias. **/
         public final String DISPLAY;
+        /** The maximum price for this item. 0 signifies no maximum. **/
+        public final double MAXPRICE;
+        /** The maximum quantity for this item. 0 signifies no maximum. **/
+        public final int MAXQUANTITY;
         
         /**
          * Instantiate a new Item.
          * 
-         * @param id        The primary ID of the item.
-         * @param damage    The data value of the item. 0 if not needed.
-         * @param mname     The official Minecraft name for this item.
-         * @param display   The display name for this item.
+         * @param id          The primary ID of the item.
+         * @param damage      The data value of the item. 0 if not needed.
+         * @param mname       The official Minecraft name for this item.
+         * @param display     The display name for this item.
+         * @param maxprice    The maximum price for this item. 0 signifies no maximum.
+         * @param maxquantity The maximum quantity for this item. 0 signifies no maximum.
          */
-        public Item(int id, int damage,String mname,String display)
+        public Item(int id, int damage,String mname,String display,double maxprice,int maxquantity)
         {
             ID = id;
             DMG = damage;
             MNAME = mname;
             DISPLAY = display;
+            MAXPRICE = maxprice;
+            MAXQUANTITY = maxquantity;
         }
     }
 }
