@@ -57,7 +57,7 @@ public class History implements CommandExecutor
         if(!(sender instanceof Player))
             return PLUGIN.CM.reply(sender,"ChatShop.history cannot be executed as console.");
         Player usr = (Player)sender;
-        //Permissions
+        //Permissions (more checks are carried out below)
         if(!sender.hasPermission("chatshop.history"))
             return PLUGIN.CM.denyPermission(sender);
         //Gamemode
@@ -122,10 +122,13 @@ public class History implements CommandExecutor
         if(args.length > (didSpecifyPage ? 1 : 0))
         {
             qPlayer = PLUGIN.getServer().getOfflinePlayer(args[0]);
-            if(!qPlayer.hasPlayedBefore())
+            if(qPlayer == null || !qPlayer.hasPlayedBefore())
                 return PLUGIN.CM.error(sender,
                         PLUGIN.CM.color("player") + qPlayer.getName() +
                         PLUGIN.CM.color("error") + " has never played on ObsidianCraft.");
+            if(!qPlayer.getUniqueId().equals(usr.getUniqueId()))
+                if(!usr.hasPermission("chatshop.history.other") && !usr.hasPermission("chatshop.admin"))
+                    return PLUGIN.CM.error(sender,"You do not have permission to look up other players' histories.");
         }
         else
             qPlayer = (Player)sender;

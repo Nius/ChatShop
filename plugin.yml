@@ -42,8 +42,8 @@ commands:
         description: List all items available from a user on the Chat Shop.
         usage: /stock [player] [page]
 permissions:
-    chatshop.access.admin:
-        description: Access to administrator commands
+    chatshop.admin:
+        description: Access to administrative commands and overrides.
         default: OP
     chatshop.buy:
         description: Allow usage of /buy
@@ -66,6 +66,9 @@ permissions:
     chatshop.history:
         description: Allow usage of /history
         default: true
+    chatshop.history.other:
+        description: Allow querying history of other players
+        default: OP
     chatshop.reprice:
         description: Allow usage of /reprice
         default: true

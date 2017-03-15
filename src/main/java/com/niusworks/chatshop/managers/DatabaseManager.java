@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 import java.util.logging.Level;
 
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -75,6 +76,7 @@ public class DatabaseManager
                     + "material VARCHAR(39) NOT NULL,"      //Current longest official item name
                     + "damage INT NOT NULL,"
                     + "seller VARCHAR(36) NOT NULL,"        //Minecraft UUID length
+                    + "sellerAlias VARCHAR(15) NOT NULL,"   //-- See below.
                     + "price DECIMAL(8,2) NOT NULL,"
                     + "quantity INT NOT NULL) ENGINE=INNODB";
             result = connect.createStatement().executeUpdate(query);
@@ -83,7 +85,9 @@ public class DatabaseManager
                     + "material VARCHAR(39) NOT NULL,"      //Current longest official item name
                     + "damage INT NOT NULL,"
                     + "seller VARCHAR(36) NOT NULL,"        //Minecraft UUID length
+                    + "sellerAlias VARCHAR(15) NOT NULL,"   //-- See below.
                     + "buyer VARCHAR(36) NOT NULL,"         //Minecraft UUID length
+                    + "buyerAlias VARCHAR(15) NOT NULL,"    //-- See below.
                     + "price DECIMAL(8,2) NOT NULL,"
                     + "quantity INT NOT NULL,"
                     + "date TIMESTAMP NOT NULL DEFAULT NOW()) ENGINE=INNODB";
@@ -91,8 +95,16 @@ public class DatabaseManager
             query = "CREATE TABLE IF NOT EXISTS ChatShop_players("
                     + "entryIndex INT PRIMARY KEY AUTO_INCREMENT,"
                     + "uuid VARCHAR(36) NOT NULL,"          //Minecraft UUID length
+                    + "alias VARCHAR(15) NOT NULL,"         //-- See below.
                     + "flags VARCHAR(5) NOT NULL) ENGINE=INNODB";
             result = connect.createStatement().executeUpdate(query);
+            /*
+             * sellerAlias, buyerAlias, and alias in these tables are Minecraft usernames.
+             * They are there only for the purposes of ease-of-readability in case an admin
+             * needs to look through the database for any reason. These values are never, ever
+             * to be read or utilized by ChatShop because they are not reliable. 
+             */
+            
         }
         catch(ClassNotFoundException|SQLException e)
         {
@@ -183,10 +195,12 @@ public class DatabaseManager
             if(hadEntry)
                 query = "UPDATE ChatShop_players "
                     + "SET flags = '" + out + "' "
+                    + ", alias = '" + user.getName() + "' "
                     + "WHERE uuid = '" + user.getUniqueId().toString() + "'";
             else
                 query = "INSERT INTO ChatShop_players VALUES("
                     + "null,'" + user.getUniqueId().toString() + "',"
+                    + "'" + user.getName() + "',"
                     + "'" + out + "')";
             @SuppressWarnings("unused")
             int unused = connect.createStatement().executeUpdate(query);
@@ -380,8 +394,9 @@ public class DatabaseManager
             }
             
             int targetQty = (stock.QUANTITY - merch.getAmount());
-            String query = "UPDATE ChatShop_listings SET quantity = " +
-                 + targetQty + " WHERE id = " + stock.ID;
+            String query =
+                "UPDATE ChatShop_listings SET quantity = " +
+                + targetQty + ", sellerAlias = '" + usr.getName() + "' WHERE id = " + stock.ID;
             int unused = connect.createStatement().executeUpdate(query);
             
             return merch.getAmount();
@@ -529,6 +544,7 @@ public class DatabaseManager
                     {
                         query = "UPDATE ChatShop_listings SET quantity = " +
                                 (listing.QUANTITY - thisQuantity) +
+                                ", sellerAlias = '" + usr.getName() + "'" +
                                 " WHERE id = " + listing.ID;
                         int unused = connect.createStatement().executeUpdate(query);
                     }
@@ -601,7 +617,9 @@ public class DatabaseManager
                             + "null, '" + merch.getType() + "', "
                             + merch.getDurability() + ", "
                             + "'" + listing.PLAYER + "', "
+                            + "'" + Bukkit.getOfflinePlayer(UUID.fromString(listing.PLAYER)).getName() + "', "
                             + "'" + usr.getUniqueId() + "', "
+                            + "'" + usr.getName() + "', "
                             + listingCost + ", "
                             + thisQuantity + ", "
                             + "null)";
@@ -657,6 +675,7 @@ public class DatabaseManager
                 
                 query = "UPDATE ChatShop_listings SET quantity = " + (merch.getAmount() + current.QUANTITY)
                         + ", price = " + price
+                        + ", sellerAlias = '" + usr.getName() + "'"
                         + " WHERE id = " + current.ID;
                 int unused = connect.createStatement().executeUpdate(query);
                 return current;
@@ -671,6 +690,7 @@ public class DatabaseManager
                     + "'" + merch.getType() + "',"
                     + merch.getDurability() + ","
                     + "'" + usr.getUniqueId() + "',"
+                    + "'" + usr.getName() + "',"
                     + price + ","
                     + merch.getAmount() + ")";
             int unused = connect.createStatement().executeUpdate(query);
@@ -706,7 +726,7 @@ public class DatabaseManager
             if(current != null)
             {                
                 query = "UPDATE ChatShop_listings SET price = " + price
-                        + " WHERE id = " + current.ID;
+                        + ", sellerAlias = '" + usr.getName() + "' WHERE id = " + current.ID;
                 int unused = connect.createStatement().executeUpdate(query);
                 return current;
             }
