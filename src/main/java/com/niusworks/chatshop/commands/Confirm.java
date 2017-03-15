@@ -4,11 +4,12 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 import com.niusworks.chatshop.ChatShop;
+import com.niusworks.chatshop.constructs.BuyOrder;
+import com.niusworks.chatshop.constructs.Order;
+import com.niusworks.chatshop.constructs.SellOrder;
 import com.niusworks.chatshop.managers.DatabaseManager.Tender;
-import com.niusworks.chatshop.managers.ItemManager.Item;
 
 import net.md_5.bungee.api.ChatColor;
 
@@ -156,81 +157,5 @@ public class Confirm implements CommandExecutor
         }
         
         return true;
-    }
-    
-    /**
-     * A simple vehicle for storing a pending buy or sell order.
-     * @author ObsidianCraft Staff
-     */
-    public static abstract class Order
-    {
-        /** The player who created this order. **/
-        public final Player PLAYER;
-        /** The merchandise (including quantity) to purchse. **/
-        public final ItemStack MERCH;
-        /** The already-looked-up configuration for this item. **/
-        public final Item CONFIG;
-        /** The time at which this order was created. **/
-        public final long TIME;
-        
-        /**
-         * @param usr       The player who created this order.
-         * @param merch     The merchandise (including quantity) to purchse.
-         * @param cfg       The already-looked-up configuration for this item.
-         * @param time      The time at which this order was created.
-         */
-        public Order(Player usr,ItemStack merch,Item cfg,long time)
-        {
-            PLAYER = usr; MERCH = merch; CONFIG = cfg; TIME = time;
-        }
-    }
-    
-    /**
-     * A simple vehicle for storing a pending sell order.
-     * @author ObsidianCraft Staff
-     */
-    public static class SellOrder extends Order
-    {
-        /** The price per item for this sale. **/
-        public final double PRICE;
-        
-        /**
-         * @param usr       The player who created this order.
-         * @param merch     The merchandise (including quantity) to purchse.
-         * @param cfg       The already-looked-up configuration for this item.
-         * @param price     The price per item for this sale.
-         * @param time      The time at which this order was created.
-         */
-        public SellOrder(Player usr,ItemStack merch,Item cfg,double price,long time)
-        {
-            super(usr,merch,cfg,time);
-            PRICE = price;
-        }
-    }
-    
-    /**
-     * A simple vehicle for storing a pending buy order.
-     * @author ObsidianCraft Staff
-     */
-    public static class BuyOrder extends Order
-    {
-        /** The maximum price for the buy order. **/
-        public final double MAXP;
-        /** The calculated total price for the order at the time of its creation. **/
-        public final double TOTAL;
-        
-        /**
-         * @param usr     The player who created this order.
-         * @param merch   The merchandise (including quantity) to purchse.
-         * @param cfg     The already-looked-up configuration for this item.
-         * @param maxp    The maximum price for the buy order.
-         * @param total   The calculated total price for the buy order at the time of its creation.
-         * @param time    The time at which this order was created.
-         */
-        public BuyOrder(Player usr,ItemStack merch,Item cfg,double maxp,double total,long time)
-        {
-            super(usr,merch,cfg,time);
-            MAXP = maxp; TOTAL = total;
-        }
     }
 }

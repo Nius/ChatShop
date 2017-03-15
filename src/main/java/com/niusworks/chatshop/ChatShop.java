@@ -8,7 +8,7 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.niusworks.chatshop.commands.*;
-import com.niusworks.chatshop.commands.Confirm.Order;
+import com.niusworks.chatshop.constructs.Order;
 import com.niusworks.chatshop.managers.ChatManager;
 import com.niusworks.chatshop.managers.DatabaseManager;
 import com.niusworks.chatshop.managers.ItemManager;

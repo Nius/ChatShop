@@ -90,6 +90,10 @@ public class Dump implements CommandExecutor
             if(res instanceof Integer && ((Integer)res).intValue() == -1)
                 continue;
             
+            // On updated listing exceeds quantity limit...
+            if(res instanceof Integer && ((Integer)res).intValue() == -3)
+                continue;
+            
             //Remove the specified items from the player's inventory.
             int removed = 0;
             ItemStack[] inv = usr.getInventory().getContents();

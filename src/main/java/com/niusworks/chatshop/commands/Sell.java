@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.niusworks.chatshop.ChatShop;
-import com.niusworks.chatshop.commands.Confirm.SellOrder;
+import com.niusworks.chatshop.constructs.SellOrder;
 import com.niusworks.chatshop.managers.DatabaseManager.Listing;
 import com.niusworks.chatshop.managers.ChatManager;
 import com.niusworks.chatshop.managers.DatabaseManager;
