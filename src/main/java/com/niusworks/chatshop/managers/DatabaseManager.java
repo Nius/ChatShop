@@ -580,7 +580,7 @@ public class DatabaseManager
                                 PLUGIN.CM.color("text") + "just bought " +
                                 PLUGIN.CM.color("quantity") + ChatManager.format(thisQuantity) + " " +
                                 PLUGIN.CM.color("item") + displayName + " " +
-                                PLUGIN.CM.color("text") + "for " +
+                                PLUGIN.CM.color("text") + "from you for " +
                                 PLUGIN.CM.color("price") + ChatManager.format(listingCost) +
                                 PLUGIN.CM.color("text") + ".";
                             PLUGIN.CM.reply(PLUGIN.getServer().getPlayer(seller),msg);

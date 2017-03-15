@@ -117,6 +117,13 @@ public class Quote implements CommandExecutor
         //On fail...
         if(total == -1)
             return PLUGIN.CM.err500(usr);
+        else if(total == 0)
+        {
+            return PLUGIN.CM.error(usr,
+                    "No listings found for " +
+                    PLUGIN.CM.color("item") + displayName +
+                    PLUGIN.CM.color("error") + ".");
+        }
         else if(total < 0)
         {
             merchandise.setAmount((int)total);
