@@ -146,7 +146,7 @@ public class Find implements CommandExecutor
                 PLUGIN.CM.color("quantity") + ChatManager.format(listings[i].QUANTITY) +
                 PLUGIN.CM.color("text") + " from " +
                 PLUGIN.CM.color("player") +
-                    PLUGIN.getServer().getPlayer(
+                    PLUGIN.getServer().getOfflinePlayer(
                             UUID.fromString(listings[i].PLAYER))
                                 .getName();
             PLUGIN.CM.reply(usr,msg,false);

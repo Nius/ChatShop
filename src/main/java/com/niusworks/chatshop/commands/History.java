@@ -173,7 +173,7 @@ public class History implements CommandExecutor
             String item = PLUGIN.CM.color("item") + PLUGIN.IM.lookup(tenders[i].MATERIAL,tenders[i].DAMAGE).DISPLAY;
             String priceEach = PLUGIN.CM.color("price") + ChatManager.format(tenders[i].PRICE);
             String priceTotal = PLUGIN.CM.color("price") + ChatManager.format(tenders[i].PRICE * tenders[i].QUANTITY);
-            String player = PLUGIN.CM.color("player") + Bukkit.getPlayer(UUID.fromString(tenders[i].PLAYER)).getName();
+            String player = PLUGIN.CM.color("player") + Bukkit.getOfflinePlayer(UUID.fromString(tenders[i].PLAYER)).getName();
             String textcol = PLUGIN.CM.color("text");
             String datecol = PLUGIN.getConfig().getString("chat.colors.date");
             

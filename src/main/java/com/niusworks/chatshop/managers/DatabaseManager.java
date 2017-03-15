@@ -568,8 +568,8 @@ public class DatabaseManager
                 //    once.
                 if(!pricingOnly)
                 {
-                    Player slr = PLUGIN.getServer().getPlayer(seller);
-                    if( slr.isOnline() &&
+                    OfflinePlayer slr = PLUGIN.getServer().getOfflinePlayer(seller);
+                    if(slr != null && slr.isOnline() &&
                         !slr.getUniqueId().equals(usr.getUniqueId()))
                     {
                         String displayName = PLUGIN.IM.getDisplayName(merch);
@@ -583,7 +583,7 @@ public class DatabaseManager
                                 PLUGIN.CM.color("text") + "for " +
                                 PLUGIN.CM.color("price") + ChatManager.format(listingCost) +
                                 PLUGIN.CM.color("text") + ".";
-                            PLUGIN.CM.reply(slr,msg);
+                            PLUGIN.CM.reply(PLUGIN.getServer().getPlayer(seller),msg);
                         }
                     }
                 }

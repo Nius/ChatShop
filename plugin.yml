@@ -51,6 +51,9 @@ permissions:
     chatshop.cancel:
         description: Allow usage of /cancel
         default: true
+    chatshop.confirm:
+        description: Allow usage of /confirm
+        default: true
     chatshop.dump:
         description: Allow usage of /dump
         default: true
