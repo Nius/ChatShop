@@ -12,6 +12,9 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.potion.PotionData;
+import org.bukkit.potion.PotionType;
 
 import com.niusworks.chatshop.ChatShop;
 
@@ -29,6 +32,13 @@ public class ItemManager
     protected HashMap<String,Item> aliases = new HashMap<String,Item>();
     
     /**
+     * A map of potions types (as defined by {@link org.bukkit.potion.PotionType}) to
+     * (arbitrary) integer values, for the purpose of superimposing a MATERIAL:DMG system
+     * atop the potion architecture.
+     */
+    protected final HashMap<String,Integer> POTIONS = new HashMap<String,Integer>();
+    
+    /**
      * A two-dimensional hash map of items; dimension 1 being item ID and dimension 2 being damage value.
      * {@link #aliases} maintains a list of all aliases for each item, including the Bukkit material name,
      * and is the primary means of item lookups considering that most users will search by string rather
@@ -43,13 +53,33 @@ public class ItemManager
     
     /**
      * Create an ItemManager with a reference to the master
-     * plugin.
+     * plugin, and define the potions map.
      * 
      * @param master    The master ChatShop plugin reference.
      */
     public ItemManager(ChatShop master)
     {
         PLUGIN = master;
+        
+        POTIONS.put("AWKWARD",0);
+        POTIONS.put("FIRE_RESISTANCE",1);
+        POTIONS.put("INSTANT_DAMAGE",2);
+        POTIONS.put("INSTANT_HEAL",3);
+        POTIONS.put("INVISIBILITY",4);
+        POTIONS.put("JUMP",5);
+        POTIONS.put("LUCK",6);
+        POTIONS.put("MUNDANE",7);
+        POTIONS.put("NIGHT_VISION",8); 
+        POTIONS.put("POISON",9);
+        POTIONS.put("REGEN",10);
+        POTIONS.put("SLOWNESS",11);
+        POTIONS.put("SPEED",12);
+        POTIONS.put("STRENGTH",13); 
+        POTIONS.put("THICK",14);
+        POTIONS.put("UNCRAFTABLE",15); 
+        POTIONS.put("WATER",16);
+        POTIONS.put("WATER_BREATHING",17); 
+        POTIONS.put("WEAKNESS",18);
     }
     
     /**
@@ -177,11 +207,20 @@ public class ItemManager
                     //  once with spaces replaced with underscores.
                     for(String alias : alii)
                     {
-                        aliases.put(alias.toUpperCase().replaceAll("\\s",""),itm);
-                        aliases.put(alias.toUpperCase().replaceAll("\\s","_"),itm);
+                        aliases.put(alias.trim().toUpperCase().replaceAll("\\s",""),itm);
+                        aliases.put(alias.trim().toUpperCase().replaceAll("\\s","_"),itm);
                     }
                     //Store the official Minecraft name as an alias only for items with damage 0.
-                    if(dam == 0)
+                    //(except for potions, which will store :1116 (water bottle).
+                    if( dam == 0 ||
+                        (
+                            (itm.MNAME.equals("POTION") ||
+                             itm.MNAME.equals("LINGERING_POTION") ||
+                             itm.MNAME.equals("SPLASH_POTION"))
+                            &&
+                            dam == 1116
+                         )
+                       )
                         aliases.put(mname.trim().toUpperCase(),itm);
                     
                     totalLoaded ++;
@@ -216,6 +255,8 @@ public class ItemManager
      */
     public boolean giveItem(Player usr, ItemStack gift)
     {
+        gift = getPotionFromSuperimposed(gift);
+        
         PlayerInventory inv = usr.getInventory();
         int given = 0;
         //Query the maximum stack size of this item type, but protect against
@@ -385,13 +426,13 @@ public class ItemManager
      *              regardless of amount. If either argument
      *              is null, returns false.
      */
-    public static boolean areSameItem(ItemStack a, ItemStack b)
+    public boolean areSameItem(ItemStack a, ItemStack b)
     {
         if(a == null || b == null)
             return false;
         return
                 a.getType().toString().equals(b.getType().toString()) &&
-                a.getDurability() == b.getDurability();
+                superimposePotionDamage(a).getDurability() == superimposePotionDamage(b).getDurability();
     }
      
     /**
@@ -417,7 +458,7 @@ public class ItemManager
             ItemStack handItem = caller.getInventory().getItemInMainHand();
             if(handItem == null || isAir(handItem))
                 return -1;
-            result = new ItemStack(handItem.getType(),1,handItem.getDurability());
+            result = handItem;
         }
         //If not "hand"
         else
@@ -425,7 +466,7 @@ public class ItemManager
             Item thing = lookup(arg);
             if(thing == null)
                 return -2;
-            result = PLUGIN.IM.validate(thing);
+            result = validate(thing);
             if(result == null)
             {
                 //Something has gone wrong converting from Item to ItemStack,
@@ -443,9 +484,8 @@ public class ItemManager
                 
                 return -3;
             }
-        }
-        
-        return result;
+        }        
+        return superimposePotionDamage(result);
     }
     
     /**
@@ -485,7 +525,107 @@ public class ItemManager
         Material mtl = Material.matchMaterial(mname);
         return (mtl == null ? null : new ItemStack(mtl,1,(short)itm.DMG));
     }
-        
+    
+    /**
+     * Convert an ItemStack which represents a Minecraft potion to a pseudo-ItemStack
+     * whose damage value fits the superimposed potion damage system.
+     * 
+     * Because potions do not use damage values, in order to fit them to the ChatShop
+     * Material:DMG system damage values are superimposed upon them with the following
+     * pattern:
+     *
+     * Digit 1 = is upgraded (II); yes=2 no=1
+     * Digit 2 = is extended (long); yes=2 no=1
+     * Remaining digits: an integer defined (arbitrarily) by ItemManager representing the
+     * basic potion type (for example, LUCK or REGEN). These values are mapped in
+     * {@link #POTIONS}.
+     * 
+     * @param itm   The ItemStack to convert to a potion.
+     * @return      If the provided ItemStack is a potion, returns the same ItemStack but
+     *              with the Durability value set to the superimposed damage value.
+     *              If the provided ItemStack is not a potion, returns the same ItemStack
+     *              unmodified.
+     */
+    private ItemStack superimposePotionDamage(ItemStack itm)
+    {
+        if(itm.getDurability() != 0)
+            return itm;
+        if( itm.getType() == Material.POTION ||
+            itm.getType() == Material.SPLASH_POTION ||
+            itm.getType() == Material.LINGERING_POTION)
+             {
+                 PotionData pd = ((PotionMeta) itm.getItemMeta()).getBasePotionData();
+                 int upgraded = (pd.isUpgraded() ? 2 : 1);
+                 int extended = (pd.isExtended() ? 2 : 1);
+                 int id = POTIONS.get(pd.getType().toString());
+                 
+                 short dmg = (short) Integer.parseInt("" + upgraded + extended + id);
+                 
+                 ItemStack ret = new ItemStack(itm.getType(),itm.getAmount(),dmg);
+                 return ret;
+             }
+        return itm;
+    }
+    
+    /**
+     * Convert an ItemStack which has a superimposed Potion damage value to a valid Minecraft
+     * potion ItemStack complete with potion metadata.
+     * 
+     * Because potions do not use damage values, in order to fit them to the ChatShop
+     * Material:DMG system damage values are superimposed upon them with the following
+     * pattern:
+     *
+     * Digit 1 = is upgraded (II); yes=2 no=1
+     * Digit 2 = is extended (long); yes=2 no=1
+     * Remaining digits: an integer defined (arbitrarily) by ItemManager representing the
+     * basic potion type (for example, LUCK or REGEN). These values are mapped in
+     * {@link #POTIONS}.
+     * 
+     * @param itm   The ItemStack to convert to a potion.
+     * @return      If the provided ItemStack is a potion, returns a new ItemStack with
+     *              damage 0 but representing a valid Minecraft potion.
+     *              If the provided ItemStack is not a potion, returns the same ItemStack
+     *              unmodified.
+     */
+    private ItemStack getPotionFromSuperimposed(ItemStack itm)
+    {
+        if( itm.getType() == Material.POTION ||
+            itm.getType() == Material.SPLASH_POTION ||
+            itm.getType() == Material.LINGERING_POTION)
+             {
+                 String dmg = "" + itm.getDurability();
+            
+                 int upgraded = Integer.parseInt(dmg.substring(0,1));
+                 int extended = Integer.parseInt(dmg.substring(1,2));
+                 int id = Integer.parseInt(dmg.substring(2));
+                 
+                 ItemStack ret = new ItemStack(itm.getType(),itm.getAmount(),(short)0);
+                 PotionMeta pm = ((PotionMeta)ret.getItemMeta());
+                 pm.setBasePotionData(new PotionData(
+                         PotionType.valueOf(getPotionType(id)),
+                         extended == 2,
+                         upgraded == 2));
+                 ret.setItemMeta(pm);
+                 
+                 return ret;
+             }
+        return itm;
+    }
+    
+    /**
+     * Return the key (type string) for the given integer value
+     * in {@link #POTIONS}.
+     * 
+     * @param value The numerical.
+     * @return      The string paired with this numerical.
+     */
+    private String getPotionType(int value)
+    {
+        for(String key : POTIONS.keySet())
+            if(POTIONS.get(key) == value)
+                return key;
+        return null;
+    }
     
     /**
      * Represents an item that exists in the items dictionary items.csv.

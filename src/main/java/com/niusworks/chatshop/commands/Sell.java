@@ -12,7 +12,6 @@ import com.niusworks.chatshop.constructs.SellOrder;
 import com.niusworks.chatshop.managers.DatabaseManager.Listing;
 import com.niusworks.chatshop.managers.ChatManager;
 import com.niusworks.chatshop.managers.DatabaseManager;
-import com.niusworks.chatshop.managers.ItemManager;
 import com.niusworks.chatshop.managers.ItemManager.Item;
 
 /**
@@ -98,7 +97,7 @@ public class Sell implements CommandExecutor
         for(ItemStack item : usr.getInventory().getContents())
             if(item == null)
                 continue;
-            else if(ItemManager.areSameItem(item,merchandise))
+            else if(PLUGIN.IM.areSameItem(item,merchandise))
                 has += item.getAmount();
         if(has == 0)
             return PLUGIN.CM.error(sender,"You do not have any " + displayName + ".");
@@ -237,7 +236,7 @@ public class Sell implements CommandExecutor
         int removed = 0;
         ItemStack[] inv = usr.getInventory().getContents();
         for(int i = 0; i < inv.length; i ++)
-            if(ItemManager.areSameItem(inv[i],merchandise))
+            if(PLUGIN.IM.areSameItem(inv[i],merchandise))
             {
                 //If this slot has more than needs to be removed, trim it
                 // and quit.

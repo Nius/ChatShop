@@ -824,7 +824,8 @@
 #nether_wart
 372,nether_stalk                   ,Nether Wart
 
-373,potion                         ,Potion
+#373,potion LOCATED AT BOTTOM OF FILE
+
 374,glass_bottle                   ,Glass Bottle
 375,spider_eye                     ,Spider Eye
 376,fermented_spider_eye           ,Fermented Spider Eye
@@ -883,7 +884,7 @@
 383:120,monster_egg                ,Spawn Villager                      !BAN
 
 #experience_bottle
-384,exp_bottle                     ,Bottle of Enchanting                !BAN
+384,exp_bottle                     ,Bottle of Enchanting
 
 #fire_charge
 385,fireball                       ,Fire Charge                         !BAN
@@ -982,10 +983,13 @@
 #dragon_breath
 437,dragons_breath                 ,Dragon Breath,Dragons Breath
 
-438,splash_potion                  ,Splash Potion                       !BAN
+#438,splash_potion LOCATED AT BOTTOM OF FILE
+
 439,spectral_arrow                 ,Spectral Arrow                      !BAN
 440,tipped_arrow                   ,Tipped Arrow                        !BAN
-441,lingering_potion               ,Lingering Potion                    !BAN
+
+#441,lingering_potion LOCATED AT BOTTOM OF FILE
+
 442,shield                         ,Shield                              !BAN
 443,elytra                         ,Elytra
 
@@ -1048,3 +1052,191 @@
 
 #record_wait
 2267,record_12                     ,Wait Disc,wait record,blue disc,blue record
+
+#
+# POTIONS
+# Because potions do not use damage values, in order to fit them to the ChatShop
+# Material:DMG system damage values are superimposed upon them with the following
+# pattern:
+#
+# Digit 1 = is upgraded (II); yes=2 no=1
+# Digit 2 = is extended (long); yes=2 no=1
+# Remaining digits: an integer defined (arbitrarily) by ItemManager representing the
+# basic potion type (for example, LUCK or REGEN). These values are as follow:
+#
+# AWKWARD         = 0
+# FIRE_RESISTANCE = 1
+# INSTANT_DAMAGE  = 2
+# INSTANT_HEAL    = 3
+# INVISIBILITY    = 4
+# JUMP            = 5
+# LUCK            = 6
+# MUNDANE         = 7
+# NIGHT_VISION    = 8
+# POISON          = 9
+# REGEN           = 10
+# SLOWNESS        = 11
+# SPEED           = 12
+# STRENGTH        = 13
+# THICK           = 14
+# UNCRAFTABLE     = 15
+# WATER           = 16
+# WATER_BREATHING = 17
+# WEAKNESS        = 18
+#
+# Note that not all potions have upgraded and/or extended analogs.
+#
+
+#
+# POTION
+#
+
+# POTION PRECURSOR
+373:1116,potion                    ,Water Bottle
+373:110,potion                     ,Awkward Potion
+373:1114,potion                    ,Thick Potion
+373:117,potion                     ,Mundane Potion
+
+# POTION
+373:111,potion                     ,Fire Resistance Potion, p-resist   ,potion of Fire Resistance,Resistance
+373:112,potion                     ,Harming Potion,         p-harm     ,potion of Harming,Harming
+373:113,potion                     ,Healing Potion,         p-heal     ,potion of Healing,Healing
+373:114,potion                     ,Invisibility Potion,    p-invis    ,potion of invisibility,invisibility
+373:115,potion                     ,Jump Potion,            p-jump     ,potion of jump,jump
+373:116,potion                     ,Luck Potion,            p-luck     ,potion of luck,luck
+373:118,potion                     ,Night Vision Potion,    p-night    ,potion of night vision,night vision
+373:119,potion                     ,Poison Potion,          p-poison   ,potion of Poison,Poison
+373:1110,potion                    ,Regeneration Potion,    p-regen    ,potion of Regeneration,Regeneration
+373:1111,potion                    ,Slowness Potion,        p-slow     ,potion of Slowness,Slowness
+373:1113,potion                    ,Strength Potion,        p-strength ,potion of Strength,Strength
+373:1112,potion                    ,Swiftness Potion,       p-swift    ,potion of Swiftness,Swiftness
+373:1117,potion                    ,Water Breathing Potion, p-water    ,potion of water breathing,water breathing
+373:1118,potion                    ,Weakness Potion,        p-weak     ,potion of Weakness,Weakness
+
+# POTION II
+373:212,potion                     ,Harming Potion II,      p-harm 2     ,potion of Harming II,Harming II,harming 2
+373:213,potion                     ,Healing Potion II,      p-heal 2     ,potion of Healing II,Healing II,healing 2
+373:215,potion                     ,Jump Potion II,         p-jump 2     ,potion of jump II,jump II,jump 2
+373:219,potion                     ,Poison Potion II,       p-poison 2   ,potion of Poison II,Poison II,poision 2
+373:2110,potion                    ,Regeneration Potion II, p-regen 2    ,potion of Regeneration II,Regeneration II,regeneration 2
+373:2113,potion                    ,Strength Potion II,     p-strength 2 ,potion of Strength II,Strength II,strength 2
+373:2112,potion                    ,Swiftness Potion II,    p-swift 2    ,potion of Swiftness II,Swiftness II,swiftness 2
+
+# LONG POTION
+373:121,potion                     ,Long Fire Resistance Potion, p-long resist   ,Long potion of Fire Resistance,Long Resistance
+373:122,potion                     ,Long Harming Potion,         p-long harm     ,Long potion of Harming,long Harming
+373:124,potion                     ,Long Invisibility Potion,    p-long invis    ,Long potion of invisibility,long invisibility
+373:125,potion                     ,Long Jump Potion,            p-long jump     ,Long potion of jump,long jump
+373:128,potion                     ,Long Night Vision Potion,    p-long night    ,Long potion of Night Vision,long night vision
+373:129,potion                     ,Long Poison Potion,          p-long poison   ,Long potion of Poison,Long Poison
+373:1210,potion                    ,Long Regeneration Potion,    p-long regen    ,Long potion of Regeneration,Long Regeneration
+373:1211,potion                    ,Long Slowness Potion,        p-long slow     ,Long potion of Slowness,Long Slowness
+373:1213,potion                    ,Long Strength Potion,        p-long strength ,Long potion of Strength,Long Strength
+373:1212,potion                    ,Long Swiftness Potion,       p-long swift    ,Long potion of Swiftness,Long Swiftness
+373:1217,potion                    ,Long Water Breathing Potion, p-long water    ,Long potion of water breathing,long water breathing
+373:1218,potion                    ,Long Weakness Potion,        p-long weak     ,Long potion of Weakness,Long Weakness
+
+# LONG POTION II
+# None of these potions are obtainable in vanilla survival, but they are valid potions.
+373:229,potion                     ,Long Poison Potion II,       p-long poison 2   ,Long potion of Poison II,Long Poison II,Long Poison 2                       !BAN
+373:2210,potion                    ,Long Regeneration Potion II, p-long regen 2    ,Long potion of Regeneration II,Long Regeneration II,Long Regeneration 2     !BAN
+373:2213,potion                    ,Long Strength Potion II,     p-long strength 2 ,Long potion of Strength II,Long Strength II,Long Strength 2                 !BAN
+373:2212,potion                    ,Long Swiftness Potion II,    p-long swift 2    ,Long potion of Swiftness II,Long Swiftness II,Long Swiftness 2              !BAN
+
+#
+# SPLASH POTION
+#
+
+# SPLASH POTION PRECURSOR
+438:1116,splash_potion             ,Splash Water Bottle
+438:110,splash_potion              ,Awkward Splash Potion
+438:1114,splash_potion             ,Thick Splash Potion
+438:117,splash_potion              ,Mundane Splash Potion
+
+# SPLASH POTION
+438:111,splash_potion              ,Fire Resistance Splash Potion, sp-resist   ,splash potion of Fire Resistance,Resistance splash
+438:112,splash_potion              ,Harming Splash Potion,         sp-harm     ,splash potion of Harming,Harming splash
+438:113,splash_potion              ,Healing Splash Potion,         sp-heal     ,splash potion of Healing,Healing splash
+438:114,splash_potion              ,Invisibility Splash Potion,    sp-invis    ,splash potion of invisibility,invisibility splash
+438:115,splash_potion              ,Jump Splash Potion,            sp-jump     ,splash potion of jump,jump splash
+438:116,splash_potion              ,Luck Splash Potion,            sp-luck     ,splash potion of luck,luck splash
+438:118,splash_potion              ,Night Vision Splash Potion,    sp-night    ,splash potion of night vision,night vision splash
+438:119,splash_potion              ,Poison Splash Potion,          sp-poison   ,splash potion of Poison,Poison splash
+438:1110,splash_potion             ,Regeneration Splash Potion,    sp-regen    ,splash potion of Regeneration,Regeneration splash
+438:1111,splash_potion             ,Slowness Splash Potion,        sp-slow     ,splash potion of Slowness,Slowness splash
+438:1113,splash_potion             ,Strength Splash Potion,        sp-strength ,splash potion of Strength,Strength splash
+438:1112,splash_potion             ,Swiftness Splash Potion,       sp-swift    ,splash potion of Swiftness,Swiftness splash
+438:1117,splash_potion             ,Water Breathing Splash Potion, sp-water    ,splash potion of water breathing,water breathing splash
+438:1118,splash_potion             ,Weakness Splash Potion,        sp-weak     ,splash potion of Weakness,Weakness splash
+
+# SPLASH POTION II
+438:212,splash_potion              ,Harming Splash Potion II,      sp-harm 2     ,splash potion of Harming II,Harming splash II,harming splash 2
+438:213,splash_potion              ,Healing Splash Potion II,      sp-heal 2     ,splash potion of Healing II,Healing splash II,healing splash 2
+438:215,splash_potion              ,Jump Splash Potion II,         sp-jump 2     ,splash potion of jump II,jump splash II,jump splash 2
+438:219,splash_potion              ,Poison Splash Potion II,       sp-poison 2   ,splash potion of Poison II,Poison splash II,poision splash 2
+438:2110,splash_potion             ,Regeneration Splash Potion II, sp-regen 2    ,splash potion of Regeneration II,Regeneration splash II,regeneration splash 2
+438:2113,splash_potion             ,Strength Splash Potion II,     sp-strength 2 ,splash potion of Strength II,Strength splash II,strength splash 2
+438:2112,splash_potion             ,Swiftness Splash Potion II,    sp-swift 2    ,splash potion of Swiftness II,Swiftness splash II,swiftness splash 2
+
+# LONG SPLASH POTION
+438:121,splash_potion              ,Long Fire Resistance Splash Potion, sp-long resist   ,Long Splash potion of Fire Resistance,Long Resistance splash
+438:122,splash_potion              ,Long Harming Splash Potion,         sp-long harm     ,Long Splash potion of Harming,long Harming splash
+438:124,splash_potion              ,Long Invisibility Splash Potion,    sp-long invis    ,Long Splash potion of invisibility,long invisibility splash
+438:125,splash_potion              ,Long Jump Splash Potion,            sp-long jump     ,Long Splash potion of jump,long jump splash
+438:128,splash_potion              ,Long Night Vision Splash Potion,    sp-long night    ,Long Splash potion of Night Vision,long night vision splash
+438:129,splash_potion              ,Long Poison Splash Potion,          sp-long poison   ,Long Splash potion of Poison,Long Poison splash
+438:1210,splash_potion             ,Long Regeneration Splash Potion,    sp-long regen    ,Long Splash potion of Regeneration,Long Regeneration splash
+438:1211,splash_potion             ,Long Slowness Splash Potion,        sp-long slow     ,Long Splash potion of Slowness,Long Slowness splash
+438:1213,splash_potion             ,Long Strength Splash Potion,        sp-long strength ,Long Splash potion of Strength,Long Strength splash
+438:1212,splash_potion             ,Long Swiftness Splash Potion,       sp-long swift    ,Long Splash potion of Swiftness,Long Swiftness splash
+438:1217,splash_potion             ,Long Water Breathing Splash Potion, sp-long water    ,Long Splash potion of water breathing,long water breathing splash
+438:1218,splash_potion             ,Long Weakness Splash Potion,        sp-long weak     ,Long Splash potion of Weakness,Long Weakness splash
+
+#
+# LINGERING POTION
+#
+
+# LINGERING POTION PRECURSOR
+441:1116,lingering_potion             ,Lingering Water Bottle
+441:110,lingering_potion              ,Awkward Lingering Potion
+441:1114,lingering_potion             ,Thick Lingering Potion
+441:117,lingering_potion              ,Mundane Lingering Potion
+
+# LINGERING POTION
+441:111,lingering_potion              ,Fire Resistance Lingering Potion, lp-resist   ,lingering potion of Fire Resistance,Resistance lingering
+441:112,lingering_potion              ,Harming Lingering Potion,         lp-harm     ,lingering potion of Harming,Harming lingering
+441:113,lingering_potion              ,Healing Lingering Potion,         lp-heal     ,lingering potion of Healing,Healing lingering
+441:114,lingering_potion              ,Invisibility Lingering Potion,    lp-invis    ,lingering potion of invisibility,invisibility lingering
+441:115,lingering_potion              ,Jump Lingering Potion,            lp-jump     ,lingering potion of jump,jump lingering
+441:116,lingering_potion              ,Luck Lingering Potion,            lp-luck     ,lingering potion of luck,luck lingering
+441:118,lingering_potion              ,Night Vision Lingering Potion,    lp-night    ,lingering potion of night vision,night vision lingering
+441:119,lingering_potion              ,Poison Lingering Potion,          lp-poison   ,lingering potion of Poison,Poison lingering
+441:1110,lingering_potion             ,Regeneration Lingering Potion,    lp-regen    ,lingering potion of Regeneration,Regeneration lingering
+441:1111,lingering_potion             ,Slowness Lingering Potion,        lp-slow     ,lingering potion of Slowness,Slowness lingering
+441:1113,lingering_potion             ,Strength Lingering Potion,        lp-strength ,lingering potion of Strength,Strength lingering
+441:1112,lingering_potion             ,Swiftness Lingering Potion,       lp-swift    ,lingering potion of Swiftness,Swiftness lingering
+441:1117,lingering_potion             ,Water Breathing Lingering Potion, lp-water    ,lingering potion of water breathing,water breathing lingering
+441:1118,lingering_potion             ,Weakness Lingering Potion,        lp-weak     ,lingering potion of Weakness,Weakness lingering
+
+# LINGERING POTION II
+441:212,lingering_potion              ,Harming Lingering Potion II,      lp-harm 2     ,lingering potion of Harming II,Harming lingering II,harming lingering 2
+441:213,lingering_potion              ,Healing Lingering Potion II,      lp-heal 2     ,lingering potion of Healing II,Healing lingering II,healing lingering 2
+441:215,lingering_potion              ,Jump Lingering Potion II,         lp-jump 2     ,lingering potion of jump II,jump lingering II,jump lingering 2
+441:219,lingering_potion              ,Poison Lingering Potion II,       lp-poison 2   ,lingering potion of Poison II,Poison lingering II,poision lingering 2
+441:2110,lingering_potion             ,Regeneration Lingering Potion II, lp-regen 2    ,lingering potion of Regeneration II,Regeneration lingering II,regeneration lingering 2
+441:2113,lingering_potion             ,Strength Lingering Potion II,     lp-strength 2 ,lingering potion of Strength II,Strength lingering II,strength lingering 2
+441:2112,lingering_potion             ,Swiftness Lingering Potion II,    lp-swift 2    ,lingering potion of Swiftness II,Swiftness lingering II,swiftness lingering 2
+
+# LONG LINGERING POTION
+441:121,lingering_potion              ,Long Fire Resistance Lingering Potion, lp-long resist   ,Long Lingering potion of Fire Resistance,Long Resistance lingering
+441:122,lingering_potion              ,Long Harming Lingering Potion,         lp-long harm     ,Long Lingering potion of Harming,long Harming lingering
+441:124,lingering_potion              ,Long Invisibility Lingering Potion,    lp-long invis    ,Long Lingering potion of invisibility,long invisibility lingering
+441:125,lingering_potion              ,Long Jump Lingering Potion,            lp-long jump     ,Long Lingering potion of jump,long jump lingering
+441:128,lingering_potion              ,Long Night Vision Lingering Potion,    lp-long night    ,Long Lingering potion of Night Vision,long night vision lingering
+441:129,lingering_potion              ,Long Poison Lingering Potion,          lp-long poison   ,Long Lingering potion of Poison,Long Poison lingering
+441:1210,lingering_potion             ,Long Regeneration Lingering Potion,    lp-long regen    ,Long Lingering potion of Regeneration,Long Regeneration lingering
+441:1211,lingering_potion             ,Long Slowness Lingering Potion,        lp-long slow     ,Long Lingering potion of Slowness,Long Slowness lingering
+441:1213,lingering_potion             ,Long Strength Lingering Potion,        lp-long strength ,Long Lingering potion of Strength,Long Strength lingering
+441:1212,lingering_potion             ,Long Swiftness Lingering Potion,       lp-long swift    ,Long Lingering potion of Swiftness,Long Swiftness lingering
+441:1217,lingering_potion             ,Long Water Breathing Lingering Potion, lp-long water    ,Long Lingering potion of water breathing,long water breathing lingering
+441:1218,lingering_potion             ,Long Weakness Lingering Potion,        lp-long weak     ,Long Lingering potion of Weakness,Long Weakness lingering
