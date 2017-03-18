@@ -19,6 +19,8 @@ import com.niusworks.chatshop.ChatShop;
  * cs
  * oshop
  * shop
+ * potions
+ * potion
  * 
  * @author ObsidianCraft Staff
  */
@@ -100,30 +102,59 @@ public class Help implements CommandExecutor
         //  EXECUTION
         //
         
+        String textCol = PLUGIN.CM.color("text");
+        String itemCol = PLUGIN.CM.color("item");
+        String cmdCol = PLUGIN.CM.color("helpUsage");
+        
         ArrayList<String> lines = new ArrayList<String>();
         
         PLUGIN.getDescription().getCommands().forEach((command,properties)->
         {
             lines.add(
-                PLUGIN.CM.color("helpUsage") + properties.get("usage") +
-                PLUGIN.CM.color("text") + " " + properties.get("description"));
+                cmdCol + properties.get("usage"));
+            lines.add(
+                textCol + " " + properties.get("description"));
         });
         
-        String[] out = lines.toArray(new String[lines.size()]);
+        String[] potions = {
+            textCol + "=== CHATSHOP and POTIONS ===",
+            textCol + "ChatShop supports all potions and tipped arrows.",
+            textCol + "You can search for such items by their full name,",
+            textCol + "such as " + itemCol + "LongPotionOfRegeneration" + textCol + ".",
+            textCol + "All potions also follow a standardized shortcut system:",
+            itemCol + "p-regen2" + textCol + ", " + itemCol + "sp-longharm" + textCol + ", and " + itemCol + "ta-water",
+            textCol + "are all valid item references.",
+            textCol + "Don't forget you can also use " + itemCol + "hand" + textCol + "."};
+        
+        String[] out;
+        boolean isPotions = lbl.equalsIgnoreCase("potions") || lbl.equalsIgnoreCase("potion"); 
+        if(isPotions)
+            out = potions;
+        else
+        {
+            lines.add("");
+            for(String i : potions)
+                lines.add(i);
+            out = lines.toArray(new String[lines.size()]);
+        }
         
         //Head the sales list.
         //Checking the page number is already taken care of by
         //ChatManager, but for purposes of displaying an accurate
         //number it needs to happen here.
+        int pagesAvail = PLUGIN.CM.paginate(out);
         page = Math.max(page,1);
-        page = Math.min(page,PLUGIN.CM.paginate(out));
-        String msg =
-                "ChatShop Commands" +
-                PLUGIN.CM.color("text") + ", page " + page +
-                " of " + PLUGIN.CM.paginate(out) + ":";
-        PLUGIN.CM.reply(usr,msg);
+        page = Math.min(page,pagesAvail);
         
-        //List all listings on this page.
+        String msg =
+                PLUGIN.CM.color("prefix") + "ChatShop Commands" +
+                (!isPotions ?
+                    textCol + ", page " + page +
+                    " of " + pagesAvail + ":":
+                    "");
+        PLUGIN.CM.reply(usr,msg,false);
+        
+        //List all commands on this page.
         out = PLUGIN.CM.paginate(out,page);
         for(int i = 0; i < out.length; i ++)
         {

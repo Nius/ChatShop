@@ -302,7 +302,7 @@ public class ItemManager
             String displayName = getDisplayName(toDrop);
             String msg =
                     PLUGIN.CM.color("text") + "Insufficient space in your inventory: there are now " +
-                    PLUGIN.CM.color("quantity") + toDrop.getAmount() + " " +
+                    PLUGIN.CM.color("quantity") + ChatManager.format(toDrop.getAmount()) + " " +
                     PLUGIN.CM.color("item") + displayName + " " +
                     PLUGIN.CM.color("error") + "on the ground " +
                     PLUGIN.CM.color("text") + "below you.";

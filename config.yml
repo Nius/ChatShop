@@ -56,8 +56,8 @@ chat:
     date:           DARK_GRAY
     error:          DARK_RED
     helpUsage:      GRAY
-    item:           YELLOW
-    player:         YELLOW
+    item:           AQUA
+    player:         LIGHT_PURPLE
     price:          YELLOW
     quantity:       RED
     text:           BLUE

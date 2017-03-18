@@ -7,34 +7,34 @@ version: 1.0.0
 depend: [Vault]
 commands:
     buy:
-        description: Buy goods for sale on the Chat Shop.
-        usage: /buy <amount> <item> [maxprice]
+        description: Buy items (in order by price).
+        usage: /buy <amount> <item | "hand"> [maxprice]
     cancel:
-        description: Remove items from your existing listing on the Chat Shop.
-        usage: /cancel <amount> <item>
+        description: Remove items from your existing listing.
+        usage: /cancel <amount> <item | "hand">
     chatshop:
-        description: Get a list of Chat Shop commands.
+        description: Show Chat Shop commands.
         usage: /chatshop [page]
-        aliases: [chatshop,vm,vs,cs,os,oshop,shop]
+        aliases: [chatshop,cs,os,oshop,potion,potions,shop,vm,vs]
     confirm:
         description: Confirm a pending transaction or toggle confirmations.
         usage: /confirm [toggle <buy|sell>]
     dump:
-        description: Dump your inventory to the Chat Shop.
+        description: Dump your inventory to the market.
         usage: /dump
     find:
         description: Find offers for an item.
-        usage: /price <item> [page]
+        usage: /find <item | "hand"> [page]
     history:
         description: Show a history of Chat Shop transactions.
         usage: /history [player] [page]
         aliases: [sales]
     quote:
         description: Get a quote for the given items.
-        usage: /quote <quantity> <item>
+        usage: /quote <quantity> <item | "hand">
     reprice:
-        description: Change the price of something you have on the Chat Shop.
-        usage: /reprice <item> <newPrice>
+        description: Change the price of something you're already selling.
+        usage: /reprice <item | "hand"> <newPrice>
     sell:
         description: Put goods up for sale on the Chat Shop.
         usage: /sell <amount> <item | "hand"> <price | "-">

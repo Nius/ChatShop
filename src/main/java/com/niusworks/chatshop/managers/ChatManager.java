@@ -58,6 +58,7 @@ public class ChatManager
                     COLORS.put(key,col.toString());
                 }
                 catch(IllegalArgumentException e){/* do nothing */}
+        COLORS.put("prefix",ChatColor.valueOf(cfg.getString("chat.prefix.color")).toString());
     }
     
     /**

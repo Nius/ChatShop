@@ -142,15 +142,23 @@ public class Find implements CommandExecutor
         listings = PLUGIN.CM.paginate(listings,page);
         for(int i = 0; i < listings.length; i ++)
         {
+            // Attempt to resolve the seller's current username from
+            // their UUID. This will usually be successful, but for
+            // long-time absentee players this will fail. In that case
+            // the posted name in the database will be used.
+            String playerName = PLUGIN.getServer().getOfflinePlayer(
+                    UUID.fromString(listings[i].PLAYER_UUID))
+                    .getName();
+            if(playerName == null)
+                playerName = listings[i].PLAYER_ALIAS;
+            
             msg =
                 PLUGIN.CM.color("price") + ChatManager.format(listings[i].PRICE) +
                 PLUGIN.CM.color("text") + ", " +
                 PLUGIN.CM.color("quantity") + ChatManager.format(listings[i].QUANTITY) +
                 PLUGIN.CM.color("text") + " from " +
-                PLUGIN.CM.color("player") +
-                    PLUGIN.getServer().getOfflinePlayer(
-                            UUID.fromString(listings[i].PLAYER))
-                                .getName();
+                PLUGIN.CM.color("player") + playerName;
+                    
             PLUGIN.CM.reply(usr,msg,false);
         }
         

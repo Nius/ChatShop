@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.niusworks.chatshop.ChatShop;
+import com.niusworks.chatshop.managers.ChatManager;
 
 /**
  * Executor for the "cancel" command for
@@ -128,7 +129,7 @@ public class Cancel implements CommandExecutor
         
         String msg =
                 PLUGIN.CM.color("text") + "Cancelled " +
-                PLUGIN.CM.color("quantity") + res + " " +
+                PLUGIN.CM.color("quantity") + ChatManager.format(res) + " " +
                 PLUGIN.CM.color("item") + displayName +
                 PLUGIN.CM.color("text") + ".";
         PLUGIN.CM.reply(usr,msg);

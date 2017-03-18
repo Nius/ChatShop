@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import com.niusworks.chatshop.ChatShop;
 import com.niusworks.chatshop.managers.ChatManager;
 import com.niusworks.chatshop.managers.DatabaseManager.Listing;
+import com.niusworks.chatshop.managers.ItemManager.Item;
 
 /**
  * Executor for the "stock" command for
@@ -155,9 +156,17 @@ public class Stock implements CommandExecutor
         listings = PLUGIN.CM.paginate(listings,page);
         for(int i = 0; i < listings.length; i ++)
         {
+            // Attempt to resolve the name of the material.
+            // This should always be successful because these are being read from
+            // a database of theoretically valid listings, but just in case...
+            String itemDisplay = "Unknown Item";
+            Item thing = PLUGIN.IM.lookup(listings[i].MATERIAL,listings[i].DAMAGE);
+            if(thing != null)
+                itemDisplay = thing.DISPLAY;
+            
             msg =
                 PLUGIN.CM.color("quantity") + ChatManager.format(listings[i].QUANTITY) + " " +
-                PLUGIN.CM.color("item") + PLUGIN.IM.lookup(listings[i].MATERIAL,listings[i].DAMAGE).DISPLAY +
+                PLUGIN.CM.color("item") + itemDisplay +
                 PLUGIN.CM.color("text") + " at " +
                 PLUGIN.CM.color("price") + ChatManager.format(listings[i].PRICE) +
                 PLUGIN.CM.color("text") + " each.";

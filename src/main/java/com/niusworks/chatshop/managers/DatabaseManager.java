@@ -100,11 +100,12 @@ public class DatabaseManager
             result = connect.createStatement().executeUpdate(query);
             /*
              * sellerAlias, buyerAlias, and alias in these tables are Minecraft usernames.
-             * They are there only for the purposes of ease-of-readability in case an admin
-             * needs to look through the database for any reason. These values are never, ever
-             * to be read or utilized by ChatShop because they are not reliable. 
+             * They serve two purposes: firstly, when Bukkit looks up playername by UUID
+             * for a player who has been offline for a very long time it will return null.
+             * In such cases -- and only then -- the database username is used.
+             * Secondly, these usernames make the database much more readable in either
+             * console or dump form, for administrators.
              */
-            
         }
         catch(ClassNotFoundException|SQLException e)
         {
@@ -237,6 +238,7 @@ public class DatabaseManager
                     res.getString("material"),
                     res.getInt("damage"),
                     res.getString("seller"),
+                    res.getString("sellerAlias"),
                     res.getDouble("price"),
                     res.getInt("quantity"));
         }
@@ -272,6 +274,7 @@ public class DatabaseManager
                         res.getString("material"),
                         res.getInt("damage"),
                         res.getString("seller"),
+                        res.getString("sellerAlias"),
                         res.getDouble("price"),
                         res.getInt("quantity")));
             return listings.toArray(new Listing[listings.size()]);            
@@ -307,6 +310,7 @@ public class DatabaseManager
                         res.getString("material"),
                         res.getInt("damage"),
                         res.getString("seller"),
+                        res.getString("sellerAlias"),
                         res.getDouble("price"),
                         res.getInt("quantity")));
             return listings.toArray(new Listing[listings.size()]);            
@@ -341,13 +345,14 @@ public class DatabaseManager
             ResultSet res = connect.createStatement().executeQuery(query);
             while(res.next())
             {
-                String seller = res.getString("seller");
-                boolean qWasSeller = seller.equalsIgnoreCase(qPlayer.getUniqueId().toString());
+                String selleruuid = res.getString("seller");
+                boolean qWasSeller = selleruuid.equalsIgnoreCase(qPlayer.getUniqueId().toString());
                 sales.add(new Listing (
                         res.getInt("id"),
                         res.getString("material"),
                         res.getInt("damage"),
-                        (qWasSeller ? res.getString("buyer") : seller),
+                        (qWasSeller ? res.getString("buyer") : selleruuid),
+                        (qWasSeller ? res.getString("buyerAlias") : res.getString("sellerAlias")),
                         res.getDouble("price"),
                         res.getInt("quantity") * (qWasSeller ? -1 : 1),
                         res.getTimestamp("date")));
@@ -493,6 +498,7 @@ public class DatabaseManager
                         res.getString("material"),
                         res.getInt("damage"),
                         res.getString("seller"),
+                        res.getString("sellerAlias"),
                         res.getDouble("price"),
                         res.getInt("quantity")));
         
@@ -534,7 +540,7 @@ public class DatabaseManager
                     if(thisQuantity == 0)
                         break;
                     
-                    if(listing.PLAYER.equals(usr.getUniqueId().toString()))
+                    if(listing.PLAYER_UUID.equals(usr.getUniqueId().toString()))
                         self = thisQuantity;
                     
                     listingCost = thisQuantity * listing.PRICE;
@@ -555,7 +561,7 @@ public class DatabaseManager
                     // particular stock is affordable and demanded by the user.
                     
                     thisQuantity = listing.QUANTITY;
-                    if(listing.PLAYER.equals(usr.getUniqueId().toString()))
+                    if(listing.PLAYER_UUID.equals(usr.getUniqueId().toString()))
                         self = thisQuantity;
                     
                     //Remove this listing from the market.
@@ -568,7 +574,7 @@ public class DatabaseManager
                 }
                 
                 //Pay the player who had the listing.
-                UUID seller = UUID.fromString(listing.PLAYER);
+                UUID seller = UUID.fromString(listing.PLAYER_UUID);
                 if(!pricingOnly)
                 {
                     PLUGIN.ECON.depositPlayer(
@@ -616,8 +622,8 @@ public class DatabaseManager
                     query = "INSERT INTO ChatShop_transactions VALUES ("
                             + "null, '" + merch.getType() + "', "
                             + merch.getDurability() + ", "
-                            + "'" + listing.PLAYER + "', "
-                            + "'" + Bukkit.getOfflinePlayer(UUID.fromString(listing.PLAYER)).getName() + "', "
+                            + "'" + listing.PLAYER_UUID + "', "
+                            + "'" + Bukkit.getOfflinePlayer(UUID.fromString(listing.PLAYER_UUID)).getName() + "', "
                             + "'" + usr.getUniqueId() + "', "
                             + "'" + usr.getName() + "', "
                             + listingCost + ", "
@@ -803,8 +809,10 @@ public class DatabaseManager
         public final String MATERIAL;
         /** The damage value of the specified item. **/
         public final int DAMAGE;
-        /** The UUID of the selling player. **/
-        public final String PLAYER;
+        /** The UUID of the relevant player. **/
+        public final String PLAYER_UUID;
+        /** The alias of the relevant player, as displayed in the database. **/ 
+        public final String PLAYER_ALIAS;
         /** The price per item. **/
         public final double PRICE;
         /** The quantity for sale. **/
@@ -818,13 +826,14 @@ public class DatabaseManager
          * @param id        Unique ID of this listing in the database.
          * @param mat       The official Minecraft name for this material.
          * @param dmg       The damage value of the specified item.
-         * @param player    The UUID of the involved player.
+         * @param uuid      The UUID of the involved player.
+         * @param alias     The alias of the involved player.
          * @param price     The price per item.
          * @param qty       The quantity for sale.
          */
-        public Listing(int id, String mat, int dmg, String player, double price, int qty)
+        public Listing(int id, String mat, int dmg, String uuid, String alias, double price, int qty)
         {
-            ID = id; MATERIAL = mat; DAMAGE = dmg; PLAYER = player; PRICE = price; QUANTITY = qty; DATE = null;
+            ID = id; MATERIAL = mat; DAMAGE = dmg; PLAYER_UUID = uuid; PLAYER_ALIAS = alias; PRICE = price; QUANTITY = qty; DATE = null;
         }
         
         /**
@@ -833,14 +842,15 @@ public class DatabaseManager
          * @param id        Unique ID of this listing in the database.
          * @param mat       The official Minecraft name for this material.
          * @param dmg       The damage value of the specified item.
-         * @param player    The UUID of the involved player.
+         * @param uuid      The UUID of the involved player.
+         * @param alias     The alias of the involved player.
          * @param price     The price per item.
          * @param qty       The quantity for sale.
          * @param date      A SQL Timestamp.
          */
-        public Listing(int id, String mat, int dmg, String player, double price, int qty, Timestamp date)
+        public Listing(int id, String mat, int dmg, String uuid, String alias, double price, int qty, Timestamp date)
         {
-            ID = id; MATERIAL = mat; DAMAGE = dmg; PLAYER = player; PRICE = price; QUANTITY = qty; DATE = date;
+            ID = id; MATERIAL = mat; DAMAGE = dmg; PLAYER_UUID = uuid; PLAYER_ALIAS = alias; PRICE = price; QUANTITY = qty; DATE = date;
         }
     }
 }

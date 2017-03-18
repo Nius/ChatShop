@@ -6,7 +6,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -16,6 +15,7 @@ import org.bukkit.entity.Player;
 import com.niusworks.chatshop.ChatShop;
 import com.niusworks.chatshop.managers.ChatManager;
 import com.niusworks.chatshop.managers.DatabaseManager.Listing;
+import com.niusworks.chatshop.managers.ItemManager.Item;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -172,11 +172,29 @@ public class History implements CommandExecutor
         tenders = PLUGIN.CM.paginate(tenders,page);
         for(int i = 0; i < tenders.length; i ++)
         {
+            // Attempt to resolve the other player's current username from
+            // their UUID. This will usually be successful, but for
+            // long-time absentee players this will fail. In that case
+            // the posted name in the database will be used.
+            String playerName = PLUGIN.getServer().getOfflinePlayer(
+                    UUID.fromString(tenders[i].PLAYER_UUID))
+                    .getName();
+            if(playerName == null)
+                playerName = tenders[i].PLAYER_ALIAS;
+            
+            // Attempt to resolve the name of the material.
+            // This should always be successful because these are being read from
+            // a database of theoretically valid listings, but just in case...
+            String itemDisplay = "Unknown Item";
+            Item thing = PLUGIN.IM.lookup(tenders[i].MATERIAL,tenders[i].DAMAGE);
+            if(thing != null)
+                itemDisplay = thing.DISPLAY;
+            
             String quantity = PLUGIN.CM.color("quantity") + ChatManager.format(Math.abs(tenders[i].QUANTITY));
-            String item = PLUGIN.CM.color("item") + PLUGIN.IM.lookup(tenders[i].MATERIAL,tenders[i].DAMAGE).DISPLAY;
+            String item = PLUGIN.CM.color("item") + itemDisplay;
             String priceEach = PLUGIN.CM.color("price") + ChatManager.format(tenders[i].PRICE);
             String priceTotal = PLUGIN.CM.color("price") + ChatManager.format(tenders[i].PRICE * tenders[i].QUANTITY);
-            String player = PLUGIN.CM.color("player") + Bukkit.getOfflinePlayer(UUID.fromString(tenders[i].PLAYER)).getName();
+            String player = PLUGIN.CM.color("player") + playerName;
             String textcol = PLUGIN.CM.color("text");
             String datecol = PLUGIN.getConfig().getString("chat.colors.date");
             

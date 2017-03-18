@@ -128,7 +128,7 @@ public class Quote implements CommandExecutor
         }
         else if(total < 0)
         {
-            merchandise.setAmount((int)total);
+            merchandise.setAmount((int)(total * -1));
             double realtotal = PLUGIN.DB.price(usr,merchandise,-1);
             return PLUGIN.CM.reply(usr,
                 PLUGIN.CM.color("text") + "There is only " +
