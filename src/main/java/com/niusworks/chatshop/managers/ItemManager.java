@@ -327,7 +327,7 @@ public class ItemManager
         Item sibling = aliases.get(item.getType().toString());
         if(sibling == null)
         {
-            PLUGIN.CM.severe("Error resolving item: type not found: \"" + item.getType().toString() + "\".");
+//            PLUGIN.CM.severe("Error resolving item: type not found: \"" + item.getType().toString() + "\".");
             return null;
         }
         if(item.getDurability() == sibling.DMG)
@@ -336,7 +336,7 @@ public class ItemManager
         Item self = lookup(sibling.ID,item.getDurability());
         if(self == null)
         {
-            PLUGIN.CM.severe("Error resolving item: item not found: " + sibling.ID + ":" + item.getDurability() + ".");
+//            PLUGIN.CM.severe("Error resolving item: item not found: " + sibling.ID + ":" + item.getDurability() + ".");
             return null;
         }
         return self;
@@ -451,7 +451,8 @@ public class ItemManager
      *                  -1 if the String was "hand" but no item is held,
      *                  -2 if item lookup failed,
      *                  -3 if there was an error validating to ItemStack,
-     *                  -4 if the item is enchanted.
+     *                  -4 if the item is enchanted,
+     *                  -5 if the item is recognized but damaged.
      */
     public Object parse(Player caller, String arg)
     {
@@ -463,6 +464,16 @@ public class ItemManager
             ItemStack handItem = caller.getInventory().getItemInMainHand().clone();
             if(handItem == null || isAir(handItem))
                 return -1;
+            
+            //Check whether this item is damaged (is currently invalid but is valid at dmg 0)
+            if(lookup(handItem) == null)
+            {
+                ItemStack copy = handItem.clone();
+                copy.setDurability((short)0);
+                if(lookup(copy) != null)
+                    return -5;
+            }
+            
             result = handItem;
         }
         //If not "hand"
@@ -490,7 +501,6 @@ public class ItemManager
                 return -3;
             }
         }
-        
         return verify(result);
     }
     
@@ -500,7 +510,7 @@ public class ItemManager
      * 
      * @param itm   The ItemStack to verify.
      * @return      A (validated) ItemStack which is ready to use.
-     *              -4 if the item is enchanted.      
+     *              -4 if the item is enchanted.
      */
     public Object verify(ItemStack itm)
     {
