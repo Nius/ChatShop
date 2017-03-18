@@ -420,6 +420,7 @@ public class ItemManager
     /**
      * Check whether the specified ItemStacks are the same
      * item, regardless of amount.
+     * If either item is enchanted, returns false.
      * 
      * @param a     An ItemStack
      * @param b     Another ItemStack
@@ -430,6 +431,8 @@ public class ItemManager
     public boolean areSameItem(ItemStack a, ItemStack b)
     {
         if(a == null || b == null)
+            return false;
+        if(a.getEnchantments().size() > 0 || b.getEnchantments().size() > 0)
             return false;
         return
                 a.getType().toString().equals(b.getType().toString()) &&
@@ -447,7 +450,8 @@ public class ItemManager
      * @return          A (validated) ItemStack if one was found,
      *                  -1 if the String was "hand" but no item is held,
      *                  -2 if item lookup failed,
-     *                  -3 if there was an error validating to ItemStack.
+     *                  -3 if there was an error validating to ItemStack,
+     *                  -4 if the item is enchanted.
      */
     public Object parse(Player caller, String arg)
     {
@@ -456,7 +460,7 @@ public class ItemManager
         //If item = "hand"
         if(arg.equalsIgnoreCase("hand"))
         {
-            ItemStack handItem = caller.getInventory().getItemInMainHand();
+            ItemStack handItem = caller.getInventory().getItemInMainHand().clone();
             if(handItem == null || isAir(handItem))
                 return -1;
             result = handItem;
@@ -485,8 +489,24 @@ public class ItemManager
                 
                 return -3;
             }
-        }        
-        return superimposePotionDamage(result);
+        }
+        
+        return verify(result);
+    }
+    
+    /**
+     * Ensures that items are compliant to any special, such as potion/tipped_arrow
+     * rules or enchantment rules.
+     * 
+     * @param itm   The ItemStack to verify.
+     * @return      A (validated) ItemStack which is ready to use.
+     *              -4 if the item is enchanted.      
+     */
+    public Object verify(ItemStack itm)
+    {
+        if(itm.getEnchantments().size() > 0)
+            return -4;
+        return superimposePotionDamage(itm);
     }
     
     /**

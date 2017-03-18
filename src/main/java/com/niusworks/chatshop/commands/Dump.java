@@ -79,7 +79,18 @@ public class Dump implements CommandExecutor
         double valuePosted = 0;
         for(ItemStack merchandise : usr.getInventory().getContents())
         {
-            Object res = PLUGIN.DB.sell(usr,merchandise,-1);
+            if(merchandise == null)
+                continue;
+            
+            // Wash each item through the ItemStack verifier.
+            // This takes care of special cases such as potions, tipped arrows,
+            //  and enchantments.
+            Object res = PLUGIN.IM.verify(merchandise);
+            if(!(res instanceof ItemStack))
+                continue;
+            merchandise = (ItemStack)res;
+            
+            res = PLUGIN.DB.sell(usr,merchandise,-1);
         
             // On fail...
             if(res instanceof Integer && ((Integer)res).intValue() == -2)
