@@ -986,7 +986,8 @@
 #438,splash_potion LOCATED AT BOTTOM OF FILE
 
 439,spectral_arrow                 ,Spectral Arrow                      !BAN
-440,tipped_arrow                   ,Tipped Arrow                        !BAN
+
+#440,tipped_arrow LOCATED AT BOTTOM OF FILE
 
 #441,lingering_potion LOCATED AT BOTTOM OF FILE
 
@@ -1054,10 +1055,9 @@
 2267,record_12                     ,Wait Disc,wait record,blue disc,blue record
 
 #
-# POTIONS
-# Because potions do not use damage values, in order to fit them to the ChatShop
-# Material:DMG system damage values are superimposed upon them with the following
-# pattern:
+# POTIONS & TIPPED ARROWS
+# Because potions and tipped arrows do not use damage values, in order to fit them to the ChatShop
+# Material:DMG system damage values are superimposed upon them with the following pattern:
 #
 # Digit 1 = is upgraded (II); yes=2 no=1
 # Digit 2 = is extended (long); yes=2 no=1
@@ -1240,3 +1240,46 @@
 441:1212,lingering_potion             ,Long Swiftness Lingering Potion,       lp-long swift    ,Long Lingering potion of Swiftness,Long Swiftness lingering
 441:1217,lingering_potion             ,Long Water Breathing Lingering Potion, lp-long water    ,Long Lingering potion of water breathing,long water breathing lingering
 441:1218,lingering_potion             ,Long Weakness Lingering Potion,        lp-long weak     ,Long Lingering potion of Weakness,Long Weakness lingering
+
+#
+# TIPPED ARROW
+#
+
+# TIPPED ARROW
+440:111,tipped_arrow                     ,Fire Resistance Tipped Arrow, ta-resist   ,tipped arrow of Fire Resistance,Resistance arrow
+440:112,tipped_arrow                     ,Harming Tipped Arrow,         ta-harm     ,tipped arrow of Harming,Harming arrow
+440:113,tipped_arrow                     ,Healing Tipped Arrow,         ta-heal     ,tipped arrow of Healing,Healing arrow
+440:114,tipped_arrow                     ,Invisibility Tipped Arrow,    ta-invis    ,tipped arrow of invisibility,invisibility arrow
+440:115,tipped_arrow                     ,Jump Tipped Arrow,            ta-jump     ,tipped arrow of jump,jump arrow
+440:116,tipped_arrow                     ,Luck Tipped Arrow,            ta-luck     ,tipped arrow of luck,luck arrow
+440:118,tipped_arrow                     ,Night Vision Tipped Arrow,    ta-night    ,tipped arrow of night vision,night vision arrow
+440:119,tipped_arrow                     ,Poison Tipped Arrow,          ta-poison   ,tipped arrow of Poison,Poison arrow
+440:1110,tipped_arrow                    ,Regeneration Tipped Arrow,    ta-regen    ,tipped arrow of Regeneration,Regeneration arrow
+440:1111,tipped_arrow                    ,Slowness Tipped Arrow,        ta-slow     ,tipped arrow of Slowness,Slowness arrow
+440:1113,tipped_arrow                    ,Strength Tipped Arrow,        ta-strength ,tipped arrow of Strength,Strength arrow
+440:1112,tipped_arrow                    ,Swiftness Tipped Arrow,       ta-swift    ,tipped arrow of Swiftness,Swiftness arrow
+440:1117,tipped_arrow                    ,Water Breathing Tipped Arrow, ta-water    ,tipped arrow of water breathing,water breathing arrow
+440:1118,tipped_arrow                    ,Weakness Tipped Arrow,        ta-weak     ,tipped arrow of Weakness,Weakness arrow
+
+# TIPPED ARROW II
+440:212,tipped_arrow                     ,Harming Tipped Arrow II,      ta-harm 2     ,tipped arrow of Harming II,Harming II,harming 2 arrow
+440:213,tipped_arrow                     ,Healing Tipped Arrow II,      ta-heal 2     ,tipped arrow of Healing II,Healing II,healing 2 arrow
+440:215,tipped_arrow                     ,Jump Tipped Arrow II,         ta-jump 2     ,tipped arrow of jump II,jump II,jump 2 arrow
+440:219,tipped_arrow                     ,Poison Tipped Arrow II,       ta-poison 2   ,tipped arrow of Poison II,Poison II,poision 2 arrow
+440:2110,tipped_arrow                    ,Regeneration Tipped Arrow II, ta-regen 2    ,tipped arrow of Regeneration II,Regeneration II,regeneration 2 arrow
+440:2113,tipped_arrow                    ,Strength Tipped Arrow II,     ta-strength 2 ,tipped arrow of Strength II,Strength II,strength 2 arrow
+440:2112,tipped_arrow                    ,Swiftness Tipped Arrow II,    ta-swift 2    ,tipped arrow of Swiftness II,Swiftness II,swiftness 2 arrow
+
+# LONG TIPPED ARROW
+440:121,tipped_arrow                     ,Long Fire Resistance Tipped Arrow, ta-long resist   ,tipped arrow of Long Fire Resistance,Long Resistance arrow
+440:122,tipped_arrow                     ,Long Harming Tipped Arrow,         ta-long harm     ,tipped arrow of Long Harming,long Harming arrow
+440:124,tipped_arrow                     ,Long Invisibility Tipped Arrow,    ta-long invis    ,tipped arrow of Long invisibility,long invisibility arrow
+440:125,tipped_arrow                     ,Long Jump Tipped Arrow,            ta-long jump     ,tipped arrow of Long jump,long jump arrow
+440:128,tipped_arrow                     ,Long Night Vision Tipped Arrow,    ta-long night    ,tipped arrow of Long Night Vision,long night vision arrow
+440:129,tipped_arrow                     ,Long Poison Tipped Arrow,          ta-long poison   ,tipped arrow of Long Poison,Long Poison arrow
+440:1210,tipped_arrow                    ,Long Regeneration Tipped Arrow,    ta-long regen    ,tipped arrow of Long Regeneration,Long Regeneration arrow
+440:1211,tipped_arrow                    ,Long Slowness Tipped Arrow,        ta-long slow     ,tipped arrow of Long Slowness,Long Slowness arrow
+440:1213,tipped_arrow                    ,Long Strength Tipped Arrow,        ta-long strength ,tipped arrow of Long Strength,Long Strength arrow
+440:1212,tipped_arrow                    ,Long Swiftness Tipped Arrow,       ta-long swift    ,tipped arrow of Long Swiftness,Long Swiftness arrow
+440:1217,tipped_arrow                    ,Long Water Breathing Tipped Arrow, ta-long water    ,tipped arrow of Long water breathing,long water breathing arrow
+440:1218,tipped_arrow                    ,Long Weakness Tipped Arrow,        ta-long weak     ,tipped arrow of Long Weakness,Long Weakness arrow

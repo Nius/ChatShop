@@ -211,14 +211,15 @@ public class ItemManager
                         aliases.put(alias.trim().toUpperCase().replaceAll("\\s","_"),itm);
                     }
                     //Store the official Minecraft name as an alias only for items with damage 0.
-                    //(except for potions, which will store :1116 (water bottle).
+                    //(except for potions, which will store :111 (basic Fire Resistance potion).
                     if( dam == 0 ||
                         (
                             (itm.MNAME.equals("POTION") ||
                              itm.MNAME.equals("LINGERING_POTION") ||
-                             itm.MNAME.equals("SPLASH_POTION"))
+                             itm.MNAME.equals("SPLASH_POTION") ||
+                             itm.MNAME.equals("TIPPED_ARROW"))
                             &&
-                            dam == 1116
+                            dam == 111
                          )
                        )
                         aliases.put(mname.trim().toUpperCase(),itm);
@@ -527,8 +528,8 @@ public class ItemManager
     }
     
     /**
-     * Convert an ItemStack which represents a Minecraft potion to a pseudo-ItemStack
-     * whose damage value fits the superimposed potion damage system.
+     * Convert an ItemStack which represents a Minecraft potion or tipped arrow to a
+     * pseudo-ItemStack whose damage value fits the superimposed potion damage system.
      * 
      * Because potions do not use damage values, in order to fit them to the ChatShop
      * Material:DMG system damage values are superimposed upon them with the following
@@ -552,7 +553,8 @@ public class ItemManager
             return itm;
         if( itm.getType() == Material.POTION ||
             itm.getType() == Material.SPLASH_POTION ||
-            itm.getType() == Material.LINGERING_POTION)
+            itm.getType() == Material.LINGERING_POTION ||
+            itm.getType() == Material.TIPPED_ARROW)
              {
                  PotionData pd = ((PotionMeta) itm.getItemMeta()).getBasePotionData();
                  int upgraded = (pd.isUpgraded() ? 2 : 1);
@@ -569,7 +571,7 @@ public class ItemManager
     
     /**
      * Convert an ItemStack which has a superimposed Potion damage value to a valid Minecraft
-     * potion ItemStack complete with potion metadata.
+     * potion or tipped arrow ItemStack complete with potion metadata.
      * 
      * Because potions do not use damage values, in order to fit them to the ChatShop
      * Material:DMG system damage values are superimposed upon them with the following
@@ -591,7 +593,8 @@ public class ItemManager
     {
         if( itm.getType() == Material.POTION ||
             itm.getType() == Material.SPLASH_POTION ||
-            itm.getType() == Material.LINGERING_POTION)
+            itm.getType() == Material.LINGERING_POTION ||
+            itm.getType() == Material.TIPPED_ARROW)
              {
                  String dmg = "" + itm.getDurability();
             
