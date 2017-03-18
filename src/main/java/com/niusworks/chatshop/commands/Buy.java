@@ -59,7 +59,7 @@ public class Buy implements CommandExecutor
                     allowed = true;
         if(!allowed)
             return PLUGIN.CM.denyGameMode(sender);
-        
+        //World
         allowed = false;
         Object[] worlds = PLUGIN.getConfig().getList("allowed-worlds").toArray();
         for(int i = 0; i < worlds.length; i ++)
@@ -68,6 +68,9 @@ public class Buy implements CommandExecutor
                     allowed = true;
         if(!allowed)
             return PLUGIN.CM.denyWorld(sender);
+        //General freeze
+        if(PLUGIN.DB.isGeneralFreeze())
+            return PLUGIN.CM.denyGeneralFreeze(usr);
         
         //
         //  VALIDATION

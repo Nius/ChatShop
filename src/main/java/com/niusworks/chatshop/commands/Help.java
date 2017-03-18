@@ -138,7 +138,7 @@ public class Help implements CommandExecutor
             out = lines.toArray(new String[lines.size()]);
         }
         
-        //Head the sales list.
+        //Head the commands list.
         //Checking the page number is already taken care of by
         //ChatManager, but for purposes of displaying an accurate
         //number it needs to happen here.

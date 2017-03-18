@@ -125,8 +125,7 @@ public class Confirm implements CommandExecutor
                 (wasOn ? ChatColor.RED : ChatColor.GREEN) +
                 (wasOn ? "off" : "on") +
                 PLUGIN.CM.color("text") + ".";
-            PLUGIN.CM.reply(usr,msg);
-            return true;
+            return PLUGIN.CM.reply(usr,msg);
         }
         
         //
@@ -144,6 +143,10 @@ public class Confirm implements CommandExecutor
         
         //Execute the pending order appropriately, then defer to the normal CommandExecutor of that order
         //  to finalize the action.
+        
+        //First, check for a general freeze.
+        if(PLUGIN.DB.isGeneralFreeze())
+            return PLUGIN.CM.denyGeneralFreeze(usr);
         
         if(pending instanceof BuyOrder)
         {

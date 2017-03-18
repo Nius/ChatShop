@@ -125,7 +125,22 @@ public class DatabaseManager
      * @return          The char value of the flag, or ' ' if the
      *                  flag was not defined. Returns ' ' on SQL fail.
      */
-    public synchronized char getPlayerFlag(Player user, int index)
+    public synchronized char getPlayerFlag(Player user,int index)
+    {
+        return getPlayerFlag(user.getUniqueId().toString(),index);
+    }
+    
+    /**
+     * Retrieve the desired player flag from the database.
+     * Flags are indexed from left to right, so that index usage
+     * could be thought of as <code>flags.charAt(index)</code>.
+     * 
+     * @param uuid      The user to query.
+     * @param index     The index of the desired flag.
+     * @return          The char value of the flag, or ' ' if the
+     *                  flag was not defined. Returns ' ' on SQL fail.
+     */
+    protected synchronized char getPlayerFlag(String uuid, int index)
     {
         String query = "";
         if(index < 0)
@@ -133,7 +148,7 @@ public class DatabaseManager
         try
         {
             query = "SELECT flags FROM ChatShop_players "
-                + "WHERE uuid = '" + user.getUniqueId().toString() + "'";
+                + "WHERE uuid = '" + uuid + "'";
             ResultSet res = connect.createStatement().executeQuery(query);
             
             if(!res.next())
@@ -165,13 +180,28 @@ public class DatabaseManager
      */
     public synchronized void writePlayerFlag(Player user, int index, char newFlag)
     {
+        writePlayerFlag(user.getUniqueId().toString(),user.getName(),index,newFlag);
+    }
+    
+    /**
+     * Write the desired player flag to the database.
+     * Flags are indexed from left to right, so that index usage
+     * could be thought of as <code>flags.charAt(index)</code>.
+     * 
+     * @param uuid      The user to update.
+     * @param alias     The alias of the user in question.
+     * @param index     The index of the desired flag.
+     * @param newFlag   The new value of the flag.
+     */
+    protected synchronized void writePlayerFlag(String uuid, String alias, int index, char newFlag)
+    {
         String query = "";
         if(index < 0)
             return; //Flag out of bounds
         try
         {            
             query = "SELECT flags FROM ChatShop_players "
-                + "WHERE uuid = '" + user.getUniqueId().toString() + "'";
+                + "WHERE uuid = '" + uuid + "'";
             ResultSet res = connect.createStatement().executeQuery(query);
             
             String oldFlags = "";
@@ -196,12 +226,12 @@ public class DatabaseManager
             if(hadEntry)
                 query = "UPDATE ChatShop_players "
                     + "SET flags = '" + out + "' "
-                    + ", alias = '" + user.getName() + "' "
-                    + "WHERE uuid = '" + user.getUniqueId().toString() + "'";
+                    + ", alias = '" + alias + "' "
+                    + "WHERE uuid = '" + uuid + "'";
             else
                 query = "INSERT INTO ChatShop_players VALUES("
-                    + "null,'" + user.getUniqueId().toString() + "',"
-                    + "'" + user.getName() + "',"
+                    + "null,'" + uuid + "',"
+                    + "'" + alias + "',"
                     + "'" + out + "')";
             @SuppressWarnings("unused")
             int unused = connect.createStatement().executeUpdate(query);
@@ -211,6 +241,28 @@ public class DatabaseManager
             error(query);
             return; //SQL problem
         }
+    }
+    
+    /**
+     * Determine whether the ChatShop is under a general freeze.
+     * 
+     * @return  Whether the ChatShop is under a general freeze.
+     */
+    public synchronized boolean isGeneralFreeze()
+    {
+        return (getPlayerFlag("-1",0) == 'F');
+    }
+    
+    /**
+     * Toggle the general freeze state of the ChatShop.
+     * 
+     * @return The NEW state of the general freeze.
+     */
+    public synchronized boolean toggleGeneralFreeze()
+    {
+        boolean wasFrozen = isGeneralFreeze();
+        writePlayerFlag("-1","ChatShop",0,(wasFrozen ? ' ' : 'F'));
+        return !wasFrozen;
     }
     
     /**
@@ -475,7 +527,7 @@ public class DatabaseManager
      *                  
      */
     @SuppressWarnings("unused")
-    private synchronized Tender buy(Player usr, ItemStack merch, double maxp, boolean pricingOnly)
+    protected synchronized Tender buy(Player usr, ItemStack merch, double maxp, boolean pricingOnly)
     {
         String query = "";
         try
@@ -550,7 +602,6 @@ public class DatabaseManager
                     {
                         query = "UPDATE ChatShop_listings SET quantity = " +
                                 (listing.QUANTITY - thisQuantity) +
-                                ", sellerAlias = '" + usr.getName() + "'" +
                                 " WHERE id = " + listing.ID;
                         int unused = connect.createStatement().executeUpdate(query);
                     }

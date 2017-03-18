@@ -19,6 +19,9 @@ commands:
     confirm:
         description: Confirm a pending transaction or toggle confirmations.
         usage: /confirm [toggle <buy|sell>]
+    csadmin:
+        description: Central command for administrative functions.
+        usage: /csadmin <command>
     dump:
         description: Dump your inventory to the market.
         usage: /dump

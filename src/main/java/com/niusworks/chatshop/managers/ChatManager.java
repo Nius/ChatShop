@@ -332,6 +332,18 @@ public class ChatManager
     }
     
     /**
+     * Notify the user that there is a general freeze.
+     * 
+     * @param sender    The source of the action to which we are to reply.
+     * @return          Always returns true, to allow command executors to
+     *                  send a message and terminate in one line.
+     */
+    public boolean denyGeneralFreeze(CommandSender sender)
+    {
+        return error(sender, "All Chat Shop assets are currently frozen. Please consult a staff member.");
+    }
+    
+    /**
      * Notify the user that they are in the wrong world.
      * 
      * @param sender    The source of the action to which we are to reply.

@@ -50,9 +50,9 @@ public class Reprice implements CommandExecutor
         //Permissions
         if(!sender.hasPermission("chatshop.reprice"))
             return PLUGIN.CM.denyPermission(sender);
-        //Gamemode
         if(!PLUGIN.getConfig().getBoolean("query-anyone"))
         {
+            //Gamemode
             Object[] modes = PLUGIN.getConfig().getList("allowed-modes").toArray();
             boolean allowed = false;
             for(int i = 0; i < modes.length; i ++)
@@ -61,7 +61,7 @@ public class Reprice implements CommandExecutor
                         allowed = true;
             if(!allowed)
                 return PLUGIN.CM.denyGameMode(sender);
-            
+            //World
             allowed = false;
             Object[] worlds = PLUGIN.getConfig().getList("allowed-worlds").toArray();
             for(int i = 0; i < worlds.length; i ++)
@@ -71,6 +71,9 @@ public class Reprice implements CommandExecutor
             if(!allowed)
                 return PLUGIN.CM.denyWorld(sender);
         }
+        //General freeze
+        if(PLUGIN.DB.isGeneralFreeze())
+            return PLUGIN.CM.denyGeneralFreeze(usr);
         
         //
         //  VALIDATION
