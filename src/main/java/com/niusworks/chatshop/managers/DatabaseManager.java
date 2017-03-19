@@ -77,7 +77,7 @@ public class DatabaseManager
                     + "damage INT NOT NULL,"
                     + "seller VARCHAR(36) NOT NULL,"        //Minecraft UUID length
                     + "sellerAlias VARCHAR(15) NOT NULL,"   //-- See below.
-                    + "price DECIMAL(8,2) NOT NULL,"
+                    + "price DECIMAL(10,2) NOT NULL,"
                     + "quantity INT NOT NULL) ENGINE=INNODB";
             result = connect.createStatement().executeUpdate(query);
             query = "CREATE TABLE IF NOT EXISTS ChatShop_transactions("
@@ -88,7 +88,7 @@ public class DatabaseManager
                     + "sellerAlias VARCHAR(15) NOT NULL,"   //-- See below.
                     + "buyer VARCHAR(36) NOT NULL,"         //Minecraft UUID length
                     + "buyerAlias VARCHAR(15) NOT NULL,"    //-- See below.
-                    + "price DECIMAL(8,2) NOT NULL,"
+                    + "price DECIMAL(10,2) NOT NULL,"
                     + "quantity INT NOT NULL,"
                     + "date TIMESTAMP NOT NULL DEFAULT NOW()) ENGINE=INNODB";
             result = connect.createStatement().executeUpdate(query);
