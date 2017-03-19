@@ -576,7 +576,7 @@ public class DatabaseManager
                     // of either the player's balance or the requested quantity of
                     // goods.
                     
-                    broke = totalCost + listingCost > avbal;
+                    
                     
                     isLast = true;
                     if(pricingOnly)
@@ -587,6 +587,8 @@ public class DatabaseManager
                                 (int)((avbal - totalCost) / listing.PRICE),
                                 //The amount the user asked for
                                 merch.getAmount() - totalMerch);
+                    
+                    broke = thisQuantity < merch.getAmount() - totalMerch;
                     
                     //If no more can be bought, stop processing this final listing.
                     if(thisQuantity == 0)

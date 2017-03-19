@@ -131,10 +131,10 @@ public class Quote implements CommandExecutor
             merchandise.setAmount((int)(total * -1));
             double realtotal = PLUGIN.DB.price(usr,merchandise,-1);
             return PLUGIN.CM.reply(usr,
-                PLUGIN.CM.color("text") + "There is only " +
+                PLUGIN.CM.color("text") + "Currently only " +
                 PLUGIN.CM.color("quantity") + ChatManager.format((int)(total * -1)) + " " +
                 PLUGIN.CM.color("item") + displayName + " " +
-                PLUGIN.CM.color("text") + "currently for sale, totaling " +
+                PLUGIN.CM.color("text") + "for sale, totaling " +
                 PLUGIN.CM.color("price") + ChatManager.format(realtotal).replaceAll("[()]","") +
                 PLUGIN.CM.color("text") + ".");
         }
