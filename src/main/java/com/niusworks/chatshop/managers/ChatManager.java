@@ -8,7 +8,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
 
 import com.niusworks.chatshop.ChatShop;
-import com.niusworks.chatshop.managers.DatabaseManager.Listing;
+import com.niusworks.chatshop.constructs.Listing;
 
 import net.md_5.bungee.api.ChatColor;
 

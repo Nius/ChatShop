@@ -18,9 +18,8 @@
 # once with all spaces replaced by underscores.
 #
 # FLAGS:
-#  !BAN           Items with this flag will be completely ignored. ChatShop will thusly refuse to
-#                       interact with them at all. It is advised that you ban items rather than
-#                       delete them, in the interest of maintaining a complete dictionary.
+#  !BAN           Items with this flag will be completely blocked from having any presence on the
+#                 ChatShop. Users who query such an item will be informed that the item is banned.
 #  !TECHNICAL     Alias for !BAN, included to make this file a little more friendly.
 #  !MAXPRICE=     The maximum allowed price for an item. Do not include quotes or a currency symbol.
 #  !MAXQTY=       The maximum allowed quantity for an item. Do not include commas (such as "1,024").
@@ -183,8 +182,8 @@
 
 54,chest                           ,Chest
 55,redstone_wire                   ,Redstone Wire
-56,diamond_ore                     ,Diamond Ore,dore                    !MAXQTY=3
-57,diamond_block                   ,Diamond Block,dblock,diamondb       !MAXQTY=1
+56,diamond_ore                     ,Diamond Ore,dore
+57,diamond_block                   ,Diamond Block,dblock,diamondb
 
 #crafting_table
 58,workbench                       ,Crafting Table
@@ -611,7 +610,7 @@
 262,arrow                          ,Arrow
 263,coal                           ,Coal
 263:1,coal                         ,Charcoal
-264,diamond                        ,Diamond,dia                         !MAXQTY=9
+264,diamond                        ,Diamond,dia
 265,iron_ingot                     ,Iron Ingot,ibar
 266,gold_ingot                     ,Gold Ingot,gbar
 267,iron_sword                     ,Iron Sword,isword

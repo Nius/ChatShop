@@ -28,6 +28,7 @@ commands:
     find:
         description: Find offers for an item.
         usage: /find <item | "hand"> [page]
+        aliases: [f]
     history:
         description: Show a history of Chat Shop transactions.
         usage: /history [player] [page]

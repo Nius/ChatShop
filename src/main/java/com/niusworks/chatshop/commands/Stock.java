@@ -7,9 +7,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.niusworks.chatshop.ChatShop;
+import com.niusworks.chatshop.constructs.Item;
+import com.niusworks.chatshop.constructs.Listing;
 import com.niusworks.chatshop.managers.ChatManager;
-import com.niusworks.chatshop.managers.DatabaseManager.Listing;
-import com.niusworks.chatshop.managers.ItemManager.Item;
 
 /**
  * Executor for the "stock" command for

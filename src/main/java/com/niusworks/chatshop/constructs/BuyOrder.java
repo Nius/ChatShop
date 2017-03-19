@@ -3,8 +3,6 @@ package com.niusworks.chatshop.constructs;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import com.niusworks.chatshop.managers.ItemManager.Item;
-
 /**
  * A simple vehicle for storing a pending buy order.
  * @author ObsidianCraft Staff

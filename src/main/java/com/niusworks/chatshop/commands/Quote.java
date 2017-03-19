@@ -86,6 +86,7 @@ public class Quote implements CommandExecutor
                 case -3: return PLUGIN.CM.error(usr,"Invalid item: " + PLUGIN.CM.color("item") + args[1] + PLUGIN.CM.color("error") + ".");
                 case -4: return PLUGIN.CM.error(usr,"Enchanted items cannot be sold on the ChatShop.");
                 case -5: return PLUGIN.CM.error(usr,"Damaged items cannot be sold on the ChatShop.");
+                case -6: return PLUGIN.CM.error(usr,"That item cannot be sold on the ChatShop.");
                 default: return PLUGIN.CM.err500(usr);
             }
         ItemStack merchandise = (ItemStack)parse;

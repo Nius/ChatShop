@@ -17,6 +17,7 @@ import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionType;
 
 import com.niusworks.chatshop.ChatShop;
+import com.niusworks.chatshop.constructs.Item;
 
 /**
  * Manages all Minecraft item handling functionality for
@@ -129,7 +130,7 @@ public class ItemManager
                         continue;
                     }
                     
-                    //Skip banned entries
+                    //Determine whether this item is banned
                     boolean isban = false;
                     String[] flags = line.split("!");
                     for(String flag : flags)
@@ -139,10 +140,7 @@ public class ItemManager
                             break;
                         }
                     if(isban)
-                    {
                         totalBanned ++;
-                        continue;
-                    }
                     
                     String[] tokens = flags[0].split(",");
                     
@@ -195,7 +193,7 @@ public class ItemManager
                     
                     //Store the new item in the items 2D-hash
                     //In case of duplicates, the latest entry will prevail.
-                    Item itm = new Item(id, dam, mname.trim().toUpperCase(),(display.length() > 0 ? display.trim() : alii[0].trim()),maxPrice,maxQuantity);
+                    Item itm = new Item(id, dam, mname.trim().toUpperCase(),(display.length() > 0 ? display.trim() : alii[0].trim()),maxPrice,maxQuantity,isban);
                     if(!items.containsKey(id))                      //If this ID is undefined...
                         items.put(id,new HashMap<Integer,Item>());  //...create a new map for it.
                     if(!items.get(id).containsKey(dam))             //If this exact item is undefined...
@@ -453,6 +451,7 @@ public class ItemManager
      *                  -3 if there was an error validating to ItemStack,
      *                  -4 if the item is enchanted,
      *                  -5 if the item is recognized but damaged.
+     *                  -6 if the item is recognized but banned.
      */
     public Object parse(Player caller, String arg)
     {
@@ -511,12 +510,18 @@ public class ItemManager
      * @param itm   The ItemStack to verify.
      * @return      A (validated) ItemStack which is ready to use.
      *              -4 if the item is enchanted.
+     *              -6 if the item is banned.
      */
     public Object verify(ItemStack itm)
     {
         if(itm.getEnchantments().size() > 0)
             return -4;
-        return superimposePotionDamage(itm);
+        ItemStack ret = superimposePotionDamage(itm);
+        Item cfg = lookup(ret);
+        if(cfg != null && cfg.ISBANNED)
+            return -6;
+        else
+            return ret;
     }
     
     /**
@@ -658,45 +663,5 @@ public class ItemManager
             if(POTIONS.get(key) == value)
                 return key;
         return null;
-    }
-    
-    /**
-     * Represents an item that exists in the items dictionary items.csv.
-     * @author ObsidianCraft Staff
-     */
-    public class Item
-    {
-        /** The primary ID of the item. **/
-        public final int ID;
-        /** The data value of the item. 0 if not needed. **/
-        public final int DMG;
-        /** The official Minecraft name for this item. **/
-        public final String MNAME;
-        /** The display name for this item; usually its first alias. **/
-        public final String DISPLAY;
-        /** The maximum price for this item. 0 signifies no maximum. **/
-        public final double MAXPRICE;
-        /** The maximum quantity for this item. 0 signifies no maximum. **/
-        public final int MAXQUANTITY;
-        
-        /**
-         * Instantiate a new Item.
-         * 
-         * @param id          The primary ID of the item.
-         * @param damage      The data value of the item. 0 if not needed.
-         * @param mname       The official Minecraft name for this item.
-         * @param display     The display name for this item.
-         * @param maxprice    The maximum price for this item. 0 signifies no maximum.
-         * @param maxquantity The maximum quantity for this item. 0 signifies no maximum.
-         */
-        public Item(int id, int damage,String mname,String display,double maxprice,int maxquantity)
-        {
-            ID = id;
-            DMG = damage;
-            MNAME = mname;
-            DISPLAY = display;
-            MAXPRICE = maxprice;
-            MAXQUANTITY = maxquantity;
-        }
     }
 }

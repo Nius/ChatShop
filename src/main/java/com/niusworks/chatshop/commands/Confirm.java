@@ -9,7 +9,7 @@ import com.niusworks.chatshop.ChatShop;
 import com.niusworks.chatshop.constructs.BuyOrder;
 import com.niusworks.chatshop.constructs.Order;
 import com.niusworks.chatshop.constructs.SellOrder;
-import com.niusworks.chatshop.managers.DatabaseManager.Tender;
+import com.niusworks.chatshop.constructs.Tender;
 
 import net.md_5.bungee.api.ChatColor;
 
@@ -59,7 +59,7 @@ public class Confirm implements CommandExecutor
                     allowed = true;
         if(!allowed)
             return PLUGIN.CM.denyGameMode(sender);
-        
+        //World
         allowed = false;
         Object[] worlds = PLUGIN.getConfig().getList("allowed-worlds").toArray();
         for(int i = 0; i < worlds.length; i ++)
@@ -68,6 +68,9 @@ public class Confirm implements CommandExecutor
                     allowed = true;
         if(!allowed)
             return PLUGIN.CM.denyWorld(sender);
+        //General freeze
+        if(PLUGIN.DB.isGeneralFreeze())
+            return PLUGIN.CM.denyGeneralFreeze(usr);
         
         //
         //  VALIDATION

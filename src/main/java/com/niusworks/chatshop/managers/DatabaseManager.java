@@ -5,6 +5,8 @@ import com.niusworks.chatshop.commands.Buy;
 import com.niusworks.chatshop.commands.Cancel;
 import com.niusworks.chatshop.commands.Reprice;
 import com.niusworks.chatshop.commands.Sell;
+import com.niusworks.chatshop.constructs.Listing;
+import com.niusworks.chatshop.constructs.Tender;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -821,89 +823,5 @@ public class DatabaseManager
        {
            PLUGIN.CM.severe("Unexpected error attempting to close the database connection.");
        }
-    }
-    
-    /**
-     * A simple vehicle for expressing the results of a buy order.
-     * @author ObsidianCraft Staff
-     */
-    public class Tender
-    {
-        /** The quantity of items tendered. **/
-        public final int QUANTITY;
-        /** The TOTAL cost of ALL tendered items. **/
-        public final double COST;
-        /** Metadata about this transaction. **/
-        public final boolean BROKE;
-        /** How much the player bought from himself. **/
-        public final int SELF;
-        
-        /**
-         * @param q The quantity of items tendered. 
-         * @param c The TOTAL cost of ALL tendered items.
-         * @param b Whether the user went broke on this transaction.
-         * @param self The amount this player bought from himself.
-         */
-        public Tender(int q, double c, boolean b, int self)
-        {
-            QUANTITY = q; COST = c; BROKE = b; SELF = self;
-        }
-    }
-    
-    /**
-     * Represents a listing that exists in the database.
-     * @author ObsidianCraft Staff
-     */
-    public class Listing
-    {
-        /** Unique ID of this listing in the database. **/
-        public final int ID;
-        /** The official Minecraft name for this material. **/
-        public final String MATERIAL;
-        /** The damage value of the specified item. **/
-        public final int DAMAGE;
-        /** The UUID of the relevant player. **/
-        public final String PLAYER_UUID;
-        /** The alias of the relevant player, as displayed in the database. **/ 
-        public final String PLAYER_ALIAS;
-        /** The price per item. **/
-        public final double PRICE;
-        /** The quantity for sale. **/
-        public final int QUANTITY;
-        /** An optional MySQL Timestamp. **/
-        public final Timestamp DATE;
-        
-        /**
-         * Create a new Listing object with no date.
-         * 
-         * @param id        Unique ID of this listing in the database.
-         * @param mat       The official Minecraft name for this material.
-         * @param dmg       The damage value of the specified item.
-         * @param uuid      The UUID of the involved player.
-         * @param alias     The alias of the involved player.
-         * @param price     The price per item.
-         * @param qty       The quantity for sale.
-         */
-        public Listing(int id, String mat, int dmg, String uuid, String alias, double price, int qty)
-        {
-            ID = id; MATERIAL = mat; DAMAGE = dmg; PLAYER_UUID = uuid; PLAYER_ALIAS = alias; PRICE = price; QUANTITY = qty; DATE = null;
-        }
-        
-        /**
-         * Create a new Listing object with a specific date.
-         * 
-         * @param id        Unique ID of this listing in the database.
-         * @param mat       The official Minecraft name for this material.
-         * @param dmg       The damage value of the specified item.
-         * @param uuid      The UUID of the involved player.
-         * @param alias     The alias of the involved player.
-         * @param price     The price per item.
-         * @param qty       The quantity for sale.
-         * @param date      A SQL Timestamp.
-         */
-        public Listing(int id, String mat, int dmg, String uuid, String alias, double price, int qty, Timestamp date)
-        {
-            ID = id; MATERIAL = mat; DAMAGE = dmg; PLAYER_UUID = uuid; PLAYER_ALIAS = alias; PRICE = price; QUANTITY = qty; DATE = date;
-        }
     }
 }

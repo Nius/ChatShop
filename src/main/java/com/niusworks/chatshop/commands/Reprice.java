@@ -7,9 +7,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.niusworks.chatshop.ChatShop;
+import com.niusworks.chatshop.constructs.Item;
+import com.niusworks.chatshop.constructs.Listing;
 import com.niusworks.chatshop.managers.ChatManager;
-import com.niusworks.chatshop.managers.DatabaseManager.Listing;
-import com.niusworks.chatshop.managers.ItemManager.Item;
 
 import net.md_5.bungee.api.ChatColor;
 
@@ -93,6 +93,7 @@ public class Reprice implements CommandExecutor
                 case -3: return PLUGIN.CM.error(usr,"Invalid item: " + PLUGIN.CM.color("item") + args[1] + PLUGIN.CM.color("error") + ".");
                 case -4: return PLUGIN.CM.error(usr,"Enchanted items cannot be sold on the ChatShop.");
                 case -5: return PLUGIN.CM.error(usr,"Damaged items cannot be sold on the ChatShop.");
+                case -6: return PLUGIN.CM.error(usr,"That item cannot be sold on the ChatShop.");
                 default: return PLUGIN.CM.err500(usr);
             }
         ItemStack merchandise = (ItemStack)parse;

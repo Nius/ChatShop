@@ -9,11 +9,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.niusworks.chatshop.ChatShop;
+import com.niusworks.chatshop.constructs.Listing;
 import com.niusworks.chatshop.managers.ChatManager;
-import com.niusworks.chatshop.managers.DatabaseManager.Listing;
 
 /**
- * Executor for the "find" command for
+ * Executor for the "find" and "f" commands for
  * OC Network's ChatShop.
  * @author ObsidianCraft Staff
  */
@@ -26,7 +26,7 @@ public class Find implements CommandExecutor
     private final ChatShop PLUGIN;
     
     /**
-     * Instantiate the command executor for "find" commands.
+     * Instantiate the command executor for "find" and "f" commands.
      * 
      * @param master    The specific instance of the parent ChatShop plugin.
      */
@@ -89,6 +89,7 @@ public class Find implements CommandExecutor
                 case -3: return PLUGIN.CM.error(usr,"Invalid item: " + PLUGIN.CM.color("item") + args[0] + PLUGIN.CM.color("error") + ".");
                 case -4: return PLUGIN.CM.error(usr,"Enchanted items cannot be sold on the ChatShop.");
                 case -5: return PLUGIN.CM.error(usr,"Damaged items cannot be sold on the ChatShop.");
+                case -6: return PLUGIN.CM.error(usr,"That item cannot be sold on the ChatShop.");
                 default: return PLUGIN.CM.err500(usr);
             }
         ItemStack merchandise = (ItemStack)parse;
