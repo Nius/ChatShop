@@ -73,6 +73,9 @@ permissions:
     chatshop.history.other:
         description: Allow querying history of other players
         default: OP
+    chatshop.quote:
+        description: Allow usage of /quote
+        default: true
     chatshop.reprice:
         description: Allow usage of /reprice
         default: true
