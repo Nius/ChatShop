@@ -88,7 +88,7 @@ public class DatabaseManager
                     + "material VARCHAR(39) NOT NULL,"      //Current longest official item name
                     + "damage INT NOT NULL,"
                     + "seller VARCHAR(36) NOT NULL,"        //Minecraft UUID length
-                    + "sellerAlias VARCHAR(15) NOT NULL,"   //-- See below.
+                    + "sellerAlias VARCHAR(16) NOT NULL,"   //-- See below.
                     + "price DECIMAL(10,2) NOT NULL,"
                     + "quantity INT NOT NULL) ENGINE=INNODB";
             result = connect.createStatement().executeUpdate(query);
@@ -97,9 +97,9 @@ public class DatabaseManager
                     + "material VARCHAR(39) NOT NULL,"      //Current longest official item name
                     + "damage INT NOT NULL,"
                     + "seller VARCHAR(36) NOT NULL,"        //Minecraft UUID length
-                    + "sellerAlias VARCHAR(15) NOT NULL,"   //-- See below.
+                    + "sellerAlias VARCHAR(16) NOT NULL,"   //-- See below.
                     + "buyer VARCHAR(36) NOT NULL,"         //Minecraft UUID length
-                    + "buyerAlias VARCHAR(15) NOT NULL,"    //-- See below.
+                    + "buyerAlias VARCHAR(16) NOT NULL,"    //-- See below.
                     + "price DECIMAL(10,2) NOT NULL,"
                     + "quantity INT NOT NULL,"
                     + "date TIMESTAMP NOT NULL DEFAULT NOW()) ENGINE=INNODB";
@@ -107,7 +107,7 @@ public class DatabaseManager
             query = "CREATE TABLE IF NOT EXISTS ChatShop_players("
                     + "entryIndex INT PRIMARY KEY AUTO_INCREMENT,"
                     + "uuid VARCHAR(36) NOT NULL,"          //Minecraft UUID length
-                    + "alias VARCHAR(15) NOT NULL,"         //-- See below.
+                    + "alias VARCHAR(16) NOT NULL,"         //-- See below.
                     + "flags VARCHAR(5) NOT NULL) ENGINE=INNODB";
             result = connect.createStatement().executeUpdate(query);
             /*
