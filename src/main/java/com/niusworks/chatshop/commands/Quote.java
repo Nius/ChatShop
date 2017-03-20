@@ -173,7 +173,7 @@ public class Quote implements CommandExecutor
         }
         
         String msg =
-            PLUGIN.CM.color("quantity") + merchandise.getAmount() + " " +
+            PLUGIN.CM.color("quantity") + ChatManager.format(merchandise.getAmount()) + " " +
             PLUGIN.CM.color("item") + displayName + " " +
             textCol + "would cost you a total of " +
             PLUGIN.CM.color("price") + ChatManager.format(total) +
