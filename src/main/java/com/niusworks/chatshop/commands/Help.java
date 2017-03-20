@@ -122,16 +122,44 @@ public class Help implements CommandExecutor
         String textCol = PLUGIN.CM.color("text");
         String itemCol = PLUGIN.CM.color("item");
         String cmdCol = PLUGIN.CM.color("helpUsage");
+        String priceCol = PLUGIN.CM.color("price");
         
         ArrayList<String> lines = new ArrayList<String>();
         
         PLUGIN.getDescription().getCommands().forEach((command,properties)->
         {
-            lines.add(
-                cmdCol + properties.get("usage"));
-            lines.add(
-                textCol + " " + properties.get("description"));
+            boolean isOmitted = false;
+            int index = lines.size();
+            if(command.equalsIgnoreCase("buy"))                     //Ensure that /buy is the first listed command
+                index = 0;
+            else if(command.equalsIgnoreCase("sell"))               //Ensure that /sell is the second listed command
+                index = 2;                                          //(each command occupies two lines)
+            else if(command.equalsIgnoreCase("csadmin"))
+            {
+                if(!usr.hasPermission("chatshop.admin"))            //Don't show /csadmin if the user doesn't have perms for it.
+                    isOmitted = true;
+            }
+            else if(lines.get(index - 2).contains("/csadmin"))      //Ensure that /csadmin is the last command.
+                index = lines.size() - 2;                           //(each command occupies two lines)
+                
+            if(!isOmitted)
+            {
+                lines.add(index,
+                    cmdCol + properties.get("usage"));
+                lines.add(index + 1,
+                    textCol + " " + properties.get("description"));
+            }
         });
+        
+        String[] shortcuts = {
+            "",
+            textCol + "=== SHORTCUTS ===",
+            textCol + "You can use the shortcut \"" + itemCol + "hand" + textCol + "\" instead of an item name",
+            textCol + "to indicate the item you're currently holding in your main hand.",
+            textCol + "When selling items, you can use \"" + priceCol + "-" + textCol + "\" instead of a price",
+            textCol + "to use whatever price you already have posted."};
+        for(String i : shortcuts)
+            lines.add(i);
         
         String[] potions = {
             textCol + "=== CHATSHOP and POTIONS ===",
