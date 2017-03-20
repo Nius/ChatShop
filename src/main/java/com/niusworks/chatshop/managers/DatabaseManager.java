@@ -19,8 +19,18 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 /**
- * Manages all database functionality for
- * OC Network's ChatShop.
+ * Manages all database functionality for OC Network's ChatShop.
+ * <br>
+ * <b>No other class or plugin should interact with ChatShop's tables.</b>
+ * <br>
+ * This class manages the ChatShop's database connection, ensures the proper
+ * database schema, and generally protects the integrity of information in
+ * the database tables.
+ * <br>
+ * This class holds synchronization control over the database. Though this can be
+ * costly in environments with constant high volumes of queries, this is massively
+ * important because it prevents corruption of database information and ensures that
+ * items and monies are not duplicated or destroyed.
  * @author ObsidianCraft Staff
  */
 public class DatabaseManager

@@ -1,7 +1,12 @@
 package com.niusworks.chatshop.constructs;
 
+import com.niusworks.chatshop.managers.ItemManager;
+
 /**
- * Represents an item that exists in the items dictionary items.csv.
+ * Represents the configuration for an item that exists in the items dictionary items.csv.
+ * This class is the programmatical bridge between old ID:DMG and new MATERIAL:DMG rules, but is
+ * not at all smart: all information herein is provided by {@link ItemManager#initialize}.
+ * 
  * @author ObsidianCraft Staff
  */
 public class Item

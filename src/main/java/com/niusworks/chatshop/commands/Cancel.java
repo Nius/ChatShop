@@ -8,10 +8,31 @@ import org.bukkit.inventory.ItemStack;
 
 import com.niusworks.chatshop.ChatShop;
 import com.niusworks.chatshop.managers.ChatManager;
+import com.niusworks.chatshop.managers.ItemManager;
 
 /**
- * Executor for the "cancel" command for
- * OC Network's ChatShop.
+ * Executor for the "cancel" command for OC Network's ChatShop.
+ * <br>
+ * Players can remove their own items from the chatshop. This command has two elements: quantity
+ * and item.
+ * <br><br>
+ * Quantity can be an integer, which will be compared to the total amount of the specified
+ * item currently in the user's inventory. It can also be the string "all" (case-insensitive)
+ * in which case the command is executed as if the player entered the exact amount they have
+ * in their inventory.
+ * <br><br>
+ * Item can be any ItemManager-recognized string representation of a Minecraft item as understood
+ * by {@link ItemManager#parse}. Invalid items are caught and appropriate messages are sent to
+ * the player. Items not currently listed on the market by this player are likewise refused.
+ * <br><br>
+ * This command has the following limits (aside from basic perms):
+ * <ul>
+ * <li>Console access denied.
+ * <li>World must be whitelisted in config.
+ * <li>Gamemode must be whitelisted in config.
+ * <li>General freeze prevents command.
+ * </ul>
+ * 
  * @author ObsidianCraft Staff
  */
 public class Cancel implements CommandExecutor
@@ -77,13 +98,22 @@ public class Cancel implements CommandExecutor
             return PLUGIN.CM.error(sender,USAGE);
         
         //Item check
+
+        //If the specified item is non-specifically "potion" or some related query, show potions help instead.
+        if( args[1].equalsIgnoreCase("potion")          || args[1].equalsIgnoreCase("potions")          ||
+            args[1].equalsIgnoreCase("splashpotion")    || args[1].equalsIgnoreCase("splashpotions")    ||
+            args[1].equalsIgnoreCase("lingeringpotion") || args[1].equalsIgnoreCase("lingeringpotions")    )
+            return PLUGIN.getCommand("chatshop").getExecutor().onCommand(usr,cmd,"potions",new String[] {"0"});
+        
+        //Consult ItemManager to turn the user argument into a valid,
+        //special-rules compliant item.
         Object parse = PLUGIN.IM.parse(usr,args[1]);
         if(parse instanceof Integer)
             switch((Integer)parse)
             {
                 case -1: return PLUGIN.CM.error(usr,"You are not holding an item.");
                 case -2:
-                case -3: return PLUGIN.CM.error(usr,"Invalid item: " + PLUGIN.CM.color("item") + args[0] + PLUGIN.CM.color("error") + ".");
+                case -3: return PLUGIN.CM.error(usr,"Invalid item: " + PLUGIN.CM.color("item") + args[1] + PLUGIN.CM.color("error") + ".");
                 case -4: return PLUGIN.CM.error(usr,"Enchanted items cannot be sold on the ChatShop.");
                 case -5: return PLUGIN.CM.error(usr,"Damaged items cannot be sold on the ChatShop.");
                 case -6: return PLUGIN.CM.error(usr,"That item cannot be sold on the ChatShop.");
@@ -124,7 +154,7 @@ public class Cancel implements CommandExecutor
         if(res == -2)
             return PLUGIN.CM.err500(sender);
         
-        //On no stock fail...
+        //On no stock...
         if(res == -1)
             return PLUGIN.CM.error(sender,
                     "You do not have any " +

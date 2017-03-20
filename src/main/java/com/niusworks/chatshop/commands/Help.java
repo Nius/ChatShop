@@ -8,26 +8,43 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.niusworks.chatshop.ChatShop;
+import com.niusworks.chatshop.managers.ChatManager;
 
 /**
- * OC Network's ChatShop's executor for the
- * following commands:
- * 
- * chatshop
- * vm
- * vs
- * cs
- * oshop
- * shop
- * potions
- * potion
- * 
+ * OC Network's ChatShop's executor for the following commands:
+ * <ul>
+ * <li>chatshop<li>cs<li>os<li>oshop<li>potion<li>potions<li>shop<li>vm<li>vs
+ * </ul>
+ * Players can query the ChatShop for all of its available commands and their usage.
+ * Commands and usage are read direclty from plugin.yml; adding a new command will
+ * automatically reflect here.
+ * <br>
+ * This command takes one argument, page, or zero.
+ * <br><br>
+ * Page, optional, is an integer indicating which page of output to display. This command outputs
+ * a lot of text. To avoid flooding a player's chat, this text is divided into "pages" by the
+ * {@link ChatManager}. Only the specified page is shown. If no page number is given then the first
+ * page will be shown.
+ * <br><br>
+ * If this command is called by its alias "potion" or "potions" then only the information pertinent
+ * to potions will be displayed.
+ * <br><br>
+ * This command has the following limits (aside from basic perms):
+ * <ul>
+ * <li>Console access denied.
+ * <li>World must be whitelisted in config OR config must allow querying from anyone (see below).
+ * <li>Gamemode must be whitelisted in config OR config must allow querying from anyone (see below).
+ * </ul>
+ * This command is effectively a read-only command; the ChatShop is queried for information but
+ * nothing is changed. By default ChatShop will allow this command even if the player is in the wrong
+ * world or the wrong gamemode, but administrators can configuratively disable this liberty.
+ * <br><br>
  * @author ObsidianCraft Staff
  */
 public class Help implements CommandExecutor
 {
     /** Command usage. **/
-    public static final String USAGE = "/<chatshop|vm|vs|oshop|shop>";
+    public static final String USAGE = "/<chatshop|cs|os|oshop|potion|potions|shop|vm|vs> [page]";
     
     /** The specific instance of the parent ChatShop plugin. **/
     private final ChatShop PLUGIN;
@@ -122,7 +139,7 @@ public class Help implements CommandExecutor
             textCol + "You can search for such items by their full name,",
             textCol + "such as " + itemCol + "LongPotionOfRegeneration" + textCol + ".",
             textCol + "All potions also follow a standardized shortcut system:",
-            itemCol + "p-regen2" + textCol + ", " + itemCol + "sp-longharm" + textCol + ", and " + itemCol + "ta-water",
+            itemCol + "p-harm2" + textCol + ", " + itemCol + "sp-longnight" + textCol + ", and " + itemCol + "ta-water",
             textCol + "are all valid item references.",
             textCol + "Don't forget you can also use " + itemCol + "hand" + textCol + "."};
         

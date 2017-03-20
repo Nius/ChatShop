@@ -11,10 +11,33 @@ import org.bukkit.inventory.ItemStack;
 import com.niusworks.chatshop.ChatShop;
 import com.niusworks.chatshop.constructs.Listing;
 import com.niusworks.chatshop.managers.ChatManager;
+import com.niusworks.chatshop.managers.ItemManager;
 
 /**
- * Executor for the "find" and "f" commands for
- * OC Network's ChatShop.
+ * Executor for the "find" and "f" commands for OC Network's ChatShop.
+ * <br>
+ * Players can search the market for an item, showing all listings of its prices and sellers.
+ * Listings are ordered by price ascending. This command has two elements, item and page.
+ * <br><br>
+ * Item can be any ItemManager-recognized string representation of a Minecraft item as understood
+ * by {@link ItemManager#parse}. Invalid items are caught and appropriate messages are sent to
+ * the player.
+ * <br><br>
+ * Page, optional, is an integer indicating which page of output to display. Very often there are
+ * many listings available for a given item, and to prevent flooding the player's chat these listings
+ * are divided into "pages" by the {@link ChatManager}. Only the specified page is shown. If no
+ * page number is given then the first page will be shown.
+ * <br><br>
+ * This command has the following limits (aside from basic perms):
+ * <ul>
+ * <li>Console access denied.
+ * <li>World must be whitelisted in config OR config must allow querying from anyone (see below).
+ * <li>Gamemode must be whitelisted in config OR config must allow querying from anyone (see below).
+ * </ul>
+ * This command is effectively a read-only command; the database is queried for information but
+ * nothing is changed. By default ChatShop will allow this command even if the player is in the wrong
+ * world or the wrong gamemode, but administrators can configuratively disable this liberty.
+ * <br><br>
  * @author ObsidianCraft Staff
  */
 public class Find implements CommandExecutor
@@ -80,6 +103,15 @@ public class Find implements CommandExecutor
             return PLUGIN.CM.error(sender,USAGE);
         
         //Item check
+        
+        //If the specified item is non-specifically "potion" or some related query, show potions help instead.
+        if( args[0].equalsIgnoreCase("potion")          || args[0].equalsIgnoreCase("potions")          ||
+            args[0].equalsIgnoreCase("splashpotion")    || args[0].equalsIgnoreCase("splashpotions")    ||
+            args[0].equalsIgnoreCase("lingeringpotion") || args[0].equalsIgnoreCase("lingeringpotions")    )
+            return PLUGIN.getCommand("chatshop").getExecutor().onCommand(usr,cmd,"potions",new String[] {"0"});
+        
+        //Consult ItemManager to turn the user argument into a valid,
+        //special-rules compliant item.
         Object parse = PLUGIN.IM.parse(usr,args[0]);
         if(parse instanceof Integer)
             switch((Integer)parse)
@@ -117,6 +149,14 @@ public class Find implements CommandExecutor
         //  RESULT
         //
         
+        //Getting colors is fairly expensive, so do it once on
+        //execution rather than once per line of output.
+        String textCol = PLUGIN.CM.color("text");
+        String itemCol = PLUGIN.CM.color("item");
+        String qtyCol = PLUGIN.CM.color("quantity");
+        String priceCol = PLUGIN.CM.color("price");
+        String playerCol = PLUGIN.CM.color("player");
+        
         //On SQL fail...
         if(listings == null)
             return PLUGIN.CM.err500(usr);
@@ -133,9 +173,9 @@ public class Find implements CommandExecutor
         //number it needs to happen here.
         page = Math.max(page,1);
         String msg =
-                PLUGIN.CM.color("text") + "Listings for " +
-                PLUGIN.CM.color("item") + displayName +
-                PLUGIN.CM.color("text") + ", page " + page +
+                textCol + "Listings for " +
+                itemCol + displayName +
+                textCol + ", page " + page +
                 " of " + PLUGIN.CM.paginate(listings) + ":";
         PLUGIN.CM.reply(usr,msg);
         
@@ -154,11 +194,11 @@ public class Find implements CommandExecutor
                 playerName = listings[i].PLAYER_ALIAS;
             
             msg =
-                PLUGIN.CM.color("price") + ChatManager.format(listings[i].PRICE) +
-                PLUGIN.CM.color("text") + ", " +
-                PLUGIN.CM.color("quantity") + ChatManager.format(listings[i].QUANTITY) +
-                PLUGIN.CM.color("text") + " from " +
-                PLUGIN.CM.color("player") + playerName;
+                priceCol + ChatManager.format(listings[i].PRICE) +
+                textCol + ", " +
+                qtyCol + ChatManager.format(listings[i].QUANTITY) +
+                textCol + " from " +
+                playerCol + playerName;
                     
             PLUGIN.CM.reply(usr,msg,false);
         }

@@ -12,8 +12,36 @@ import com.niusworks.chatshop.constructs.Listing;
 import com.niusworks.chatshop.managers.ChatManager;
 
 /**
- * Executor for the "stock" command for
- * OC Network's ChatShop.
+ * Executor for the "stock" command for OC Network's ChatShop.
+ * <br>
+ * Players can query the ChatShop for a complete listing of all items for sale from a
+ * given player. Listings are ordered alphabetically by item name. This command takes
+ * zero, one, or two arguments: player and page.
+ * <br><br>
+ * Player is resolved to a Minecraft UUID for comparison against the database. This will still work
+ * with offline players, but long-time absentee players might turn up negative even if they have transactions
+ * in the market history because of Spigot limitations. In this case the name that player had at the time the
+ * listing was posted will be read from the database - though this name is not reliable.
+ * <br>
+ * If no player argument is supplied then the command will be executed on the calling player. Calling this command
+ * on a player other than oneself does not require special permissions because, as is the whole purpose of this
+ * plugin, a player's available stock is deliberately public information.
+ * <br><br>
+ * Page, optional, is an integer indicating which page of output to display. Very often there are
+ * many listings available for a given player, and to prevent flooding the player's chat these listings
+ * are divided into "pages" by the {@link ChatManager}. Only the specified page is shown. If no
+ * page number is given then the first page will be shown.
+ * <br><br>
+ * This command has the following limits (aside from basic perms):
+ * <ul>
+ * <li>Console access denied.
+ * <li>World must be whitelisted in config OR config must allow querying from anyone (see below).
+ * <li>Gamemode must be whitelisted in config OR config must allow querying from anyone (see below).
+ * </ul>
+ * This command is effectively a read-only command; the database is queried for information but
+ * nothing is changed. By default ChatShop will allow this command even if the player is in the wrong
+ * world or the wrong gamemode, but administrators can configuratively disable this liberty.
+ * <br><br>
  * @author ObsidianCraft Staff
  */
 public class Stock implements CommandExecutor
@@ -129,6 +157,14 @@ public class Stock implements CommandExecutor
         //  RESULT
         //
         
+        //Getting colors is fairly expensive, so do it once on
+        //execution rather than once per line of output.
+        String textCol = PLUGIN.CM.color("text");
+        String itemCol = PLUGIN.CM.color("item");
+        String qtyCol = PLUGIN.CM.color("quantity");
+        String priceCol = PLUGIN.CM.color("price");
+        String playerCol = PLUGIN.CM.color("player");
+        
         //On SQL fail...
         if(listings == null)
             return PLUGIN.CM.err500(usr);
@@ -136,7 +172,7 @@ public class Stock implements CommandExecutor
         if(listings.length == 0)
             return PLUGIN.CM.error(usr,
                 "No listings found for " +
-                PLUGIN.CM.color("player") + qPlayer.getName() +
+                playerCol + qPlayer.getName() +
                 PLUGIN.CM.color("error") + ".");
         
         //Head the sales list.
@@ -146,9 +182,9 @@ public class Stock implements CommandExecutor
         page = Math.max(page,1);
         page = Math.min(page,PLUGIN.CM.paginate(listings));
         String msg =
-                PLUGIN.CM.color("text") + "Listings for " +
-                PLUGIN.CM.color("item") + qPlayer.getName() +
-                PLUGIN.CM.color("text") + ", page " + page +
+                textCol + "Listings for " +
+                playerCol + qPlayer.getName() +
+                textCol + ", page " + page +
                 " of " + PLUGIN.CM.paginate(listings) + ":";
         PLUGIN.CM.reply(usr,msg);
         
@@ -165,11 +201,11 @@ public class Stock implements CommandExecutor
                 itemDisplay = thing.DISPLAY;
             
             msg =
-                PLUGIN.CM.color("quantity") + ChatManager.format(listings[i].QUANTITY) + " " +
-                PLUGIN.CM.color("item") + itemDisplay +
-                PLUGIN.CM.color("text") + " at " +
-                PLUGIN.CM.color("price") + ChatManager.format(listings[i].PRICE) +
-                PLUGIN.CM.color("text") + " each.";
+                qtyCol + ChatManager.format(listings[i].QUANTITY) + " " +
+                itemCol + itemDisplay +
+                textCol + " at " +
+                priceCol + ChatManager.format(listings[i].PRICE) +
+                textCol + " each.";
             PLUGIN.CM.reply(usr,msg,false);
         }
         

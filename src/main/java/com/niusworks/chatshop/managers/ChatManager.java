@@ -13,8 +13,14 @@ import com.niusworks.chatshop.constructs.Listing;
 import net.md_5.bungee.api.ChatColor;
 
 /**
- * Manages all chat output functionality for
- * OC Network's ChatShop.
+ * Manages all chat output functionality for OC Network's ChatShop.
+ * <br>
+ * This class facilitates formatting of numbers (decimal and integer),
+ * quick reading of chat color codes from configuration for application in
+ * output, and message output itself.
+ * <br><br>
+ * ALL ChatShop output should be passed through this class in order to ensure
+ * that output is properly prefixed and/or logged.
  * @author ObsidianCraft Staff
  */
 public class ChatManager

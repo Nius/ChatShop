@@ -12,10 +12,37 @@ import com.niusworks.chatshop.constructs.Item;
 import com.niusworks.chatshop.constructs.Tender;
 import com.niusworks.chatshop.managers.ChatManager;
 import com.niusworks.chatshop.managers.DatabaseManager;
+import com.niusworks.chatshop.managers.ItemManager;
 
 /**
- * Executor for the "buy" command for
- * OC Network's ChatShop.
+ * Executor for the "buy" command for OC Network's ChatShop.
+ * <br>
+ * Players can buy items from the chatshop. Purchases are always made in ascending order by price;
+ * the ChatShop always buys the cheapest available items. This command has three elements: quantity,
+ * item, and maxPrice.
+ * <br><br>
+ * Quantity must be an integer greater than zero.
+ * <br><br>
+ * Item can be any ItemManager-recognized string representation of a Minecraft item as understood
+ * by {@link ItemManager#parse}. Invalid items are caught and appropriate messages are sent to
+ * the player.
+ * <br><br>
+ * MaxPrice, optional, is the maximum price the player is willing to pay for the merchandise. When
+ * querying the database, listings for greater than the specified maxPrice are ignored as if they
+ * don't exist. Thus, a player might be informed that the shop is out of stock for an item when
+ * that item still is for sale, if the entirety of the stock is above the specified price threshhold.
+ * <br><br>
+ * On execution of this command the database will be checked to see whether the user is employing buy
+ * confirmations. If so, a {@link BuyOrder} will be created and posted, which is then under the
+ * jurisdiction of {@link Confirm}. If not, the buy operation will be executed immediately.
+ * <br><br>
+ * This command has the following limits (aside from basic perms):
+ * <ul>
+ * <li>Console access denied.
+ * <li>World must be whitelisted in config.
+ * <li>Gamemode must be whitelisted in config.
+ * <li>General freeze prevents command.
+ * </ul>
  * @author ObsidianCraft Staff
  */
 public class Buy implements CommandExecutor
@@ -94,6 +121,15 @@ public class Buy implements CommandExecutor
             }
         
         //Item check
+
+        //If the specified item is non-specifically "potion" or some related query, show potions help instead.
+        if( args[1].equalsIgnoreCase("potion")          || args[1].equalsIgnoreCase("potions")          ||
+            args[1].equalsIgnoreCase("splashpotion")    || args[1].equalsIgnoreCase("splashpotions")    ||
+            args[1].equalsIgnoreCase("lingeringpotion") || args[1].equalsIgnoreCase("lingeringpotions")    )
+            return PLUGIN.getCommand("chatshop").getExecutor().onCommand(usr,cmd,"potions",new String[] {"0"});
+        
+        //Consult ItemManager to turn the user argument into a valid,
+        //special-rules compliant item.
         Object parse = PLUGIN.IM.parse(usr,args[1]);
         if(parse instanceof Integer)
             switch((Integer)parse)
@@ -107,6 +143,7 @@ public class Buy implements CommandExecutor
                 default: return PLUGIN.CM.err500(usr);
             }
         ItemStack merchandise = (ItemStack)parse;
+        //Get the item configruation as defined in items.csv
         Item cfg = PLUGIN.IM.lookup(merchandise);
         String displayName = cfg.DISPLAY;
         
@@ -136,7 +173,9 @@ public class Buy implements CommandExecutor
         
         if(PLUGIN.DB.getPlayerFlag(usr,0) != 'X')
         {
-           //The player is using /confirm for buys.
+           //The player is using /confirm for buys, so instead of executing a buy
+           //create a buy order and store it. The buy order is then under the jurisdiction
+           //of /confirm.
            double tprice = PLUGIN.DB.price(usr,merchandise,maxp);
            BuyOrder order = new BuyOrder(usr,merchandise,cfg,maxp,tprice,System.currentTimeMillis());
            PLUGIN.PENDING.put(usr,order);
@@ -154,7 +193,7 @@ public class Buy implements CommandExecutor
                textCol + "to confirm this order.";
            return PLUGIN.CM.reply(usr,msg);
         }
-        else{} //The player is not using /confirm for buys.
+        else{} //The player is not using /confirm for buys; execute immediately.
         
         Tender res = PLUGIN.DB.buy(usr,merchandise,maxp);
         

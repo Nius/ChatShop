@@ -3,8 +3,12 @@ package com.niusworks.chatshop.constructs;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import com.niusworks.chatshop.commands.Buy;
+import com.niusworks.chatshop.commands.Confirm;
+
 /**
- * A simple vehicle for storing a pending buy order.
+ * A simple vehicle for storing a pending buy order. These orders are created by
+ * {@link Buy} and read exclusively by {@link Confirm}.
  * @author ObsidianCraft Staff
  */
 public class BuyOrder extends Order

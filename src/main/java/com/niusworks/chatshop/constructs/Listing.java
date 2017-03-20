@@ -2,8 +2,24 @@ package com.niusworks.chatshop.constructs;
 
 import java.sql.Timestamp;
 
+import com.niusworks.chatshop.commands.History;
+import com.niusworks.chatshop.managers.DatabaseManager;
+
 /**
  * Represents a listing that exists in the database.
+ * <br>
+ * Currently this class is used in two different contexts: firstly to represent a current listing
+ * on the market - this is its most common usage, and does not utilize the {@link #DATE}.
+ * <br>
+ * {@link History} (by means of {@link DatabaseManager#getHistory}) uses this to represent a
+ * transaction which has already occurred; in this case the {@link #DATE} is used and the
+ * attached player ({@link #PLAYER_ALIAS},{@link #PLAYER_UUID}) is, rather than the queried
+ * player (usually the caller), the third-party (unknown) player invoved in the transaction.
+ * <br>
+ * For example, if I query /history JimmerMcSpock then a series of Listings is returned but the
+ * attached player for each listing is the other player involved in JimmerMcSpock's
+ * transaction. In this way both parties related to the transaction are known. 
+ * 
  * @author ObsidianCraft Staff
  */
 public class Listing

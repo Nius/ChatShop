@@ -6,12 +6,29 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.niusworks.chatshop.ChatShop;
+import com.niusworks.chatshop.managers.DatabaseManager;
 
 import net.md_5.bungee.api.ChatColor;
 
 /**
- * Executor for the "csadmin" command for
- * OC Network's ChatShop.
+ * Executor for the "csadmin" command for OC Network's ChatShop.
+ * <br>
+ * Players can issue general administrative commands for ChatShop operations,
+ * given the appropriate permissions. This command takes a single argument,
+ * which determines its function.
+ * <br><br>
+ * If the single argument provided is an integer, a list of valid administrative
+ * commands is provided.
+ * <br><br>
+ * If the single argument provided is the string "freeze" then the {@link DatabaseManager}
+ * will be instructed to toggle the general freeze state of the ChatShop.
+ * <br><br>
+ * This command has the following limits (aside from basic perms):
+ * <ul>
+ * <li>Console access denied.
+ * <li>Requires permission: <code>chatshop.admin</code>
+ * </ul>
+ * 
  * @author ObsidianCraft Staff
  */
 public class CSAdmin implements CommandExecutor
@@ -47,23 +64,29 @@ public class CSAdmin implements CommandExecutor
         if(!sender.hasPermission("chatshop.admin"))
             return PLUGIN.CM.denyPermission(sender);
         //Gamemode
-//        Object[] modes = PLUGIN.getConfig().getList("allowed-modes").toArray();
-//        boolean allowed = false;
-//        for(int i = 0; i < modes.length; i ++)
-//            if(modes[i] instanceof String)
-//                if(((String)modes[i]).equalsIgnoreCase(usr.getGameMode().toString()))
-//                    allowed = true;
-//        if(!allowed)
-//            return PLUGIN.CM.denyGameMode(sender);
-//        
-//        allowed = false;
-//        Object[] worlds = PLUGIN.getConfig().getList("allowed-worlds").toArray();
-//        for(int i = 0; i < worlds.length; i ++)
-//            if(worlds[i] instanceof String)
-//                if(((String)worlds[i]).equalsIgnoreCase(usr.getWorld().getName()))
-//                    allowed = true;
-//        if(!allowed)
-//            return PLUGIN.CM.denyWorld(sender);
+        
+        /* There are no limitations on when or where admins can execute administrative commands,
+           But there could be.
+           
+        Object[] modes = PLUGIN.getConfig().getList("allowed-modes").toArray();
+        boolean allowed = false;
+        for(int i = 0; i < modes.length; i ++)
+            if(modes[i] instanceof String)
+                if(((String)modes[i]).equalsIgnoreCase(usr.getGameMode().toString()))
+                    allowed = true;
+        if(!allowed)
+            return PLUGIN.CM.denyGameMode(sender);
+        
+        allowed = false;
+        Object[] worlds = PLUGIN.getConfig().getList("allowed-worlds").toArray();
+        for(int i = 0; i < worlds.length; i ++)
+            if(worlds[i] instanceof String)
+                if(((String)worlds[i]).equalsIgnoreCase(usr.getWorld().getName()))
+                    allowed = true;
+        if(!allowed)
+            return PLUGIN.CM.denyWorld(sender);
+        
+        */
         
         //
         //  VALIDATION
@@ -75,13 +98,16 @@ public class CSAdmin implements CommandExecutor
         
         //
         //  EXECUTION
-        //  Deferred to DatabaseManager for synchronization and flag control purposes,
-        //  because the freeze flag is attached to a pseudo-user representing the ChatShop
-        //  itself.
+        //  Some actions deferred to DatabaseManager for synchronization and flag control purposes,
+        //  because some actions involve flags attached to a pseudo-player representing the ChatShop
+        //  itself, in the database.
         //
         
         try
         {
+            //If the argument was an integer, show a list of
+            //available administrative commands.
+            
             int page = Integer.parseInt(args[0]);
             
             String[] out = {
@@ -97,7 +123,7 @@ public class CSAdmin implements CommandExecutor
             page = Math.min(page,pagesAvail);
             
             String msg =
-                    PLUGIN.CM.color("prefix") + "ChatShop Commands" +
+                    PLUGIN.CM.color("prefix") + "ChatShop Administrative Commands" +
                         PLUGIN.CM.color("text") + ", page " + page +
                         " of " + pagesAvail + ":";
             PLUGIN.CM.reply(usr,msg,false);
@@ -113,6 +139,7 @@ public class CSAdmin implements CommandExecutor
         }
         catch(NumberFormatException e){}
         
+        //General freeze command.
         if(args[0].equalsIgnoreCase("freeze"))
         {
             boolean isNowFrozen = PLUGIN.DB.toggleGeneralFreeze();

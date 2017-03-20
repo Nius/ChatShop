@@ -9,10 +9,30 @@ import org.bukkit.inventory.ItemStack;
 import com.niusworks.chatshop.ChatShop;
 import com.niusworks.chatshop.constructs.Listing;
 import com.niusworks.chatshop.managers.ChatManager;
+import com.niusworks.chatshop.managers.DatabaseManager;
 
 /**
- * Executor for the "history" command for
- * OC Network's ChatShop.
+ * Executor for the "dump" command for OC Network's ChatShop.
+ * <br>
+ * Players can, in one command, have large quantities of their inventory posted to the
+ * ChatShop. This command takes no arguments.
+ * <br><br>
+ * For each slot in a player's inventory, the {@link DatabaseManager} is instructed to
+ * sell all of the given item for the currently listed price. In effect, this amounts to:
+ * <pre>
+ * for(item : inventory)
+ *     /sell all item -</pre>
+ * Error messages, such as pertain to invalid or damaged items, are handled but not omitted
+ * to the player - it is not expected that this command will be able to sell all items.
+ * <br><br>
+ * This command has the following limits (aside from basic perms):
+ * <ul>
+ * <li>Console access denied.
+ * <li>World must be whitelisted in config.
+ * <li>Gamemode must be whitelisted in config.
+ * <li>General freeze prevents command.
+ * </ul>
+ * 
  * @author ObsidianCraft Staff
  */
 public class Dump implements CommandExecutor
@@ -85,7 +105,7 @@ public class Dump implements CommandExecutor
             if(merchandise == null)
                 continue;
             
-            // Wash each item through the ItemStack verifier.
+            // Wash each item through the ItemManager verifier.
             // This takes care of special cases such as potions, tipped arrows,
             //  and enchantments.
             Object res = PLUGIN.IM.verify(merchandise);

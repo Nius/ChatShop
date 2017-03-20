@@ -10,18 +10,44 @@ import com.niusworks.chatshop.ChatShop;
 import com.niusworks.chatshop.constructs.Item;
 import com.niusworks.chatshop.constructs.Listing;
 import com.niusworks.chatshop.managers.ChatManager;
+import com.niusworks.chatshop.managers.ItemManager;
 
 import net.md_5.bungee.api.ChatColor;
 
 /**
- * Executor for the "reprice" command for
- * OC Network's ChatShop.
+ * Executor for the "reprice" command for OC Network's ChatShop.
+ * <br>
+ * Players can change the prices of their existing listings on the chatshop. This command
+ * has two elements: item and newprice.
+ * <br><br>
+ * Item can be any ItemManager-recognized string representation of a Minecraft item as understood
+ * by {@link ItemManager#parse}. Invalid items are caught and appropriate messages are sent to
+ * the player. Items not currently listed on the market by this player are likewise refused.
+ * <br><br>
+ * Newprice is a double value indicating the price PER ITEM (not total) to assign the listing.
+ * Price limits set forth in items.csv are honored here; attempting to reprice an item above its
+ * configured maximum price will result in a refusal message.
+ * <br><br>
+ * Upon successful sale a broadcast is sent out notifying players of the newly updated listing.
+ * <br><br>
+ * This command has the following limits (aside from basic perms):
+ * <ul>
+ * <li>Console access denied.
+ * <li>World must be whitelisted in config OR config must allow querying from anyone (see below).
+ * <li>Gamemode must be whitelisted in config OR config must allow querying from anyone (see below).
+ * <li>General freeze prevents command.
+ * </ul>
+ * This command conducts modification of items already on the market. Because players cannot use this command
+ * to place new things on or withrdaw things from the market, world and gamemode controls are lifted for this
+ * command. Should this be deemed inappropriate for a server's needs, administrators can configuratively
+ * disable this liberty.
+ * <br><br>
  * @author ObsidianCraft Staff
  */
 public class Reprice implements CommandExecutor
 {
     /** Command usage. **/
-    public static final String USAGE = "/reprice <item> <newprice>";
+    public static final String USAGE = "/reprice <item> <newPrice>";
     
     /** The specific instance of the parent ChatShop plugin. **/
     private final ChatShop PLUGIN;
@@ -84,6 +110,15 @@ public class Reprice implements CommandExecutor
             return PLUGIN.CM.error(sender,USAGE);
                
         //Item check
+
+        //If the specified item is non-specifically "potion" or some related query, show potions help instead.
+        if( args[0].equalsIgnoreCase("potion")          || args[0].equalsIgnoreCase("potions")          ||
+            args[0].equalsIgnoreCase("splashpotion")    || args[0].equalsIgnoreCase("splashpotions")    ||
+            args[0].equalsIgnoreCase("lingeringpotion") || args[0].equalsIgnoreCase("lingeringpotions")    )
+            return PLUGIN.getCommand("chatshop").getExecutor().onCommand(usr,cmd,"potions",new String[] {"0"});
+        
+        //Consult ItemManager to turn the user argument into a valid,
+        //special-rules compliant item.
         Object parse = PLUGIN.IM.parse(usr,args[0]);
         if(parse instanceof Integer)
             switch((Integer)parse)

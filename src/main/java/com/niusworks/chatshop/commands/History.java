@@ -23,8 +23,42 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 
 /**
- * Executor for the "history" command for
- * OC Network's ChatShop.
+ * Executor for the "history" and "sales" commands for OC Network's ChatShop.
+ * <br>
+ * Players can query the ChatShop for a complete history of all transactions pertinent to
+ * a given player. Transactions are reverse-ordered by date (most recent first). Each transaction is prefixed with a timestamp:
+ * <ul>
+ * <li><code>HH:mm:ss</code> if the transaction occurred within the last 24 hours
+ * <li><code>MM/dd</code> if the transaction occurred earlier than 24 hours ago. This shortened stamp can be moused-over to
+ *     reveal a full <code>YYYY-MM-dd HH:mm:ss</code> timestamp for the transaction.
+ * </ul>
+ * This command takes zero, one, or two arguments: player and page.
+ * <br><br>
+ * Player is resolved to a Minecraft UUID for comparison against the database. This will still work
+ * with offline players, but long-time absentee players might turn up negative even if they have transactions
+ * in the market history because of Spigot limitations. In this case the name that player had at the time of
+ * the transaction will be read from the database - though this name is not reliable.
+ * <br>
+ * If no player argument is supplied then the command will be executed on the calling player. Calling this command
+ * on a player other than oneself requires either <code>chatshop.history.other</code> or <code>chatshop.admin</code>
+ * permissions.
+ * <br><br>
+ * Page, optional, is an integer indicating which page of output to display. Very often there are
+ * many transactions to show for a given player, and to prevent flooding the player's chat these entries
+ * are divided into "pages" by the {@link ChatManager}. Only the specified page is shown. If no
+ * page number is given then the first page will be shown.
+ * <br><br>
+ * This command has the following limits (aside from basic perms):
+ * <ul>
+ * <li>Console access denied.
+ * <li>World must be whitelisted in config OR config must allow querying from anyone (see below).
+ * <li>Gamemode must be whitelisted in config OR config must allow querying from anyone (see below).
+ * <li>Some (but not all) functions of this command require elevated permissions.
+ * </ul>
+ * This command is effectively a read-only command; the ChatShop is queried for information but
+ * nothing is changed. By default ChatShop will allow this command even if the player is in the wrong
+ * world or the wrong gamemode, but administrators can configuratively disable this liberty.
+ * <br><br>
  * @author ObsidianCraft Staff
  */
 public class History implements CommandExecutor
@@ -36,7 +70,7 @@ public class History implements CommandExecutor
     private final ChatShop PLUGIN;
     
     /**
-     * Instantiate the command executor for "history" commands.
+     * Instantiate the command executor for "history" and "sales" commands.
      * 
      * @param master    The specific instance of the parent ChatShop plugin.
      */
@@ -143,6 +177,22 @@ public class History implements CommandExecutor
         //  RESULT
         //
         
+        //Getting colors is fairly expensive, so do it once on
+        //execution rather than once per line of output.
+        String textCol = PLUGIN.CM.color("text");
+        String itemCol = PLUGIN.CM.color("item");
+        String qtyCol = PLUGIN.CM.color("quantity");
+        String priceCol = PLUGIN.CM.color("price");
+        String playerCol = PLUGIN.CM.color("player");
+        String dateColName = PLUGIN.getConfig().getString("chat.colors.date");
+        String dateColCode = PLUGIN.CM.color("date");
+        
+        //Constructing date objects can be monstrously expensive, according
+        //to the interwebs, so construct them once here rather than who-knows-
+        //how-many times in the output loop.
+        SimpleDateFormat shortDateFormatter = new SimpleDateFormat("MM/dd");
+        SimpleDateFormat longDateFormatter = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss");
+        
         //On SQL fail...
         if(tenders == null)
             return PLUGIN.CM.err500(usr);
@@ -160,9 +210,9 @@ public class History implements CommandExecutor
         page = Math.max(page,1);
         page = Math.min(page,PLUGIN.CM.paginate(tenders));
         String msg =
-                PLUGIN.CM.color("text") + "History for " +
-                PLUGIN.CM.color("item") + qPlayer.getName() +
-                PLUGIN.CM.color("text") + ", page " + page +
+                textCol + "History for " +
+                playerCol + qPlayer.getName() +
+                textCol + ", page " + page +
                 " of " + PLUGIN.CM.paginate(tenders) + ":";
         PLUGIN.CM.reply(usr,msg);
         
@@ -190,42 +240,40 @@ public class History implements CommandExecutor
             if(thing != null)
                 itemDisplay = thing.DISPLAY;
             
-            String quantity = PLUGIN.CM.color("quantity") + ChatManager.format(Math.abs(tenders[i].QUANTITY));
-            String item = PLUGIN.CM.color("item") + itemDisplay;
-            String priceEach = PLUGIN.CM.color("price") + ChatManager.format(tenders[i].PRICE);
-            String priceTotal = PLUGIN.CM.color("price") + ChatManager.format(tenders[i].PRICE * tenders[i].QUANTITY);
-            String player = PLUGIN.CM.color("player") + playerName;
-            String textcol = PLUGIN.CM.color("text");
-            String datecol = PLUGIN.getConfig().getString("chat.colors.date");
+            String quantity = qtyCol + ChatManager.format(Math.abs(tenders[i].QUANTITY));
+            String item = itemCol + itemDisplay;
+            String priceEach = priceCol + ChatManager.format(tenders[i].PRICE);
+            String priceTotal = priceCol + ChatManager.format(tenders[i].PRICE * tenders[i].QUANTITY);
+            String player = playerCol + playerName;
             
             if(tenders[i].QUANTITY < 1) //Queried player was the seller
             {
-                msg = textcol + " Sold " + quantity + " " + item + textcol + " to " +
-                    player + textcol + " @" + priceEach + textcol + "/ea. =" +
-                    priceTotal.replaceAll("[()]","") + textcol + ".";
+                msg = textCol + " Sold " + quantity + " " + item + textCol + " to " +
+                    player + textCol + " @" + priceEach + textCol + "/ea. =" +
+                    priceTotal.replaceAll("[()]","") + textCol + ".";
             }
             else //Queried player was the buyer
             {
-                msg = textcol + " Bought " + quantity + " " + item + textcol + " from " +
-                        player + textcol + " @" + priceEach + textcol + "/ea. =" +
-                        priceTotal.replaceAll("[()]","") + textcol + ".";
+                msg = textCol + " Bought " + quantity + " " + item + textCol + " from " +
+                        player + textCol + " @" + priceEach + textCol + "/ea. =" +
+                        priceTotal.replaceAll("[()]","") + textCol + ".";
             }
             
             if(tenders[i].DATE.before(today))
             {
                 TextComponent output = new TextComponent();
-                String shortDate = new SimpleDateFormat("MM/dd").format(tenders[i].DATE);
-                String longDate = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss").format(tenders[i].DATE);
+                String shortDate = shortDateFormatter.format(tenders[i].DATE);
+                String longDate = longDateFormatter.format(tenders[i].DATE);
                 output.setText(shortDate);
-                output.setColor(ChatColor.valueOf(datecol));
-                output.setHoverEvent(new HoverEvent(net.md_5.bungee.api.chat.HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(longDate).color(ChatColor.valueOf(datecol)).create()));
+                output.setColor(ChatColor.valueOf(dateColName));
+                output.setHoverEvent(new HoverEvent(net.md_5.bungee.api.chat.HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(longDate).color(ChatColor.valueOf(dateColName)).create()));
                 
                 usr.spigot().sendMessage(output, new TextComponent(" " + msg));
             }
             else
             {
                 String time = new SimpleDateFormat("HH:mm:ss").format(tenders[i].DATE);
-                PLUGIN.CM.reply(usr,PLUGIN.CM.color("date") + time + msg,false);
+                PLUGIN.CM.reply(usr,dateColCode + time + msg,false);
             }
         }
         

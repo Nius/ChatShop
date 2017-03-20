@@ -10,12 +10,36 @@ import com.niusworks.chatshop.constructs.BuyOrder;
 import com.niusworks.chatshop.constructs.Order;
 import com.niusworks.chatshop.constructs.SellOrder;
 import com.niusworks.chatshop.constructs.Tender;
+import com.niusworks.chatshop.managers.DatabaseManager;
 
 import net.md_5.bungee.api.ChatColor;
 
 /**
- * Executor for the "confirm" command for
- * OC Network's ChatShop.
+ * Executor for the "confirm" command for OC Network's ChatShop.
+ * <br>
+ * This command has two purposes: Players can confirm pending {@link BuyOrder}s and
+ * {@link SellOrder}s, or toggle whether they're using confirmations at all.
+ * <br><br>
+ * Given no arguments this command will determine whether any buy or sell
+ * orders have been posted by {@link Buy} or {@link Sell}, respectively, and
+ * if they are young enough will execute them.
+ * <br>
+ * Execution of buy and sell orders is performed through the {@link DatabaseManager}
+ * and then handed off to the appropriate command executor:
+ * {@link Buy#processResults} or {@link Sell#processResults}.
+ * <br><br>
+ * Given two arguments (the first being "toggle") this command will instruct the
+ * {@link DatabaseManager} to toggle the user's command-usage status in the database,
+ * as denoted by their player flags, for the command specified in the second argument.
+ * <br><br>
+ * This command has the following limits (aside from basic perms):
+ * <ul>
+ * <li>Console access denied.
+ * <li>World must be whitelisted in config.
+ * <li>Gamemode must be whitelisted in config.
+ * <li>General freeze prevents command (both functions).
+ * </ul>
+ * 
  * @author ObsidianCraft Staff
  */
 public class Confirm implements CommandExecutor
@@ -109,6 +133,8 @@ public class Confirm implements CommandExecutor
         
         if(toggleMode)
         {
+            //Get the flag index for the specified command that is to be toggled.
+            //Consult Player Flags Reference.txt for more info.
             int index = -1;
             switch(mode)
             {
@@ -146,10 +172,6 @@ public class Confirm implements CommandExecutor
         
         //Execute the pending order appropriately, then defer to the normal CommandExecutor of that order
         //  to finalize the action.
-        
-        //First, check for a general freeze.
-        if(PLUGIN.DB.isGeneralFreeze())
-            return PLUGIN.CM.denyGeneralFreeze(usr);
         
         if(pending instanceof BuyOrder)
         {

@@ -20,8 +20,28 @@ import com.niusworks.chatshop.ChatShop;
 import com.niusworks.chatshop.constructs.Item;
 
 /**
- * Manages all Minecraft item handling functionality for
- * OC Network's ChatShop.
+ * Manages all Minecraft item handling functionality for OC Network's ChatShop.
+ * <br>
+ * This class, and its {@link Item} children, are the bridge between old ID:DMG
+ * and MATERIAL:DMG rules. This class also serves as an adapter for Potions and
+ * Tipped Arrows, which use a totally different system for differentiating
+ * themselves.
+ * <br>
+ * Upon initialization ItemManager automatically reads items.csv and parses its contents
+ * into configured {@link Item}s ready to be used by the rest of the plugin.
+ * <br>
+ * ItemManger's job is to make design of all other classes easier by providing these services:
+ * <ul>
+ * <li>A string representation (usually a user argument) of an item can be converted into
+ *     a usable Item or ItemStack as needed in one line, or else responded to with meaningful
+ *     feedback.
+ * <li>Any item can be checked in one line to see if it's damaged, enchanted or invalid.
+ * <li>Any other class can ask ItemManager to "wash" an item, checking it against special
+ *     rules for potions (or other special items as added in the future), and subsequently
+ *     totally ignore the fact that these items work completely differently. This is mainly
+ *     because {@link #areSameItem} and {@link #giveItem} are sensitive to these special rules
+ *     and automatically make necessary adjustments.
+ * </ul>
  * @author ObsidianCraft Staff
  */
 public class ItemManager
@@ -62,6 +82,12 @@ public class ItemManager
     {
         PLUGIN = master;
         
+        /* This is an arbitrary assignment of numbers to potion types, but it must
+         * be matched by items.csv.
+         * This is to facilitate superimposition of a MATERIAL:DMG system atop the
+         * potion architecture, which is NBT-driven and currently incompatible with
+         * spogot.
+         */
         POTIONS.put("AWKWARD",0);
         POTIONS.put("FIRE_RESISTANCE",1);
         POTIONS.put("INSTANT_DAMAGE",2);
@@ -158,13 +184,11 @@ public class ItemManager
                         return i;
                     }
                     
-                    //Read minecraft official name
+                    //Read bukkit official name
+                    //This is the name compliant with org.bukkit.Material
                     String mname = tokens[1];
                     
-                    //Read all aliases
-                    //Aliases which contain spaces will be registered twice:
-                    //  once with spaces removed, and
-                    //  once with spaces replaced with underscores.
+                    //Read all aliases and store them for later registration.
                     String[] alii = new String[tokens.length - 2];
                     for(int j = 2; j < tokens.length; j ++)
                     {
@@ -208,7 +232,7 @@ public class ItemManager
                         aliases.put(alias.trim().toUpperCase().replaceAll("\\s",""),itm);
                         aliases.put(alias.trim().toUpperCase().replaceAll("\\s","_"),itm);
                     }
-                    //Store the official Minecraft name as an alias only for items with damage 0.
+                    //Store the official Bukkit name as an alias only for items with damage 0.
                     //(except for potions, which will store :111 (basic Fire Resistance potion).
                     if( dam == 0 ||
                         (
@@ -236,8 +260,10 @@ public class ItemManager
             return -2;
         }
         
+        //This output is for helping administrators debug changes to their items.csv,
+        //in case it's necessary.
         PLUGIN.CM.log("Loaded " + totalLoaded + " items. (" + totalBanned
-            + " ignored items and " + totalCommented + " comments, totaling "
+            + " banned items and " + totalCommented + " comments, totaling "
             + (totalLoaded + totalBanned + totalCommented) + " lines.)");
         return -1;
     }
@@ -582,7 +608,7 @@ public class ItemManager
      *              If the provided ItemStack is not a potion, returns the same ItemStack
      *              unmodified.
      */
-    private ItemStack superimposePotionDamage(ItemStack itm)
+    protected ItemStack superimposePotionDamage(ItemStack itm)
     {
         if(itm.getDurability() != 0)
             return itm;
@@ -624,7 +650,7 @@ public class ItemManager
      *              If the provided ItemStack is not a potion, returns the same ItemStack
      *              unmodified.
      */
-    private ItemStack getPotionFromSuperimposed(ItemStack itm)
+    protected ItemStack getPotionFromSuperimposed(ItemStack itm)
     {
         if( itm.getType() == Material.POTION ||
             itm.getType() == Material.SPLASH_POTION ||
@@ -657,7 +683,7 @@ public class ItemManager
      * @param value The numerical.
      * @return      The string paired with this numerical.
      */
-    private String getPotionType(int value)
+    protected String getPotionType(int value)
     {
         for(String key : POTIONS.keySet())
             if(POTIONS.get(key) == value)

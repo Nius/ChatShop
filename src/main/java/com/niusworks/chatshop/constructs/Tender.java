@@ -1,7 +1,13 @@
 package com.niusworks.chatshop.constructs;
 
+import com.niusworks.chatshop.commands.Buy;
+import com.niusworks.chatshop.managers.DatabaseManager;
+
 /**
- * A simple vehicle for expressing the results of a buy order.
+ * A simple vehicle for expressing the results of a buy order. This is used only by
+ * {@link DatabaseManager} to return information to {@link Buy}, because when a user
+ * entrusts the ChatShop to execute a purchase all of this information needs to be made
+ * subsequently available to the user.
  * @author ObsidianCraft Staff
  */
 public class Tender
