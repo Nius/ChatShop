@@ -11,7 +11,7 @@
   <!-- Repository Locations -->
   <repositories>
   	<repository>
-  		<id>spigt-repo</id>
+  		<id>spigot-repo</id>
   		<url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
   	</repository>
   	<repository>
@@ -25,9 +25,15 @@
   	<dependency>
   		<groupId>org.spigotmc</groupId>
   		<artifactId>spigot-api</artifactId>
-  		<version>1.11-R0.1-SNAPSHOT</version>
+  		<version>1.11.2-R0.1-SNAPSHOT</version>
   		<scope>provided</scope>
   	</dependency>
+  	<dependency>
+        <groupId>net.milkbowl.vault</groupId>
+        <artifactId>VaultAPI</artifactId>
+        <version>1.5</version>
+        <optional>true</optional>
+    </dependency>
 	<dependency>
 	    <groupId>mysql</groupId>
 	    <artifactId>mysql-connector-java</artifactId>
@@ -42,7 +48,7 @@
   
   <build>
     <defaultGoal>package</defaultGoal>
-    <finalName>chatshop</finalName>
+    <finalName>ChatShop</finalName>
     <resources>
       <resource>
         <targetPath>.</targetPath>
