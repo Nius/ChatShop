@@ -5,7 +5,7 @@ import com.niusworks.chatshop.managers.ItemManager;
 /**
  * Represents the configuration for an item that exists in the items dictionary items.csv.
  * This class is the programmatical bridge between old ID:DMG and new MATERIAL:DMG rules, but is
- * not at all smart: all information herein is provided by {@link ItemManager#initialize}.
+ * not at all smart: all information herein is provided by {@link ItemManager#loadItems}.
  * 
  * @author ObsidianCraft Staff
  */

@@ -72,15 +72,20 @@ public class ItemManager
     /** The master plugin for this manager. **/
     protected final ChatShop PLUGIN;
     
+    /** The folder in which to look for items.csv **/
+    protected final File DATA_FOLDER;
+    
     /**
      * Create an ItemManager with a reference to the master
      * plugin, and define the potions map.
      * 
-     * @param master    The master ChatShop plugin reference.
+     * @param master     The master ChatShop plugin reference.
+     * @param dataFolder The folder in which to look for items.csv
      */
-    public ItemManager(ChatShop master)
+    public ItemManager(ChatShop master,File dataFolder)
     {
         PLUGIN = master;
+        DATA_FOLDER = dataFolder;
         
         /* This is an arbitrary assignment of numbers to potion types, but it must
          * be matched by items.csv.
@@ -112,16 +117,14 @@ public class ItemManager
     /**
      * Load and parse the items CSV.
      * 
-     * @param dataFolder    The directory in which to look for "items.csv".
      * @return              -1 on success, -2 on I/O fail, -3 on failure to
      *                      spawn a new file if it was missing, else the line
      *                      number where a parse fail occurred.
      */
-    public int initialize(File dataFolder)
+    public synchronized int loadItems()
     {
-        //In case of reload, clear existing items.
-        items.clear();
-        aliases.clear();
+        HashMap<String,Item> newAliases = new HashMap<String,Item>();
+        HashMap<Integer,HashMap<Integer,Item>> newItems = new HashMap<Integer,HashMap<Integer,Item>>();
         
         int totalLoaded = 0;
         int totalCommented = 0;
@@ -130,7 +133,7 @@ public class ItemManager
         try
         {
             //Create the items.csv if it does not exist.
-            File itemFile = new File(dataFolder,"items.csv");
+            File itemFile = new File(DATA_FOLDER,"items.csv");
             if(!itemFile.exists())
             {
                 PLUGIN.CM.log("Items file is missing. Spawning a new one now.");
@@ -218,10 +221,10 @@ public class ItemManager
                     //Store the new item in the items 2D-hash
                     //In case of duplicates, the latest entry will prevail.
                     Item itm = new Item(id, dam, mname.trim().toUpperCase(),(display.length() > 0 ? display.trim() : alii[0].trim()),maxPrice,maxQuantity,isban);
-                    if(!items.containsKey(id))                      //If this ID is undefined...
-                        items.put(id,new HashMap<Integer,Item>());  //...create a new map for it.
-                    if(!items.get(id).containsKey(dam))             //If this exact item is undefined...
-                        items.get(id).put(dam,itm);                 //...store it.
+                    if(!newItems.containsKey(id))                      //If this ID is undefined...
+                        newItems.put(id,new HashMap<Integer,Item>());  //...create a new map for it.
+                    if(!newItems.get(id).containsKey(dam))             //If this exact item is undefined...
+                        newItems.get(id).put(dam,itm);                 //...store it.
                     
                     //Store all aliases.
                     //Aliases with spaces will be stored twice:
@@ -229,8 +232,8 @@ public class ItemManager
                     //  once with spaces replaced with underscores.
                     for(String alias : alii)
                     {
-                        aliases.put(alias.trim().toUpperCase().replaceAll("\\s",""),itm);
-                        aliases.put(alias.trim().toUpperCase().replaceAll("\\s","_"),itm);
+                        newAliases.put(alias.trim().toUpperCase().replaceAll("\\s",""),itm);
+                        newAliases.put(alias.trim().toUpperCase().replaceAll("\\s","_"),itm);
                     }
                     //Store the official Bukkit name as an alias only for items with damage 0.
                     //(except for potions, which will store :111 (basic Fire Resistance potion).
@@ -244,7 +247,7 @@ public class ItemManager
                             dam == 111
                          )
                        )
-                        aliases.put(mname.trim().toUpperCase(),itm);
+                        newAliases.put(mname.trim().toUpperCase(),itm);
                     
                     totalLoaded ++;
                 }
@@ -259,6 +262,10 @@ public class ItemManager
         {
             return -2;
         }
+        
+        //Overwrite existing item information with the newly loaded information.
+        aliases = newAliases;
+        items = newItems;
         
         //This output is for helping administrators debug changes to their items.csv,
         //in case it's necessary.

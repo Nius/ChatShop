@@ -103,6 +103,9 @@ public class CSAdmin implements CommandExecutor
         //  itself, in the database.
         //
         
+        String textCol = PLUGIN.CM.color("text");
+        String cmdCol = PLUGIN.CM.color("helpUsage");
+        
         try
         {
             //If the argument was an integer, show a list of
@@ -111,8 +114,10 @@ public class CSAdmin implements CommandExecutor
             int page = Integer.parseInt(args[0]);
             
             String[] out = {
-                    PLUGIN.CM.color("helpUsage") + "freeze",
-                    PLUGIN.CM.color("text") + "Freeze ALL chatshop assets."};
+                    cmdCol + "freeze",
+                    textCol + "Freeze ALL chatshop assets.",
+                    cmdCol + "reload",
+                    textCol + "Reload item definitions and configurations."};
                 
             //Head the commands list.
             //Checking the page number is already taken care of by
@@ -145,12 +150,25 @@ public class CSAdmin implements CommandExecutor
             boolean isNowFrozen = PLUGIN.DB.toggleGeneralFreeze();
             
             String msg = (isNowFrozen ?
-                PLUGIN.CM.color("text") + "All chatshop assets are now " +
+                textCol + "All chatshop assets are now " +
                 ChatColor.RED + "frozen" + PLUGIN.CM.color("text") + "."
                 :
-                PLUGIN.CM.color("text") + "The general freeze has been " +
+                textCol + "The general freeze has been " +
                 ChatColor.GREEN + "lifted" + PLUGIN.CM.color("text") + ".");
             
+            return PLUGIN.CM.reply(usr,msg);
+        }
+        else if(args[0].equalsIgnoreCase("reload"))
+        {
+            String msg;
+            int status = PLUGIN.IM.loadItems();
+            switch(status)
+            {
+                case -1: msg = textCol + "Items information reloaded " + ChatColor.GREEN + "successfully" + textCol + "."; break;
+                case -2: msg = PLUGIN.CM.color("error") + "Failed to read items file."; break;
+                case -3: msg = PLUGIN.CM.color("error") + "Failed to spawn a new items file."; break;
+                default: msg = PLUGIN.CM.color("error") + "Error in items file on line " + status + "."; break;
+            }
             return PLUGIN.CM.reply(usr,msg);
         }
         else

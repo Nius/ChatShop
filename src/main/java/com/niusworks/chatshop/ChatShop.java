@@ -31,7 +31,7 @@ public class ChatShop extends JavaPlugin
     /** The output manager for this entire plugin. **/
     public final ChatManager CM = new ChatManager(this);
     /** The item manager for this plugin. **/
-    public final ItemManager IM = new ItemManager(this);
+    public final ItemManager IM = new ItemManager(this,getDataFolder());
     /** The database manager for this plugin. **/
     public final DatabaseManager DB = new DatabaseManager(this);
     
@@ -62,7 +62,7 @@ public class ChatShop extends JavaPlugin
         }
         
         // Execute item library setup and validation.
-        int imstatus = IM.initialize(this.getDataFolder());
+        int imstatus = IM.loadItems();
         switch(imstatus)
         {
             case -1:

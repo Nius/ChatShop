@@ -406,10 +406,10 @@
 140,flower_pot                     ,Flower Pot
 
 #carrots
-141,carrot                         ,Carrots
+141,carrot                         ,Carrots                             !TECHNICAL
 
 #potatoes
-142,potato                         ,Potatoes,potato
+142,potato                         ,Potatoes,potato                     !TECHNICAL
 
 #wooden_button
 143,wood_button                    ,Wooden Button,button
@@ -771,7 +771,7 @@
 350:1,cooked_fish                  ,Cooked Salmon,csalmon
 
 #dye
-351,ink_sack                       ,Ink Sack,black
+351,ink_sack                       ,Ink Sack,ink sac,black
 351:1,ink_sack                     ,Rose Red,red
 351:2,ink_sack                     ,Cactus Green,green
 351:3,ink_sack                     ,Coco Beans,brown
@@ -896,9 +896,9 @@
 389,item_frame                     ,Item Frame
 390,flower_pot                     ,Flower Pot
 391,carrot                         ,Carrot
-392,potato                         ,Potato
-393,baked_potato                   ,Baked Potato
-394,poisonous_potato               ,Poisonous Potato
+392,potato_item                    ,Potato,Potatoes
+393,baked_potato                   ,Baked Potato,Baked potatoes
+394,poisonous_potato               ,Poisonous Potato,poisonous potatoes,poison potato,poison potatoes
 395,map                            ,Empty Map,map
 396,golden_carrot                  ,Golden Carrot
 397,skull                          ,Skeleton Head,skeleton skull
