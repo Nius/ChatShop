@@ -668,7 +668,7 @@ public class DatabaseManager
                                 PLUGIN.CM.color("quantity") + ChatManager.format(thisQuantity) + " " +
                                 PLUGIN.CM.color("item") + displayName + " " +
                                 PLUGIN.CM.color("text") + "from you for " +
-                                PLUGIN.CM.color("price") + ChatManager.format(listing.PRICE) +
+                                PLUGIN.CM.color("price") + ChatManager.format(listingCost) +
                                 PLUGIN.CM.color("text") + ".";
                             PLUGIN.CM.reply(PLUGIN.getServer().getPlayer(seller),msg);
                         }
@@ -691,7 +691,7 @@ public class DatabaseManager
                             + "'" + Bukkit.getOfflinePlayer(UUID.fromString(listing.PLAYER_UUID)).getName() + "', "
                             + "'" + usr.getUniqueId() + "', "
                             + "'" + usr.getName() + "', "
-                            + listingCost + ", "
+                            + listing.PRICE + ", "
                             + thisQuantity + ", "
                             + "null)";
                     int unused = connect.createStatement().executeUpdate(query);
