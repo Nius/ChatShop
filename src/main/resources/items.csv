@@ -202,7 +202,7 @@
 #standing_sign
 63,sign_post                       ,Standing Sign Block                 !TECHNICAL
 
-64,wooden_door                     ,Oak Door                            !TECHNICAL
+64,wooden_door                     ,Oak Door Block                      !TECHNICAL
 65,ladder                          ,Ladder
 
 #rail
@@ -721,13 +721,13 @@
 322,golden_apple                   ,Golden Apple
 322:1,golden_apple                 ,Enchanted Golden Apple
 323,sign                           ,Sign
-324,wooden_door                    ,Oak Door,Door,Wood Door,Wooden Door
+324,wooden_door_item               ,Oak Door,Door,Wood Door,Wooden Door
 325,bucket                         ,Bucket
 326,water_bucket                   ,Water Bucket
 327,lava_bucket                    ,Lava Bucket
 328,minecart                       ,Minecart
 329,saddle                         ,Saddle
-330,iron_door                      ,Iron Door,idoor
+330,iron_door_item                 ,Iron Door,idoor
 331,redstone                       ,Redstone
 
 #snowball
@@ -895,7 +895,7 @@
 388,emerald                        ,Emerald
 389,item_frame                     ,Item Frame
 390,flower_pot                     ,Flower Pot
-391,carrot                         ,Carrot
+391,carrot_item                    ,Carrot
 392,potato_item                    ,Potato,Potatoes
 393,baked_potato                   ,Baked Potato,Baked potatoes
 394,poisonous_potato               ,Poisonous Potato,poisonous potatoes,poison potato,poison potatoes
@@ -965,11 +965,11 @@
 #ender_crystal
 426,end_crystal                    ,End Crystal,Ender Crystal
 
-427,spruce_door                    ,Spruce Door
-428,birch_door                     ,Birch Door
-429,jungle_door                    ,Jungle Door
-430,acacia_door                    ,Acacia Door
-431,dark_oak_door                  ,Dark Oak Door,doak door
+427,spruce_door_item               ,Spruce Door
+428,birch_door_item                ,Birch Door
+429,jungle_door_item               ,Jungle Door
+430,acacia_door_item               ,Acacia Door
+431,dark_oak_door_item             ,Dark Oak Door,doak door,dark door
 432,chorus_fruit                   ,Chorus Fruit,cfruit
 
 #popped_chorus_fruit

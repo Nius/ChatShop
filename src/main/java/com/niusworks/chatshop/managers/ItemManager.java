@@ -159,15 +159,25 @@ public class ItemManager
                         continue;
                     }
                     
-                    //Determine whether this item is banned
+                    //Determine whether this item is banned or technical.
+                    //Banned items are loaded so that ChatShop can gracefully refuse them.
+                    //Technical items are not loaded at all.
                     boolean isban = false;
+                    boolean isTechnical = false;
                     String[] flags = line.split("!");
                     for(String flag : flags)
-                        if(flag.trim().equalsIgnoreCase("BAN") || flag.trim().equalsIgnoreCase("TECHNICAL"))
+                        if(flag.trim().equalsIgnoreCase("BAN"))
                         {
                             isban = true;
                             break;
                         }
+                        else if(flag.trim().equalsIgnoreCase("TECHNICAL"))
+                        {
+                            isTechnical = true;
+                            break;
+                        }
+                    if(isTechnical)
+                        continue;
                     if(isban)
                         totalBanned ++;
                     
@@ -219,7 +229,7 @@ public class ItemManager
                         display = tokens[2].trim().replaceAll("\\s","");
                     
                     //Store the new item in the items 2D-hash
-                    //In case of duplicates, the latest entry will prevail.
+                    //In case of duplicate item ID:DMGs, the first entry will prevail.
                     Item itm = new Item(id, dam, mname.trim().toUpperCase(),(display.length() > 0 ? display.trim() : alii[0].trim()),maxPrice,maxQuantity,isban);
                     if(!newItems.containsKey(id))                      //If this ID is undefined...
                         newItems.put(id,new HashMap<Integer,Item>());  //...create a new map for it.
@@ -230,6 +240,7 @@ public class ItemManager
                     //Aliases with spaces will be stored twice:
                     //  once with spaces removed,
                     //  once with spaces replaced with underscores.
+                    //In case of duplicates, the latest entry will prevail.
                     for(String alias : alii)
                     {
                         newAliases.put(alias.trim().toUpperCase().replaceAll("\\s",""),itm);
@@ -351,7 +362,7 @@ public class ItemManager
      * configuration information such as maximum price.
      * 
      * @param item  The item to look up.
-     * @return      The item definition.
+     * @return      The item definition, or null if no definition was found.
      */
     public Item lookup(ItemStack item)
     {        

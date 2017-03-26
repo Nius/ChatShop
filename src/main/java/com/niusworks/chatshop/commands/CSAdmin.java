@@ -117,7 +117,9 @@ public class CSAdmin implements CommandExecutor
                     cmdCol + "freeze",
                     textCol + "Freeze ALL chatshop assets.",
                     cmdCol + "reload",
-                    textCol + "Reload item definitions and configurations."};
+                    textCol + "Reload item definitions and configurations.",
+                    cmdCol + "version",
+                    textCol + "Get the current ChatShop version."};
                 
             //Head the commands list.
             //Checking the page number is already taken care of by
@@ -169,6 +171,14 @@ public class CSAdmin implements CommandExecutor
                 case -3: msg = PLUGIN.CM.color("error") + "Failed to spawn a new items file."; break;
                 default: msg = PLUGIN.CM.color("error") + "Error in items file on line " + status + "."; break;
             }
+            return PLUGIN.CM.reply(usr,msg);
+        }
+        else if(args[0].equalsIgnoreCase("version"))
+        {
+            String msg =
+                textCol + "ChatShop, by Obsidian Network staff. Version " +
+                cmdCol + PLUGIN.getDescription().getVersion() +
+                textCol + ".";
             return PLUGIN.CM.reply(usr,msg);
         }
         else
