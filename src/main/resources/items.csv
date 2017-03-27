@@ -181,7 +181,7 @@
 53,wood_stairs                     ,Oak Wood Stairs,oakstairs
 
 54,chest                           ,Chest
-55,redstone_wire                   ,Redstone Wire
+55,redstone_wire                   ,Redstone Wire                       !TECHNICAL
 56,diamond_ore                     ,Diamond Ore,dore
 57,diamond_block                   ,Diamond Block,dblock,diamondb
 
@@ -231,7 +231,7 @@
 75,redstone_torch_off              ,Unlit Redstone Torch                !TECHNICAL
 
 #redstone_torch
-76,redstone_torch_on               ,Redstone Torch,Lit Redstone Torch
+76,redstone_torch_on               ,Redstone Torch,Lit Redstone Torch,rstone torch
 
 77,stone_button                    ,Stone Button
 
@@ -307,7 +307,7 @@
 100,huge_mushroom_2                ,Red Mushroom Block
 
 #iron_bars
-101,iron_fence                     ,Iron Fence,ifence
+101,iron_fence                     ,Iron Fence,ifence,iron bars
 
 #glass_pane
 102,thin_glass                     ,Glass Pane,pane
@@ -356,7 +356,7 @@
 122,dragon_egg                     ,Dragon Egg
 
 #redstone_lamp
-123,redstone_lamp_off              ,Redstone Lamp
+123,redstone_lamp_off              ,Redstone Lamp,rstone lamp
 
 #lit_redstone_lamp
 124,redstone_lamp_on               ,Redstone Lamp (active)              !TECHNICAL
@@ -728,7 +728,7 @@
 328,minecart                       ,Minecart
 329,saddle                         ,Saddle
 330,iron_door_item                 ,Iron Door,idoor
-331,redstone                       ,Redstone
+331,redstone                       ,Redstone,rstone
 
 #snowball
 332,snow_ball                      ,Snowball,Snow Ball

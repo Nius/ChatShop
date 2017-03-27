@@ -298,6 +298,8 @@ public class ItemManager
      */
     public boolean giveItem(Player usr, ItemStack gift)
     {
+        int targetAmount = gift.getAmount();
+        
         gift = getPotionFromSuperimposed(gift);
         
         PlayerInventory inv = usr.getInventory();
@@ -308,17 +310,17 @@ public class ItemManager
         int stackSize = Math.max(gift.getMaxStackSize(),1);
         
         //Try to put the items in the player's (main) hand first.
-        ItemStack itm = inv.getItemInMainHand();
-        if(itm == null || isAir(itm) || areSameItem(itm,gift))
+        ItemStack handItem = inv.getItemInMainHand();
+        if(handItem == null || isAir(handItem) || areSameItem(handItem,gift))
         {
             //Put no more than was specified or the maximum stack size of
             // this item.
-            int toPut = Math.min(gift.getAmount(),stackSize);
+            int toPut = Math.min(targetAmount,stackSize);
             
             //Put no more than can fit on top the amount that was already
             // in hand.
-            if(!isAir(itm))
-                toPut = Math.min(toPut,stackSize - itm.getAmount());
+            if(!isAir(handItem))
+                toPut = Math.min(toPut,stackSize - handItem.getAmount());
             
             //If there is still room in hand (after checking stack size limits)
             // then put some stuff.
@@ -326,29 +328,60 @@ public class ItemManager
             {
                 given = toPut;
                 ItemStack newItm = new ItemStack(gift);
-                newItm.setAmount(isAir(itm) ? toPut : itm.getAmount() + toPut);
+                newItm.setAmount(isAir(handItem) ? toPut : handItem.getAmount() + toPut);
                 inv.setItemInMainHand(newItm);
             }
         }
         
-        //Disburse the remaining items throughout the player's inventory.
-        gift.setAmount(gift.getAmount() - given);
-        HashMap<Integer,ItemStack> notAdded = inv.addItem(gift);
+        int space = 0;
+        //Determine how much space is in the player's inventory for this item.
+        //Bukkit does not provide a way to determine how much was deposited after
+        //a call to Inventory.addItem(), and the HashMap returned by that method
+        //is proven unreliable.
+        for(int i = 0; i <= 35; i ++)   //Inventory slots 0-35 are main inventory
+        {
+            ItemStack slot = inv.getItem(i);
+            if(slot == null || isAir(slot))
+                space += stackSize;
+            else if(PLUGIN.IM.areSameItem(gift,slot))
+                space += stackSize - slot.getAmount();
+        }
         
-        //Drop on the ground items which could not fit in the player's inventory.
+        //Give the player as much as there is space for in inventory
+        ItemStack toGive = new ItemStack(gift);
+        int toGiveQty = Math.min(space,targetAmount - given);
+        toGive.setAmount(toGiveQty);
+        inv.addItem(toGive);
+        given += toGiveQty;
+        
+        //Drop remaining items on the ground.
         boolean didDrop = false;
-        for(ItemStack toDrop : notAdded.values())
+        int toDropQty = targetAmount - given;
+        if(toDropQty > 0)
         {
             didDrop = true;
-            usr.getWorld().dropItem(usr.getLocation(),toDrop);
-            String displayName = getDisplayName(toDrop);
-            String msg =
-                    PLUGIN.CM.color("text") + "Insufficient space in your inventory: there are now " +
-                    PLUGIN.CM.color("quantity") + ChatManager.format(toDrop.getAmount()) + " " +
-                    PLUGIN.CM.color("item") + displayName + " " +
-                    PLUGIN.CM.color("error") + "on the ground " +
-                    PLUGIN.CM.color("text") + "below you.";
+
+            //Bukkit does not play nice with ItemStacks whose amounts are
+            //greater than their maximum stack size. ChatShop must manually
+            //drop stacks of size stackSize repeatedly until the appropriate
+            //amount is dropped.
+            ItemStack toDrop = new ItemStack(gift);
+            toDrop.setAmount(stackSize);
             
+            for(int i = 0; i + stackSize <= toDropQty; i += stackSize)
+                usr.getWorld().dropItem(usr.getLocation(),toDrop);
+            
+            int remainingQty = toDropQty % stackSize;
+            toDrop.setAmount(remainingQty);
+            usr.getWorld().dropItem(usr.getLocation(),toDrop);
+            
+            String msg =
+                PLUGIN.CM.color("text") + "Insufficient space in your inventory: there are now " +
+                PLUGIN.CM.color("quantity") + ChatManager.format(toDropQty) + " " +
+                PLUGIN.CM.color("item") + getDisplayName(toDrop) + " " +
+                PLUGIN.CM.color("error") + "on the ground " +
+                PLUGIN.CM.color("text") + "below you.";
+          
             PLUGIN.CM.reply(usr,msg);
         }
         
