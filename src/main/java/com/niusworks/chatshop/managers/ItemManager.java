@@ -425,7 +425,10 @@ public class ItemManager
      */
     public String getDisplayName(ItemStack item)
     {
-        Item itm = lookup(item);
+        Object res = verify(item);
+        if(!(res instanceof ItemStack))
+            return "~INVALID";
+        Item itm = lookup((ItemStack)res);
         if(itm == null)
             return "~INVALID";
         return itm.DISPLAY;
