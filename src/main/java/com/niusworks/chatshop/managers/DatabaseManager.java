@@ -122,6 +122,7 @@ public class DatabaseManager
         catch(ClassNotFoundException|SQLException e)
         {
             PLUGIN.getLogger().log(Level.SEVERE,"Failed to load database.",e);
+            e.printStackTrace();
             return -1;
         }
         return 1;
@@ -177,6 +178,7 @@ public class DatabaseManager
         catch (SQLException e)
         {
             error(query);
+            e.printStackTrace();
             return ' ';
         }
     }
@@ -251,6 +253,7 @@ public class DatabaseManager
         catch (SQLException e)
         {
             error(query);
+            e.printStackTrace();
             return; //SQL problem
         }
     }
@@ -309,6 +312,7 @@ public class DatabaseManager
         catch(SQLException e)
         {
             error(query);
+            e.printStackTrace();
         }
         return null;
     }
@@ -346,6 +350,7 @@ public class DatabaseManager
         catch(SQLException e)
         {
             error(query);
+            e.printStackTrace();
         }
         return null;
     }
@@ -382,6 +387,7 @@ public class DatabaseManager
         catch(SQLException e)
         {
             error(query);
+            e.printStackTrace();
         }
         return null;
     }
@@ -425,6 +431,7 @@ public class DatabaseManager
         }
         catch(SQLException e)
         {
+        	e.printStackTrace();
             error(query);
         }
         return null;
@@ -472,6 +479,7 @@ public class DatabaseManager
         }
         catch(SQLException e)
         {
+        	e.printStackTrace();
             return -2;
         }
     }
@@ -704,6 +712,7 @@ public class DatabaseManager
         catch(SQLException e)
         {
             error(query);
+            e.printStackTrace();
             return null;
         }
     }
@@ -770,6 +779,7 @@ public class DatabaseManager
         catch(SQLException e)
         {
             error(query);
+            e.printStackTrace();
         }
         return -2;
     }
@@ -808,6 +818,7 @@ public class DatabaseManager
         catch(SQLException e)
         {
             error(query);
+            e.printStackTrace();
         }
         return -1;
     }
@@ -832,6 +843,7 @@ public class DatabaseManager
        catch (SQLException e)
        {
            PLUGIN.CM.severe("Unexpected error attempting to close the database connection.");
+           e.printStackTrace();
        }
     }
 }
