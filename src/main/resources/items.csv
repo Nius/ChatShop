@@ -66,11 +66,11 @@
 14,gold_ore                        ,Gold Ore,gore
 15,iron_ore                        ,Iron Ore,iore
 16,coal_ore                        ,Coal Ore,core
-17,log                             ,Oak Wood,oak
-17:1,log                           ,Spruce Wood,spruce
-17:2,log                           ,Birch Wood,birch
-17:3,log                           ,Jungle Wood,jungle
-18,leaves                          ,Oak Leaves
+17,log                             ,Oak Wood,oak,tree,log
+17:1,log                           ,Spruce Wood,spruce,spruce tree,spruce log
+17:2,log                           ,Birch Wood,birch,birch tree,birch log
+17:3,log                           ,Jungle Wood,jungle,jungle tree,jungle log
+18,leaves                          ,Oak Leaves,leaves
 18:1,leaves                        ,Spruce Leaves
 18:2,leaves                        ,Birch Leaves
 18:3,leaves                        ,Jungle Leaves
@@ -241,7 +241,7 @@
 79,ice                             ,Ice
 80,snow                            ,Snow Block
 81,cactus                          ,Cactus
-82,clay                            ,Clay
+82,clay                            ,Clay Block,block of clay
 
 #reeds
 83,sugar_cane_block                ,Sugar Cane,Reeds                    !TECHNICAL
@@ -380,7 +380,7 @@
 127,cocoa                          ,Cocoa                               !TECHNICAL
 128,sandstone_stairs               ,Sandstone Stairs
 129,emerald_ore                    ,Emerald Ore,eore
-130,ender_chest                    ,Ender Chest
+130,ender_chest                    ,Ender Chest,echest
 131,tripwire_hook                  ,Tripwire Hook
 132,tripwire_hook                  ,Tripwire
 133,emerald_block                  ,Emerald Block,bemerald,emeraldb
@@ -495,7 +495,7 @@
 168,prismarine                     ,Prismarine
 168:1,prismarine                   ,Prismarine Bricks
 168:2,prismarine                   ,Dark Prismarine
-169,sea_lantern                    ,Sea Lantern
+169,sea_lantern                    ,Sea Lantern,lantern
 170,hay_block                      ,Hay Bale
 171,carpet                         ,White Carpet,whitec
 171:1,carpet                       ,Orange Carpet,orangec
@@ -737,7 +737,7 @@
 334,leather                        ,Leather
 335,milk_bucket                    ,Milk Bucket
 336,brick                          ,Brick
-337,clay_ball                      ,Clay
+337,clay_ball                      ,Clay Ball,clay
 
 #reeds
 338,sugar_cane                     ,Sugar Cane
@@ -774,7 +774,7 @@
 351,ink_sack                       ,Ink Sack,ink sac,black
 351:1,ink_sack                     ,Rose Red,red
 351:2,ink_sack                     ,Cactus Green,green
-351:3,ink_sack                     ,Coco Beans,brown
+351:3,ink_sack                     ,Cocoa Beans,Coco Beans,coco,cocoa,brown
 351:4,ink_sack                     ,Lapis Lazuli,lapis,blue
 351:5,ink_sack                     ,Purple Dye,purple
 351:6,ink_sack                     ,Cyan Dye,cyan
