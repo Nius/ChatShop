@@ -1,10 +1,14 @@
-#------------------------------------------
-#            Virtual Shop Config
-#------------------------------------------
+#
+#   -- ChatShop Config --
+#
+#   Configuration for the ChatShop plugin for ObsidianCraft Network,
+#   by ObsidianCraft staff.
+#
 
-#
-# Database Configuration
-#
+
+##########################
+# Database Configuration #
+##########################
 
 MySQL:
   port:             3306
@@ -13,26 +17,34 @@ MySQL:
   password:         password
   database:         ChatShop
 
-#
-# Market Policy
-#
+# Time in milliseconds between keep-alive queries.
+# MySQL's default timeout for (inactive) database connections is 8 hours
+# (28,800,000 ms). ChatShop can quietly send a query to the database
+# periodically to keep the connection alive, so that quieter servers can
+# use the ChatShop continuously without having to reconfigure MySQL.
+# A value less than 60,000 will disable the feature altogether.
+  keep-alive:         14400000
 
-#Global maximum price for all items.
-#items.csv does NOT override this.
+#################
+# Market Policy #
+#################
+
+# Global maximum price for all items.
+# items.csv does NOT override this.
 global-max-price:   10000000
 
-#Time in milliseconds a user has to /confirm.
+# Time in milliseconds a user has in which to /confirm.
 confirm-timeout:    10000
 
-#
-# Gamemode and World Configuration
-#
+####################################
+# Gamemode and World Configuration #
+####################################
 
 # Only players in these gamemodes can buy, sell, etc.
 allowed-modes:
   - SURVIVAL
   
-#Only players in these worlds can buy, sell, etc.
+# Only players in these worlds can buy, sell, etc.
 allowed-worlds:
   - Survival
   - Survival_the_end
@@ -42,9 +54,12 @@ allowed-worlds:
 # shop (/find, /sales, etc.)
 query-anyone:       true
 
-#
-# Chat Confiuration
-#
+#####################
+# Chat Confiuration #
+#####################
+
+# Chat colors must be human-readable names
+# found in Bukkit's ChatColor enum.
 
 chat:
   broadcast-offers: true

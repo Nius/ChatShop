@@ -833,6 +833,33 @@ public class DatabaseManager
         PLUGIN.CM.severe("Unexpected error occurred with query: \"" + query + "\"");
     }
     
+    /**
+     * Send a query to the database server to keep the connection from timing out.
+     * The MySQL default timeout (for interactive connections) is 8 hours; if the
+     * ChatShop were to be unused for 8 hours then subsequent queries would fail.
+     * This feature allows ChatShop to be run on quieter servers without having to
+     * reconfigure MySQL.
+     * 
+     * Note that despite this method's direct interaction with the database it
+     * does not need to be synchronized, because it (A) does not actually read any
+     * meaningful information from the database and (B) does not write to the database
+     * at all.
+     */
+    public void keepAlive()
+    {
+        String query = "SELECT id FROM ChatShop_transactions WHERE FALSE";
+        try
+        {
+            connect.createStatement().executeQuery(query);
+        }
+        catch(SQLException e)
+        {
+            error("Error executing keep-alive query.");
+            error(query);
+            e.printStackTrace();
+        }
+    }
+    
     /** Close the database connection. **/
     public void close()
     {
@@ -840,7 +867,7 @@ public class DatabaseManager
        {
            connect.close();
        }
-       catch (SQLException e)
+       catch (Exception e)
        {
            PLUGIN.CM.severe("Unexpected error attempting to close the database connection.");
            e.printStackTrace();

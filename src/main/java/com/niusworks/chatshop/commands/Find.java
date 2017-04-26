@@ -176,7 +176,7 @@ public class Find implements CommandExecutor
                 textCol + "Listings for " +
                 itemCol + displayName +
                 textCol + ", page " + page +
-                " of " + PLUGIN.CM.paginate(listings) + ":";
+                " of " + PLUGIN.CM.getPaginationSize(listings) + ":";
         PLUGIN.CM.reply(usr,msg);
         
         //List all listings on this page.

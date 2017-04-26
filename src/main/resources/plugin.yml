@@ -3,30 +3,42 @@ authors: [Wesley27, LazrCowboy, SirNius]
 description: Allows players to buy and sell goods via chat.
 main: com.niusworks.chatshop.ChatShop
 name: ChatShop
-version: 1.0.7
+version: 1.0.8
 depend: [Vault]
 commands:
     buy:
-        description: Buy items (in order by price).
-        usage: /buy <amount> <item | "hand"> [maxprice]
+        description: |-
+          Buy a quantity of the cheapest of the specified item from the market.
+          You can use "hand" to refer to the item currently in your main hand.
+          If you specify a maximum price then ChatShop will not allow you to spend
+          more than that price on any one unit of the item you're buying.
+        usage: /buy <quantity> <item | "hand"> [maxprice]
     cancel:
-        description: Remove items from your existing listing.
-        usage: /cancel <amount> <item | "hand">
+        description: |-
+          Remove some of your own specified items from the market.
+          You can say "all" instead of a number to remove the whole stock. 
+          You can use "hand" to refer to the item currently in your main hand.
+        usage: /cancel <quantity | "all"> <item | "hand">
     chatshop:
-        description: Show Chat Shop commands.
+        description: Show Chat Shop help and commands.
         usage: /chatshop [page]
         aliases: [chatshop,cs,os,oshop,potion,potions,shop,vm,vs]
     confirm:
-        description: Confirm a pending transaction or toggle confirmations.
+        description: "Confirm a pending transaction, or toggle confirmations whether you're using /confirm at all."
         usage: /confirm [toggle <buy|sell>]
     csadmin:
         description: Central command for administrative functions.
         usage: /csadmin <command>
     dump:
-        description: Dump your inventory to the market.
+        description: |-
+          Post your whole inventory to the market.
+          Only items for which you already have some on the market will be posted.
+          Your prices will not be changed.
         usage: /dump
     find:
-        description: Find offers for an item.
+        description: |-
+          Find an item on the market.
+          You can use "hand" to refer to the item currently in your main hand.
         usage: /find <item | "hand"> [page]
         aliases: [f]
     history:
@@ -34,16 +46,25 @@ commands:
         usage: /history [player] [page]
         aliases: [sales]
     quote:
-        description: Get a quote for the given items.
+        description: |-
+          Find out how much it would cost to buy a given quantity of some item.
+          You can use "hand" to refer to the item currently in your main hand.
         usage: /quote <quantity> <item | "hand">
     reprice:
-        description: Change the price of something you're already selling.
+        description: |-
+          Change the price of something you're already selling.
+          You can use "hand" to refer to the item currently in your main hand.
         usage: /reprice <item | "hand"> <newPrice>
     sell:
-        description: Put goods up for sale on the Chat Shop.
-        usage: /sell <amount> <item | "hand"> <price | "-">
+        description: |-
+          Put items up for sale on the ChatShop.
+          You can say "all" instead of a number to sell as much as you have in your inventory.
+          You can use "hand" to refer to the item currently in your main hand.
+          You can use "-" instead of a price to use your current market price, if you have one.
+          The price is per item, not for the whole stock.
+        usage: /sell <quantity> <item | "hand"> <priceEach | "-">
     stock:
-        description: List all items available from a user on the Chat Shop.
+        description: Show everything a player is currently selling on the ChatShop.
         usage: /stock [player] [page]
 permissions:
     chatshop.admin:

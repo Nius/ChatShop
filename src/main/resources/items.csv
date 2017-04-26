@@ -43,12 +43,12 @@
 3:1,dirt                           ,Coarse Dirt
 3:2,dirt                           ,Podzol
 4,cobblestone                      ,Cobblestone,cobble
-5,wood                             ,Oak Wood Plank,oakplank
-5:1,wood                           ,Spruce Wood Plank,spruceplank
-5:2,wood                           ,Birch Wood Plank,birchplank
-5:3,wood                           ,Jungle Wood Plank,jungleplank
-5:4,wood                           ,Acacia Wood Plank,acaciaplank
-5:5,wood                           ,Dark Oak Wood Plank,darkoakplank
+5,wood                             ,Oak Wood Plank,oak plank,oak wood
+5:1,wood                           ,Spruce Wood Plank,spruce plank,spruce wood
+5:2,wood                           ,Birch Wood Plank,birch plank,birch wood
+5:3,wood                           ,Jungle Wood Plank,jungle plank,jungle wood
+5:4,wood                           ,Acacia Wood Plank,acacia plank,acacia wood
+5:5,wood                           ,Dark Oak Wood Plank,dark oak plank,dark oak wood
 6,sapling                          ,Oak Sapling
 6:1,sapling                        ,Spruce Sapling
 6:2,sapling                        ,Birch Sapling
@@ -66,10 +66,10 @@
 14,gold_ore                        ,Gold Ore,gore
 15,iron_ore                        ,Iron Ore,iore
 16,coal_ore                        ,Coal Ore,core
-17,log                             ,Oak Wood,oak,tree,log
-17:1,log                           ,Spruce Wood,spruce,spruce tree,spruce log
-17:2,log                           ,Birch Wood,birch,birch tree,birch log
-17:3,log                           ,Jungle Wood,jungle,jungle tree,jungle log
+17,log                             ,Oak Log,oak,tree,log
+17:1,log                           ,Spruce Log,spruce,spruce tree
+17:2,log                           ,Birch Log,birch,birch tree
+17:3,log                           ,Jungle Log,jungle,jungle tree
 18,leaves                          ,Oak Leaves,leaves
 18:1,leaves                        ,Spruce Leaves
 18:2,leaves                        ,Birch Leaves
@@ -481,8 +481,8 @@
 161:1,leaves_2                     ,Dark Oak Leaves
 
 #log2
-162,log_2                          ,Acacia Wood
-162:1,log_2                        ,Dark Oak Wood
+162,log_2                          ,Acacia Log,acacia,acacia tree
+162:1,log_2                        ,Dark Oak Wood,dark oak,dark oak tree
 
 163,acacia_stairs                  ,Acacia Wood Stairs
 164,dark_oak_stairs                ,Dark Oak Wood Stairs
@@ -762,7 +762,7 @@
 348,glowstone_dust                 ,Glowstone Dust
 
 #fish
-349,raw_fish                       ,Raw Fish,rfish
+349,raw_fish                       ,Raw Fish,rfish,fish
 349:1,raw_fish                     ,Raw Salmon,rsalmon
 349:2,raw_fish                     ,Clownfish
 349:3,raw_fish                     ,Pufferfish,pfish
@@ -909,7 +909,7 @@
 397:5,skull                        ,Dragon Head,dragon skull
 
 #carrot_on_a_stick
-398,carrot_stick                   ,Carrot on a Stick,Carrot Stick
+398,carrot_stick                   ,Carrot On A Stick,Carrot Stick
 
 399,nether_star                    ,Nether Star
 400,pumpkin_pie                    ,Pumpkin Pie

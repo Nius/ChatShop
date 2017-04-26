@@ -122,7 +122,6 @@ public class Help implements CommandExecutor
         String textCol = PLUGIN.CM.color("text");
         String itemCol = PLUGIN.CM.color("item");
         String cmdCol = PLUGIN.CM.color("helpUsage");
-        String priceCol = PLUGIN.CM.color("price");
         
         ArrayList<String> lines = new ArrayList<String>();
         
@@ -151,24 +150,14 @@ public class Help implements CommandExecutor
             }
         });
         
-        String[] shortcuts = {
-            "",
-            textCol + "=== SHORTCUTS ===",
-            textCol + "You can use the shortcut \"" + itemCol + "hand" + textCol + "\" instead of an item name",
-            textCol + "to indicate the item you're currently holding in your main hand.",
-            textCol + "When selling items, you can use \"" + priceCol + "-" + textCol + "\" instead of a price",
-            textCol + "to use whatever price you already have posted."};
-        for(String i : shortcuts)
-            lines.add(i);
-        
         String[] potions = {
-            textCol + "=== CHATSHOP and POTIONS ===",
-            textCol + "ChatShop supports all potions and tipped arrows.",
-            textCol + "You can search for such items by their full name,",
-            textCol + "such as " + itemCol + "LongPotionOfRegeneration" + textCol + ".",
-            textCol + "All potions also follow a standardized shortcut system:",
-            itemCol + "p-harm2" + textCol + ", " + itemCol + "sp-longnight" + textCol + ", and " + itemCol + "ta-water",
-            textCol + "are all valid item references.",
+            cmdCol + "=== CHATSHOP and POTIONS ===",
+            textCol + "ChatShop supports all potions and tipped arrows." + "\n" +
+            textCol + "You can search for such items by their full name," + "\n" +
+            textCol + "such as " + itemCol + "LongPotionOfRegeneration" + textCol + "." + "\n" +
+            textCol + "All potions also follow a standardized shortcut system:" + "\n" +
+            itemCol + "p-harm2" + textCol + ", " + itemCol + "sp-longnight" + textCol + ", and " + itemCol + "ta-water" + "\n" +
+            textCol + "are all valid item references." + "\n" +
             textCol + "Don't forget you can also use " + itemCol + "hand" + textCol + "."};
         
         String[] out;
@@ -177,7 +166,6 @@ public class Help implements CommandExecutor
             out = potions;
         else
         {
-            lines.add("");
             for(String i : potions)
                 lines.add(i);
             out = lines.toArray(new String[lines.size()]);
@@ -187,12 +175,12 @@ public class Help implements CommandExecutor
         //Checking the page number is already taken care of by
         //ChatManager, but for purposes of displaying an accurate
         //number it needs to happen here.
-        int pagesAvail = PLUGIN.CM.paginate(out);
+        int pagesAvail = PLUGIN.CM.getPaginationSize(out,4);
         page = Math.max(page,1);
         page = Math.min(page,pagesAvail);
         
         String msg =
-                PLUGIN.CM.color("prefix") + "ChatShop Commands" +
+                PLUGIN.CM.color("prefix") + "ChatShop Help" +
                 (!isPotions ?
                     textCol + ", page " + page +
                     " of " + pagesAvail + ":":
@@ -200,7 +188,7 @@ public class Help implements CommandExecutor
         PLUGIN.CM.reply(usr,msg,false);
         
         //List all commands on this page.
-        out = PLUGIN.CM.paginate(out,page);
+        out = PLUGIN.CM.paginate(out,4,page);
         for(int i = 0; i < out.length; i ++)
         {
             PLUGIN.CM.reply(usr,out[i],false);

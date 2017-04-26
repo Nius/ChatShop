@@ -208,12 +208,12 @@ public class History implements CommandExecutor
         //ChatManager, but for purposes of displaying an accurate
         //number it needs to happen here.
         page = Math.max(page,1);
-        page = Math.min(page,PLUGIN.CM.paginate(tenders));
+        page = Math.min(page,PLUGIN.CM.getPaginationSize(tenders));
         String msg =
                 textCol + "History for " +
                 playerCol + qPlayer.getName() +
                 textCol + ", page " + page +
-                " of " + PLUGIN.CM.paginate(tenders) + ":";
+                " of " + PLUGIN.CM.getPaginationSize(tenders) + ":";
         PLUGIN.CM.reply(usr,msg);
         
         Timestamp today = Timestamp.from(Instant.now().truncatedTo(ChronoUnit.DAYS));

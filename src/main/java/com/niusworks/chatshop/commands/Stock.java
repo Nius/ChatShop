@@ -180,12 +180,12 @@ public class Stock implements CommandExecutor
         //ChatManager, but for purposes of displaying an accurate
         //number it needs to happen here.
         page = Math.max(page,1);
-        page = Math.min(page,PLUGIN.CM.paginate(listings));
+        page = Math.min(page,PLUGIN.CM.getPaginationSize(listings));
         String msg =
                 textCol + "Listings for " +
                 playerCol + qPlayer.getName() +
                 textCol + ", page " + page +
-                " of " + PLUGIN.CM.paginate(listings) + ":";
+                " of " + PLUGIN.CM.getPaginationSize(listings) + ":";
         PLUGIN.CM.reply(usr,msg);
         
         //List all listings on this page.

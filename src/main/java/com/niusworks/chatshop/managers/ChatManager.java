@@ -152,7 +152,7 @@ public class ChatManager
         int listingsPerPage = PLUGIN.getConfig().getInt("chat.page-length");
         
         //Determine total number of possible pages
-        int pagesAvailable = paginate(available);
+        int pagesAvailable = getPaginationSize(available);
         
         //Prevent asking for a nonexistent page
         if(pageNum >= pagesAvailable)
@@ -187,15 +187,35 @@ public class ChatManager
      *                  the config file.
      */
     public String[] paginate(String[] available, int pageNum)
+    {
+        //Get configured number of lines per page
+        int listingsPerPage = PLUGIN.getConfig().getInt("chat.page-length");
+        return paginate(available,listingsPerPage,pageNum);
+    }
+    
+    /**
+     * Given a list of Strings, return one page's worth
+     * assuming that Objects and lines of chat have a
+     * one-to-one relationship, and only the specified
+     * number of lines are allowed per page.
+     * 
+     * This effectively overrides the config file's
+     * specification of lines per page.
+     * 
+     * @param available    All available Strings.
+     * @param linesPerPage How many lines are allowed on a page.
+     * @param pageNum      The index of the desired page, where
+     *                     the first page is index 1.
+     * @return             One page of Strings, pursuant to
+     *                     the config file.
+     */
+    public String[] paginate(String[] available, int linesPerPage, int pageNum)
     {        
         //Convert from natural page number to index
         pageNum --;
         
-        //Get configured number of lines per page
-        int listingsPerPage = PLUGIN.getConfig().getInt("chat.page-length");
-        
         //Determine total number of possible pages
-        int pagesAvailable = paginate(available);
+        int pagesAvailable = getPaginationSize(available,linesPerPage);
         
         //Prevent asking for a nonexistent page
         if(pageNum >= pagesAvailable)
@@ -203,16 +223,16 @@ public class ChatManager
         if(pageNum < 0)
             pageNum = 0;
         
-        int startIndex = pageNum * listingsPerPage;
+        int startIndex = pageNum * linesPerPage;
         
         //Determine how many listings are on this page
         //(in case of last page)
         int qty = Math.min(
             available.length - startIndex,
-            listingsPerPage);
+            linesPerPage);
         
         String[] res = new String[qty];
-        for(int i = startIndex; i < startIndex + listingsPerPage && i < available.length; i++)
+        for(int i = startIndex; i < startIndex + linesPerPage && i < available.length; i++)
             res[i - startIndex] = available[i];
         
         return res;
@@ -228,10 +248,30 @@ public class ChatManager
      * @return          The number of pages required to
      *                  express these Objects.
      */
-    public int paginate(Object[] available)
+    public int getPaginationSize(Object[] available)
     {
         int listingsPerPage = PLUGIN.getConfig().getInt("chat.page-length");
-        double fpa = ((double)available.length) / listingsPerPage;
+        return getPaginationSize(available,listingsPerPage);
+    }
+    
+    /**
+     * Determine the total number of pages it would take
+     * to express the given array of Objects,
+     * assuming that Objects and lines of chat have a
+     * one-to-one relationship, and only the specified
+     * number of lines are allowed per page.
+     * 
+     * This effectively overrides the config file's
+     * specification of lines per page.
+     * 
+     * @param available    All available Objects.
+     * @param linesPerPage How many lines are allowed on a page.
+     * @return             The number of pages required to
+     *                     express these Objects.
+     */
+    public int getPaginationSize(Object[] available, int linesPerPage)
+    {
+        double fpa = ((double)available.length) / linesPerPage;
         int pagesAvailable = ((int)fpa) +
             (fpa % 1.00 == 0 ? 0 : 1);
         return pagesAvailable;

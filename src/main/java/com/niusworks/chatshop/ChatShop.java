@@ -2,6 +2,7 @@ package com.niusworks.chatshop;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Timer;
 
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -12,6 +13,7 @@ import com.niusworks.chatshop.constructs.Order;
 import com.niusworks.chatshop.managers.ChatManager;
 import com.niusworks.chatshop.managers.DatabaseManager;
 import com.niusworks.chatshop.managers.ItemManager;
+import com.niusworks.chatshop.utilities.KeepAlive;
 
 import net.milkbowl.vault.economy.Economy;
 
@@ -38,12 +40,12 @@ public class ChatShop extends JavaPlugin
     /** A map of pending orders, used by /buy, /confirm, and /sell. **/
     public final HashMap<Player,Order> PENDING = new HashMap<Player,Order>();
     
+    /** The timer which manages the keep-alive feature. **/
+    protected final Timer KEEP_ALIVE = new Timer(true);
+    
     @Override
     public void onEnable()
     {        
-        // Say hello!
-        CM.log("Initializing ChatShop plugin version 0.1 by Nicholas Harrell");
-        
         // Load config
         if(!(new File(getDataFolder(),"config.yml")).exists())
         {
@@ -83,7 +85,7 @@ public class ChatShop extends JavaPlugin
         RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
         ECON = rsp.getProvider();
         
-        //Register all commands.
+        // Register all commands.
         this.getCommand("buy").setExecutor(new Buy(this));
         this.getCommand("cancel").setExecutor(new Cancel(this));
         this.getCommand("chatshop").setExecutor(new Help(this));
@@ -96,11 +98,19 @@ public class ChatShop extends JavaPlugin
         this.getCommand("reprice").setExecutor(new Reprice(this));
         this.getCommand("sell").setExecutor(new Sell(this));
         this.getCommand("stock").setExecutor(new Stock(this));
+        
+        // Schedule keep-alive queries (if enabled).
+        int ivl = getConfig().getInt("MySQL.keep-alive",-1);
+        if(ivl >= 60000) // A value less than 60,000 signifies the feature is disabled.
+        {
+            KEEP_ALIVE.schedule(new KeepAlive(this),0,ivl);
+        }
     }
     
     @Override
     public void onDisable()
     {
+        KEEP_ALIVE.cancel();
         DB.close();
     }
         

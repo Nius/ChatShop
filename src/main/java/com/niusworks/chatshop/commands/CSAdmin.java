@@ -125,7 +125,7 @@ public class CSAdmin implements CommandExecutor
             //Checking the page number is already taken care of by
             //ChatManager, but for purposes of displaying an accurate
             //number it needs to happen here.
-            int pagesAvail = PLUGIN.CM.paginate(out);
+            int pagesAvail = PLUGIN.CM.getPaginationSize(out);
             page = Math.max(page,1);
             page = Math.min(page,pagesAvail);
             
