@@ -341,8 +341,8 @@
 #enchanting_table
 116,enchantment_table              ,Enchanting Table
 
-117,brewing_stand                  ,Brewing Stand
-118,cauldron                       ,Cauldron
+117,brewing_stand                  ,Brewing Stand                       !TECHNICAL
+118,cauldron                       ,Cauldron                            !TECHNICAL
 
 #end_portal
 119,ender_portal                   ,End Portal                          !TECHNICAL
@@ -403,7 +403,7 @@
 139,cobble_wall                    ,Cobblestone Wall,cobblewall
 
 139:1,cobblestone_wall             ,Mossy Cobblestone Wall,mossywall
-140,flower_pot                     ,Flower Pot
+140,flower_pot                     ,Flower Pot                          !TECHNICAL
 
 #carrots
 141,carrot                         ,Carrots                             !TECHNICAL
@@ -830,8 +830,12 @@
 376,fermented_spider_eye           ,Fermented Spider Eye
 377,blaze_powder                   ,Blaze Powder
 378,magma_cream                    ,Magma Cream
-379,brewing_stand                  ,Brewing Stand
-380,cauldron                       ,Cauldron
+
+#brewing_stand
+379,brewing_stand_item             ,Brewing Stand
+
+#cauldron
+380,cauldron_item                  ,Cauldron
 
 #ender_eye
 381,eye_of_ender                   ,Eye of Ender,ender eye
@@ -894,19 +898,19 @@
 387,written_book                   ,Written Book                        !BAN
 388,emerald                        ,Emerald
 389,item_frame                     ,Item Frame
-390,flower_pot                     ,Flower Pot
+390,flower_pot_item                ,Flower Pot,vase,pot
 391,carrot_item                    ,Carrot
 392,potato_item                    ,Potato,Potatoes
 393,baked_potato                   ,Baked Potato,Baked potatoes
 394,poisonous_potato               ,Poisonous Potato,poisonous potatoes,poison potato,poison potatoes
 395,map                            ,Empty Map,map
 396,golden_carrot                  ,Golden Carrot
-397,skull                          ,Skeleton Head,skeleton skull
-397:1,skull                        ,Wither Skull,witherhead
-397:2,skull                        ,Zombie Head,Zombie Skull
-397:3,skull                        ,Mob Head (Human)                    !BAN
-397:4,skull                        ,Creeper Head,creeper skull
-397:5,skull                        ,Dragon Head,dragon skull
+397,skull_item                     ,Skeleton Head,skeleton skull
+397:1,skull_item                   ,Wither Skull,witherhead
+397:2,skull_item                   ,Zombie Head,Zombie Skull
+397:3,skull_item                   ,Mob Head (Human)                    !BAN
+397:4,skull_item                   ,Creeper Head,creeper skull
+397:5,skull_item                   ,Dragon Head,dragon skull
 
 #carrot_on_a_stick
 398,carrot_stick                   ,Carrot On A Stick,Carrot Stick
@@ -965,11 +969,21 @@
 #ender_crystal
 426,end_crystal                    ,End Crystal,Ender Crystal
 
+#spruce_door
 427,spruce_door_item               ,Spruce Door
+
+#birch_door
 428,birch_door_item                ,Birch Door
+
+#jungle_door
 429,jungle_door_item               ,Jungle Door
+
+#acacia_door
 430,acacia_door_item               ,Acacia Door
+
+#dark_oak_door
 431,dark_oak_door_item             ,Dark Oak Door,doak door,dark door
+
 432,chorus_fruit                   ,Chorus Fruit,cfruit
 
 #popped_chorus_fruit
