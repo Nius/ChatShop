@@ -434,7 +434,7 @@
 152,redstone_block                 ,Redstone Block,rstoneb,brstone
 153,quartz_ore                     ,Nether Quartz Ore,qore
 154,hopper                         ,Hopper
-155,quartz_block                   ,Quartz Block,quartzb,bquartz
+155,quartz_block                   ,Quartz Block,quartzb,bquartz,qblock
 155:1,quartz_block                 ,Chiseled Quartz Block,cquartz
 155:2,quartz_block                 ,Pillar Quartz Block,pquartz
 156,quartz_stairs                  ,Quartz Stairs,qstairs

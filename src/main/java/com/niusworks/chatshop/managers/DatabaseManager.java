@@ -498,7 +498,8 @@ public class DatabaseManager
      *                  same arguments.
      *                  Returns -1 on SQL fail.
      *                  If the requested amount is more than is available
-     *                  then the total available amount will be returned.
+     *                  then the total available amount will be returned
+     *                  as a negative number.
      */
     public synchronized double price(Player usr, ItemStack merch, double maxp)
     {

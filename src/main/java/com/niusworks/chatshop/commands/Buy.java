@@ -171,25 +171,45 @@ public class Buy implements CommandExecutor
         //    once.
         //
         
+        String textCol = PLUGIN.CM.color("text");
+        String itemCol = PLUGIN.CM.color("item");
+        String cmdCol = PLUGIN.CM.color("helpUsage");
+        String qtyCol = PLUGIN.CM.color("quantity");
+        String priceCol = PLUGIN.CM.color("price");
+        
         if(PLUGIN.DB.getPlayerFlag(usr,0) != 'X')
         {
+           String msg;
            //The player is using /confirm for buys, so instead of executing a buy
            //create a buy order and store it. The buy order is then under the jurisdiction
            //of /confirm.
            double tprice = PLUGIN.DB.price(usr,merchandise,maxp);
+           if(tprice < 0)
+           {
+               msg =
+                   textCol + "There are only " +
+                   qtyCol + ((int)(-1 * tprice)) + " " +
+                   itemCol + displayName + " " +
+                   textCol + "currently available" +
+                   (maxp > 0 ?
+                       " for the specified price." :
+                       ".");
+               PLUGIN.CM.reply(usr,msg);
+               merchandise.setAmount((int)(-1 * tprice));
+               tprice = PLUGIN.DB.price(usr,merchandise,maxp);
+           }
            BuyOrder order = new BuyOrder(usr,merchandise,cfg,maxp,tprice,System.currentTimeMillis());
            PLUGIN.PENDING.put(usr,order);
            
-           String textCol = PLUGIN.CM.color("text");
-           String msg =
+           msg =
                textCol + "Preparing to buy " +
-               PLUGIN.CM.color("quantity") + merchandise.getAmount() + " " +
-               PLUGIN.CM.color("item") + displayName + " " +
+               qtyCol + merchandise.getAmount() + " " +
+               itemCol + displayName + " " +
                textCol + "for a total of " +
-               PLUGIN.CM.color("price") + ChatManager.format(order.TOTAL) +
+               priceCol + ChatManager.format(order.TOTAL) +
                textCol + ".\n" + PLUGIN.CM.PREFIX +
                textCol + "Use " +
-               PLUGIN.CM.color("helpUsage") + "/confirm " +
+               cmdCol + "/confirm " +
                textCol + "to confirm this order.";
            return PLUGIN.CM.reply(usr,msg);
         }
