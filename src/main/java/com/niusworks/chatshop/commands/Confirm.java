@@ -173,6 +173,9 @@ public class Confirm implements CommandExecutor
         //Execute the pending order appropriately, then defer to the normal CommandExecutor of that order
         //  to finalize the action.
         
+        //Firstly, remove the order from the list of orders, so that it can't be repeated.
+        PLUGIN.PENDING.remove(usr,pending);
+        
         if(pending instanceof BuyOrder)
         {
             Tender res = PLUGIN.DB.buy(usr,pending.MERCH,((BuyOrder) pending).MAXP);

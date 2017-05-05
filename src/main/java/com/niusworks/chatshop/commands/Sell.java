@@ -185,7 +185,10 @@ public class Sell implements CommandExecutor
         {
             try
             {
-                merchandise.setAmount(Integer.parseInt(args[0]));
+                merchandise.setAmount(
+                    Math.min(                       //Choose the least of:
+                        Integer.parseInt(args[0]),  //  what the user wants to sell,
+                        has));                      //  what the user actually has.
             } catch (NumberFormatException e) {
                 return PLUGIN.CM.error(sender,USAGE);
             }
@@ -258,6 +261,20 @@ public class Sell implements CommandExecutor
      */
     public boolean processResults(Player usr,ItemStack merchandise,Item cfg,double price,Object res)
     {
+        // Check again (necessary for use of /confirm) that the user has the specified
+        //  amount of the item.
+        int has = 0;
+        for(ItemStack item : usr.getInventory().getContents())
+            if(item == null)
+                continue;
+            else if(PLUGIN.IM.areSameItem(item,merchandise))
+                has += item.getAmount();
+        if(merchandise.getAmount() > has)
+            return PLUGIN.CM.error(usr,"You no longer have " +
+                PLUGIN.CM.color("quantity") + ChatManager.format(merchandise.getAmount()) + " " +
+                PLUGIN.CM.color("item") + cfg.DISPLAY +
+                PLUGIN.CM.color("error") + ".");
+        
         // On SQL fail...
         if(res instanceof Integer && ((Integer)res).intValue() == -2)
             return PLUGIN.CM.err500(usr);
