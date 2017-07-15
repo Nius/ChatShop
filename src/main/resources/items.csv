@@ -231,7 +231,7 @@
 75,redstone_torch_off              ,Unlit Redstone Torch                !TECHNICAL
 
 #redstone_torch
-76,redstone_torch_on               ,Redstone Torch,Lit Redstone Torch,rstone torch
+76,redstone_torch_on               ,Redstone Torch,Lit Redstone Torch,rstone torch,rstonet
 
 77,stone_button                    ,Stone Button
 
@@ -488,7 +488,7 @@
 164,dark_oak_stairs                ,Dark Oak Wood Stairs
 
 #slime
-165,slime_block                    ,Slime Block,sblock,bslime
+165,slime_block                    ,Slime Block,sblock,bslime,slimeb
 
 166,barrier                        ,Barrier                             !BAN
 167,iron_trapdoor                  ,Iron Trapdoor,itrapdoor
@@ -744,7 +744,7 @@
 
 339,paper                          ,Paper
 340,book                           ,Book
-341,slime_ball                     ,Slimeball
+341,slime_ball                     ,Slime Ball,slime
 
 #chest_minecart
 342,storage_minecart               ,Minecart With Chest,Chest Minecart,Storage Minecart,Storage Cart,Chest Cart,scart,ccart
