@@ -20,7 +20,8 @@
 # FLAGS:
 #  !BAN           Items with this flag will be completely blocked from having any presence on the
 #                 ChatShop. Users who query such an item will be informed that the item is banned.
-#  !TECHNICAL     Alias for !BAN, included to make this file a little more friendly.
+#  !TECHNICAL     Alias for !BAN, included to make this file a little more friendly. Typically used
+#				  for items which no user should be able to get anyway.
 #  !MAXPRICE=     The maximum allowed price for an item. Do not include quotes or a currency symbol.
 #  !MAXQTY=       The maximum allowed quantity for an item. Do not include commas (such as "1,024").
 #
@@ -922,7 +923,7 @@
 401,firework                       ,Fireworks Rocket,Firework Rocket
 
 402,firework_charge                ,Firework Star
-403,enchanted_book                 ,Enchanted Book
+403,enchanted_book                 ,Enchanted Book,ebook
 
 #comparator
 404,redstone_comparator            ,Redstone Comparator,rstone comparator,rstonec

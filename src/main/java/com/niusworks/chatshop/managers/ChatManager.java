@@ -3,14 +3,23 @@ package com.niusworks.chatshop.managers;
 import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
+import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
 import com.niusworks.chatshop.ChatShop;
+import com.niusworks.chatshop.constructs.EListing;
 import com.niusworks.chatshop.constructs.Listing;
 
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 
 /**
  * Manages all chat output functionality for OC Network's ChatShop.
@@ -111,6 +120,78 @@ public class ChatManager
     }
     
     /**
+     * Quickly format an integer to roman numerals.
+     * A negative number returns an empty string.
+     * 
+     * @param x     The number to format.
+     * @return      A roman numeral expression of the number.
+     */
+    public static String romanNumeralize(int x)
+    {
+        String out = "";
+        while(x >= 1000){out += "M"; x -= 1000;}    //M = 1000
+        if(x >= 900){out += "CM"; x -= 900;}        //CM = 900
+        while(x >= 500){out += "D"; x -= 500;}      //D = 500
+        if(x >= 400){out += "CD"; x -= 400;}        //CD = 400
+        while(x >= 100){out += "C"; x -= 100;}      //C = 100
+        if(x >= 90){out += "XC"; x -= 90;}          //XC = 90
+        while(x >= 50){out += "L"; x -= 50;}        //L = 50
+        if(x >= 40){out += "XL"; x -= 40;}          //XL = 40
+        while(x >= 10){out += "X"; x -= 10;}        //X = 10
+        if(x >= 9){out += "IX"; x -= 9;}            //IX = 9
+        while(x >= 5){out +="V"; x -= 5;}           //V = 5
+        if(x >= 4){out += "IV"; x -= 4;}            //IV = 4
+        while(x >= 1){out += "I"; x -= 1;}          //I = 1
+        
+        return out;
+    }
+    
+    /**
+     * Returns an integer derived from a roman numeral string.
+     * 
+     * @param x The string to decipher.
+     * @return  An integer; -1 if the string was invalid.
+     */
+    public static int deRomanNumeralize(String x)
+    {
+        int out = 0;
+        for(int i = 0; i < x.length(); i ++)
+        {
+            boolean isEnd = (i == x.length() - 1);
+            char next = '~';
+            if(!isEnd)
+                next = x.charAt(i + 1);
+            switch(x.charAt(i))
+            {
+                case 'M':   out += 1000;    break;
+                case 'D':   out += 500;     break;
+                case 'C':   switch(next)
+                            {
+                                case 'M':   out += 900; i++; continue;
+                                case 'D':   out += 400; i++; continue;
+                            }
+                            out += 100;     break;
+                case 'L':   out += 50;      break;
+                case 'X':   switch(next)
+                            {
+                                case 'C':   out += 90; i++; continue;
+                                case 'L':   out += 40; i++; continue;
+                            }
+                            out += 10;      break;
+                case 'V':   out += 5;       break;
+                case 'I':   switch(next)
+                            {
+                                case 'X':   out += 9; i++; continue;
+                                case 'V':   out += 4; i++; continue;
+                            }
+                            out += 1;       break;
+                default:    return -1;
+            }
+        }
+        return out;
+    }
+    
+    /**
      * Quickly format a quantity to include commas as appropriate.
      * 
      * @param qty   The number to format.
@@ -169,6 +250,49 @@ public class ChatManager
             listingsPerPage);
         
         Listing[] res = new Listing[qty];
+        for(int i = startIndex; i < startIndex + listingsPerPage && i < available.length; i++)
+            res[i - startIndex] = available[i];
+        
+        return res;
+    }
+    
+    /**
+     * Given a list of EListings, return one page's worth
+     * assuming that EListings and lines of chat have a
+     * one-to-one relationship.
+     * 
+     * @param available All available EListings.
+     * @param pageNum   The index of the desired page, where
+     *                  the first page is index 1.
+     * @return          One page of Listings, pursuant to
+     *                  the config file.
+     */
+    public EListing[] paginate(EListing[] available, int pageNum)
+    {        
+        //Convert from natural page number to index
+        pageNum --;
+        
+        //Get configured number of lines per page
+        int listingsPerPage = PLUGIN.getConfig().getInt("chat.page-length");
+        
+        //Determine total number of possible pages
+        int pagesAvailable = getPaginationSize(available);
+        
+        //Prevent asking for a nonexistent page
+        if(pageNum >= pagesAvailable)
+            pageNum = pagesAvailable - 1;
+        if(pageNum < 0)
+            pageNum = 0;
+        
+        int startIndex = pageNum * listingsPerPage;
+        
+        //Determine how many listings are on this page
+        //(in case of last page)
+        int qty = Math.min(
+            available.length - startIndex,
+            listingsPerPage);
+        
+        EListing[] res = new EListing[qty];
         for(int i = startIndex; i < startIndex + listingsPerPage && i < available.length; i++)
             res[i - startIndex] = available[i];
         
@@ -275,6 +399,86 @@ public class ChatManager
         int pagesAvailable = ((int)fpa) +
             (fpa % 1.00 == 0 ? 0 : 1);
         return pagesAvailable;
+    }
+    
+    /**
+     * Construct mouse-over text for the provided enchanted item.
+     * 
+     * @param mot           The display text that will be moused over.
+     * @param lot           The lot number, for the first line of the tooltip.
+     * @param merchandise   The item for which to generate a tooltip.
+     * @return              A working chunk of text with a mouseover attached.
+     */
+    public TextComponent MOTforEnchanted(String mot,int lot,ItemStack merchandise)
+    {
+        return MOTforEnchanted(mot,lot,merchandise,false);
+    }
+    
+    /**
+     * Construct mouse-over text for the provided enchanted item.
+     * 
+     * @param mot           The display text that will be moused over.
+     * @param lot           The lot number, for the first line of the tooltip.
+     * @param merchandise   The item for which to generate a tooltip.
+     * @param omitLotNumber Whether to omit the lot number for this tooltip.
+     * @return              A working chunk of text with a mouseover attached.
+     */
+    public TextComponent MOTforEnchanted(String mot,int lot,ItemStack merchandise,boolean omitLotNumber)
+    {
+        String attrColName = PLUGIN.getConfig().getString("chat.colors.attribute");
+        String attCol = PLUGIN.CM.color("attribute");
+        String itemColName = PLUGIN.getConfig().getString("chat.colors.item");
+        
+        //Calculate damage percentage.
+        //If the item is an enchanted book, use -1 to signify
+        //  that we are ignoring damage.
+        int dampercent = -1;
+        if(!merchandise.getType().equals(Material.ENCHANTED_BOOK))
+        {
+            double dur = merchandise.getDurability();
+            double maxdur = merchandise.getType().getMaxDurability();
+            double dp = (dur / maxdur) * 100.0;
+            //If the percentage is less than 1 but not exactly 0, show 1%.
+            dampercent = (dp == 0.0 ? 0 :
+                Math.max((int)dp,1));
+        }
+        
+        TextComponent motext = new TextComponent();
+        if(!omitLotNumber)
+        {
+            motext.setText("Lot #" + lot);
+            motext.setColor(ChatColor.valueOf(itemColName));
+        }
+        TextComponent use = new TextComponent();
+        use.setText((omitLotNumber ? "" : "\n") +
+                    (dampercent < 0 ? "" : attCol + dampercent + "% used"));
+        use.setColor(ChatColor.valueOf(attrColName));
+        motext.addExtra(use);
+        Set<Map.Entry<Enchantment,Integer>> entrySet =
+            (merchandise.getType().equals(Material.ENCHANTED_BOOK) ?
+                ((EnchantmentStorageMeta)merchandise.getItemMeta()).getStoredEnchants().entrySet() :
+                merchandise.getEnchantments().entrySet());
+        for(Map.Entry<Enchantment,Integer> enchant : entrySet)
+        {
+            TextComponent attr = new TextComponent();
+            attr.setColor(ChatColor.valueOf(attrColName));
+            attr.setText(
+                (dampercent < 0 ? "" : "\n")    //Skip the first newline if the damage percentage isn't being shown.
+                + PLUGIN.IM.getUsableName(enchant.getKey()) +
+                (enchant.getKey().getMaxLevel() == 1 ? "" :
+                    " " + ChatManager.romanNumeralize(enchant.getValue())));
+            motext.addExtra(attr);
+            if(dampercent < 0)  //This number doesn't matter anymore, but if it's less than 0 set it to 1
+                dampercent = 1; // so that future newlines are not skipped.
+        }
+        
+        TextComponent tc1 = new TextComponent();
+        tc1.setText(mot);
+        tc1.setHoverEvent(
+            new HoverEvent(net.md_5.bungee.api.chat.HoverEvent.Action.SHOW_TEXT,
+                new BaseComponent[]{motext}));
+        
+        return tc1;
     }
     
     /**

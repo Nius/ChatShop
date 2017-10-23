@@ -6,7 +6,7 @@ import com.niusworks.chatshop.commands.History;
 import com.niusworks.chatshop.managers.DatabaseManager;
 
 /**
- * Represents a listing that exists in the database.
+ * Represents a listing for saleable goods that exists in the database.
  * <br>
  * Currently this class is used in two different contexts: firstly to represent a current listing
  * on the market - this is its most common usage, and does not utilize the {@link #DATE}.

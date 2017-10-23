@@ -111,6 +111,16 @@ public class Reprice implements CommandExecutor
                
         //Item check
 
+        //If the first arg is an integer value preceded by a hash then they
+        //  probably meant to use ereprice, so redirect to EReprice.
+        if(args[0].charAt(0) == '#')
+            try
+            {
+                int lot = Integer.parseInt(args[0].substring(1));
+                return PLUGIN.getCommand("ereprice").getExecutor().onCommand(usr,cmd,lbl,new String[]{lot + "",args[1]});
+            }
+            catch(NumberFormatException e){/* do nothing */}
+        
         //If the specified item is non-specifically "potion" or some related query, show potions help instead.
         if( args[0].equalsIgnoreCase("potion")          || args[0].equalsIgnoreCase("potions")          ||
             args[0].equalsIgnoreCase("splashpotion")    || args[0].equalsIgnoreCase("splashpotions")    ||

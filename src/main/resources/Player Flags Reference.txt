@@ -5,3 +5,5 @@ of developers.
 INDEX	PURPOSE					VALUES
 0		/buy confirm toggle		default yes, 'X' no
 1		/sell confirm toggle	default yes, 'X' no
+2		/esell confirm toggle	default yes, 'X' no
+3		/ebuy confirm toggle	default yes, 'X' no

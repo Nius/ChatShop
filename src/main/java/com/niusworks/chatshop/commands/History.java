@@ -6,16 +6,21 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import com.niusworks.chatshop.ChatShop;
+import com.niusworks.chatshop.constructs.EListing;
+import com.niusworks.chatshop.constructs.EnchLvl;
 import com.niusworks.chatshop.constructs.Item;
 import com.niusworks.chatshop.constructs.Listing;
 import com.niusworks.chatshop.managers.ChatManager;
+import com.niusworks.chatshop.managers.ItemManager;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -171,7 +176,7 @@ public class History implements CommandExecutor
         //  EXECUTION
         //
         
-        Listing[] tenders = PLUGIN.DB.getHistory(qPlayer);
+        Listing[] tenders = PLUGIN.DB.getHistory(qPlayer,false);
         
         //
         //  RESULT
@@ -236,44 +241,79 @@ public class History implements CommandExecutor
             // This should always be successful because these are being read from
             // a database of theoretically valid listings, but just in case...
             String itemDisplay = "Unknown Item";
-            Item thing = PLUGIN.IM.lookup(tenders[i].MATERIAL,tenders[i].DAMAGE);
-            if(thing != null)
-                itemDisplay = thing.DISPLAY;
-            
-            String quantity = qtyCol + ChatManager.format(Math.abs(tenders[i].QUANTITY));
-            String item = itemCol + itemDisplay;
-            String priceEach = priceCol + ChatManager.format(tenders[i].PRICE);
-            String priceTotal = priceCol + ChatManager.format(tenders[i].PRICE * tenders[i].QUANTITY);
-            String player = playerCol + playerName;
-            
-            if(tenders[i].QUANTITY < 1) //Queried player was the seller
+            Item thing = null;
+            if(tenders[i] instanceof EListing)
             {
-                msg = textCol + " Sold " + quantity + " " + item + textCol + " to " +
-                    player + textCol + " @" + priceEach + textCol + "/ea. =" +
-                    priceTotal.replaceAll("[()]","") + textCol + ".";
-            }
-            else //Queried player was the buyer
-            {
-                msg = textCol + " Bought " + quantity + " " + item + textCol + " from " +
-                        player + textCol + " @" + priceEach + textCol + "/ea. =" +
-                        priceTotal.replaceAll("[()]","") + textCol + ".";
-            }
-            
-            if(tenders[i].DATE.before(today))
-            {
-                TextComponent output = new TextComponent();
-                String shortDate = shortDateFormatter.format(tenders[i].DATE);
-                String longDate = longDateFormatter.format(tenders[i].DATE);
-                output.setText(shortDate);
-                output.setColor(ChatColor.valueOf(dateColName));
-                output.setHoverEvent(new HoverEvent(net.md_5.bungee.api.chat.HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(longDate).color(ChatColor.valueOf(dateColName)).create()));
-                
-                usr.spigot().sendMessage(output, new TextComponent(" " + msg));
+                //If the item is enchanted then ItemManager#lookup will return
+                //null, so we look up using a zero-damage copy of the item.
+                ItemStack unenchanted = new ItemStack(Material.getMaterial(tenders[i].MATERIAL));
+                thing = PLUGIN.IM.lookup(unenchanted);
             }
             else
             {
-                String time = new SimpleDateFormat("HH:mm:ss").format(tenders[i].DATE);
-                PLUGIN.CM.reply(usr,dateColCode + time + msg,false);
+                thing = PLUGIN.IM.lookup(tenders[i].MATERIAL,tenders[i].DAMAGE);
+            }
+            if(thing != null)
+                itemDisplay = thing.DISPLAY;
+            
+            String player = playerCol + playerName;
+            
+            TextComponent datePrefix = new TextComponent();
+            String time = "";
+            if(tenders[i].DATE.before(today))
+            {
+                String shortDate = shortDateFormatter.format(tenders[i].DATE);
+                String longDate = longDateFormatter.format(tenders[i].DATE);
+                datePrefix.setText(shortDate);
+                datePrefix.setColor(ChatColor.valueOf(dateColName));
+                datePrefix.setHoverEvent(new HoverEvent(net.md_5.bungee.api.chat.HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(longDate).color(ChatColor.valueOf(dateColName)).create()));
+            }
+            else
+                time = new SimpleDateFormat("HH:mm:ss").format(tenders[i].DATE);
+            
+            if(tenders[i] instanceof EListing)
+            {
+                //Build this item so that the ChatManager can read it.
+                ItemStack merchandise = new ItemStack(Material.getMaterial(tenders[i].MATERIAL));
+                merchandise.setDurability((short)tenders[i].DAMAGE);
+                ItemManager.addEnchantments(merchandise,((EListing)tenders[i]).ENCHANTS);
+                
+                TextComponent tc0 = new TextComponent();
+                tc0.setText(textCol +
+                            (tenders[i].QUANTITY < 1 ? " Sold " : " Bought "));// Queried player was ? buyer : seller
+                TextComponent tc1 = PLUGIN.CM.MOTforEnchanted(
+                    itemCol +
+                    (merchandise.getType().equals(Material.ENCHANTED_BOOK) ? "" : "enchanted ") +
+                    itemDisplay,tenders[i].ID,merchandise,true);
+                TextComponent tc2 = new TextComponent();
+                tc2.setText(textCol +
+                            (tenders[i].QUANTITY < 1 ? " to " : " from ") + // Queried player was ? buyer : seller
+                            player + textCol + " for " +
+                            priceCol + ChatManager.format(tenders[i].PRICE) +
+                            textCol + ".");
+
+                if(!tenders[i].DATE.before(today))
+                    datePrefix.setText(dateColCode + time); 
+                usr.spigot().sendMessage(datePrefix,tc0,tc1,tc2);
+            }
+            else
+            {
+                String quantity = qtyCol + ChatManager.format(Math.abs(tenders[i].QUANTITY));
+                String item = itemCol + itemDisplay;
+                String priceEach = priceCol + ChatManager.format(tenders[i].PRICE);
+                String priceTotal = priceCol + ChatManager.format(tenders[i].PRICE * tenders[i].QUANTITY);
+                
+                msg = textCol +
+                    (tenders[i].QUANTITY < 1 ? "Sold " : "Bought ") + // Queried player was ? buyer : seller
+                    quantity + " " + item + textCol +
+                    (tenders[i].QUANTITY < 1 ? " to " : " from ") + // Queried player was ? buyer : seller
+                    player + textCol + " @" + priceEach + textCol + "/ea. =" +
+                    priceTotal.replaceAll("[()]","") + textCol + ".";
+                
+                if(tenders[i].DATE.before(today))
+                    usr.spigot().sendMessage(datePrefix, new TextComponent(" " + msg));
+                else
+                    PLUGIN.CM.reply(usr,dateColCode + time + msg,false);
             }
         }
         

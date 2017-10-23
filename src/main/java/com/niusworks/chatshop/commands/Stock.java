@@ -1,22 +1,30 @@
 package com.niusworks.chatshop.commands;
 
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import com.niusworks.chatshop.ChatShop;
+import com.niusworks.chatshop.constructs.EListing;
+import com.niusworks.chatshop.constructs.EnchLvl;
 import com.niusworks.chatshop.constructs.Item;
 import com.niusworks.chatshop.constructs.Listing;
 import com.niusworks.chatshop.managers.ChatManager;
+import com.niusworks.chatshop.managers.ItemManager;
+
+import net.md_5.bungee.api.chat.TextComponent;
 
 /**
  * Executor for the "stock" command for OC Network's ChatShop.
  * <br>
  * Players can query the ChatShop for a complete listing of all items for sale from a
- * given player. Listings are ordered alphabetically by item name. This command takes
- * zero, one, or two arguments: player and page.
+ * given player. Listings are ordered alphabetically by item material name. This causes the returned
+ * list to be largely - but not completely - alphabetical, as the items' display names sometimes
+ * disagree with their Bukkit material names. This command takes zero, one, or two arguments: player and page.
  * <br><br>
  * Player is resolved to a Minecraft UUID for comparison against the database. This will still work
  * with offline players, but long-time absentee players might turn up negative even if they have transactions
@@ -151,7 +159,7 @@ public class Stock implements CommandExecutor
         //  EXECUTION
         //
         
-        Listing[] listings = PLUGIN.DB.getListings(qPlayer);
+        Listing[] listings = PLUGIN.DB.getListings(qPlayer, false);
         
         //
         //  RESULT
@@ -192,21 +200,52 @@ public class Stock implements CommandExecutor
         listings = PLUGIN.CM.paginate(listings,page);
         for(int i = 0; i < listings.length; i ++)
         {
-            // Attempt to resolve the name of the material.
-            // This should always be successful because these are being read from
-            // a database of theoretically valid listings, but just in case...
-            String itemDisplay = "Unknown Item";
-            Item thing = PLUGIN.IM.lookup(listings[i].MATERIAL,listings[i].DAMAGE);
-            if(thing != null)
-                itemDisplay = thing.DISPLAY;
-            
-            msg =
-                qtyCol + ChatManager.format(listings[i].QUANTITY) + " " +
-                itemCol + itemDisplay +
-                textCol + " at " +
-                priceCol + ChatManager.format(listings[i].PRICE) +
-                textCol + " each.";
-            PLUGIN.CM.reply(usr,msg,false);
+            // Enchanted and non-enchanted listings require radically different
+            // mechanisms for display, due to the mouse-over feature.
+            if(listings[i] instanceof EListing)
+            {
+                //Build this item so that the ChatManager can read it.
+                ItemStack merchandise = new ItemStack(Material.getMaterial(listings[i].MATERIAL));
+                merchandise.setDurability((short)listings[i].DAMAGE);
+                ItemManager.addEnchantments(merchandise,((EListing)listings[i]).ENCHANTS);
+                
+                //Look up the config definition for the item sans-ENCHANTS.
+                //ESell allows damaged items but ItemManager#lookup will return
+                //null, so we look up using a zero-damage copy of the item.
+                ItemStack unenchanted = new ItemStack(Material.getMaterial(listings[i].MATERIAL));
+                Item cfg = PLUGIN.IM.lookup(unenchanted);
+                
+                TextComponent tc0 = new TextComponent();
+                tc0.setText(textCol + "An ");
+                TextComponent tc1 = PLUGIN.CM.MOTforEnchanted(
+                    itemCol +
+                    (merchandise.getType().equals(Material.ENCHANTED_BOOK) ? "" : "enchanted ") +
+                    cfg.DISPLAY,listings[i].ID,merchandise);
+                TextComponent tc2 = new TextComponent();
+                tc2.setText(textCol + " for " +
+                            priceCol + ChatManager.format(listings[i].PRICE) +
+                            textCol + ".");
+                
+                usr.spigot().sendMessage(tc0,tc1,tc2);
+            }
+            else
+            {
+                // Attempt to resolve the name of the material.
+                // This should always be successful because these are being read from
+                // a database of theoretically valid listings, but just in case...
+                String itemDisplay = "Unknown Item";
+                Item thing = PLUGIN.IM.lookup(listings[i].MATERIAL,listings[i].DAMAGE);
+                if(thing != null)
+                    itemDisplay = thing.DISPLAY;
+                
+                msg =
+                    qtyCol + ChatManager.format(listings[i].QUANTITY) + " " +
+                    itemCol + itemDisplay +
+                    textCol + " at " +
+                    priceCol + ChatManager.format(listings[i].PRICE) +
+                    textCol + " each.";
+                PLUGIN.CM.reply(usr,msg,false);
+            }
         }
         
         return true;

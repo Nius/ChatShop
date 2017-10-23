@@ -7,6 +7,8 @@ import org.bukkit.entity.Player;
 
 import com.niusworks.chatshop.ChatShop;
 import com.niusworks.chatshop.constructs.BuyOrder;
+import com.niusworks.chatshop.constructs.EBuyOrder;
+import com.niusworks.chatshop.constructs.ESellOrder;
 import com.niusworks.chatshop.constructs.Order;
 import com.niusworks.chatshop.constructs.SellOrder;
 import com.niusworks.chatshop.constructs.Tender;
@@ -17,16 +19,14 @@ import net.md_5.bungee.api.ChatColor;
 /**
  * Executor for the "confirm" command for OC Network's ChatShop.
  * <br>
- * This command has two purposes: Players can confirm pending {@link BuyOrder}s and
- * {@link SellOrder}s, or toggle whether they're using confirmations at all.
+ * This command has two purposes: Players can confirm pending {@link BuyOrder}s,
+ * {@link SellOrder}s and {@link ESellOrder}s, or toggle whether they're using confirmations at all.
  * <br><br>
- * Given no arguments this command will determine whether any buy or sell
- * orders have been posted by {@link Buy} or {@link Sell}, respectively, and
+ * Given no arguments this command will determine whether any orders have been posted and
  * if they are young enough will execute them.
  * <br>
- * Execution of buy and sell orders is performed through the {@link DatabaseManager}
- * and then handed off to the appropriate command executor:
- * {@link Buy#processResults} or {@link Sell#processResults}.
+ * Execution of orders is performed through the {@link DatabaseManager}
+ * and then handed off to the appropriate command executor's #processResults method.
  * <br><br>
  * Given two arguments (the first being "toggle") this command will instruct the
  * {@link DatabaseManager} to toggle the user's command-usage status in the database,
@@ -111,7 +111,7 @@ public class Confirm implements CommandExecutor
         
         //Args validation
         
-        //This char is used to signify which command (buy/sell) is being toggled.
+        //This char is used to signify which command is being toggled.
         //This is not the char that will be put in the database.
         char mode = 'x';
         if(toggleMode)
@@ -123,6 +123,10 @@ public class Confirm implements CommandExecutor
                 mode = 'b';
             else if(args[1].equalsIgnoreCase("sell"))
                 mode = 's';
+            else if(args[1].equalsIgnoreCase("ebuy"))
+                mode = 'B';
+            else if(args[1].equalsIgnoreCase("esell"))
+                mode = 'S';
             else
                 return PLUGIN.CM.error(usr,USAGE);
         }
@@ -144,12 +148,18 @@ public class Confirm implements CommandExecutor
                 case 's':
                     index = 1;
                     break;
+                case 'S':
+                    index = 2;
+                    break;
+                case 'B':
+                    index = 3;
+                    break;
             }
             boolean wasOn = PLUGIN.DB.getPlayerFlag(usr,index) != 'X';
             PLUGIN.DB.writePlayerFlag(usr,index,(wasOn ? 'X' : ' '));
             
             String msg =
-                PLUGIN.CM.color("helpUsage") + args[1].substring(0,1).toUpperCase() + args[1].substring(1) +
+                PLUGIN.CM.color("helpUsage") + args[1].substring(0,1).toUpperCase() + args[1].substring(1).toLowerCase() +
                 PLUGIN.CM.color("text") + " confirmations are now " +
                 (wasOn ? ChatColor.RED : ChatColor.GREEN) +
                 (wasOn ? "off" : "on") +
@@ -170,22 +180,18 @@ public class Confirm implements CommandExecutor
         if(System.currentTimeMillis() - pending.TIME > PLUGIN.getConfig().getInt("confirm-timeout",10000))
             return PLUGIN.CM.error(usr,"Your pending order has expired.");
         
-        //Execute the pending order appropriately, then defer to the normal CommandExecutor of that order
-        //  to finalize the action.
-        
+        //Defer to the normal CommandExecutor of that order to finalize the action.
         //Firstly, remove the order from the list of orders, so that it can't be repeated.
         PLUGIN.PENDING.remove(usr,pending);
         
         if(pending instanceof BuyOrder)
-        {
-            Tender res = PLUGIN.DB.buy(usr,pending.MERCH,((BuyOrder) pending).MAXP);
-            return ((Buy)PLUGIN.getCommand("buy").getExecutor()).processResults(usr,pending.MERCH,pending.CONFIG.DISPLAY,res);
-        }
+            return ((Buy)PLUGIN.getCommand("buy").getExecutor()).processResults(usr,pending.MERCH,pending.CONFIG.DISPLAY,((BuyOrder)pending).MAXP);
         if(pending instanceof SellOrder)
-        {
-            Object res = PLUGIN.DB.sell(usr,pending.MERCH,((SellOrder) pending).PRICE);
-            return ((Sell)PLUGIN.getCommand("sell").getExecutor()).processResults(usr,pending.MERCH,pending.CONFIG,((SellOrder) pending).PRICE,res);
-        }
+            return ((Sell)PLUGIN.getCommand("sell").getExecutor()).processResults(usr,pending.MERCH,pending.CONFIG,((SellOrder)pending).PRICE);
+        if(pending instanceof EBuyOrder)
+            return ((EBuy)PLUGIN.getCommand("ebuy").getExecutor()).processResults(usr,((EBuyOrder)pending).LOT,((EBuyOrder)pending).PRICE);
+        if(pending instanceof ESellOrder)
+            return ((ESell)PLUGIN.getCommand("esell").getExecutor()).processResults(usr,pending.MERCH,pending.CONFIG,((ESellOrder)pending).PRICE);
         
         return true;
     }

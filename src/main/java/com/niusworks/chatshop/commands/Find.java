@@ -2,6 +2,7 @@ package com.niusworks.chatshop.commands;
 
 import java.util.UUID;
 
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -99,6 +100,15 @@ public class Find implements CommandExecutor
         //
         
         //Number of args
+        //If the user enters only an integer value preceded by a hash then they
+        //  probably meant to use efind, so redirect to EFind.
+        if(args.length == 1 && args[0].charAt(0) == '#')
+            try
+            {
+                int lot = Integer.parseInt(args[0].substring(1));
+                return PLUGIN.getCommand("efind").getExecutor().onCommand(usr,cmd,lbl,new String[]{lot + ""});
+            }
+            catch(NumberFormatException e){/* do nothing */}
         if(args.length != 1 && args.length != 2)
             return PLUGIN.CM.error(sender,USAGE);
         
@@ -126,6 +136,10 @@ public class Find implements CommandExecutor
             }
         ItemStack merchandise = (ItemStack)parse;
         String displayName = PLUGIN.IM.getDisplayName(merchandise);
+        
+        //If the sought item is generically enchanted book, redirect to EFind.
+        if(merchandise.getType().equals(Material.ENCHANTED_BOOK))
+            return PLUGIN.getCommand("efind").getExecutor().onCommand(usr,cmd,lbl,new String[]{"ENCHANTED_BOOK"});
         
         //Page check
         int page = 1;
@@ -172,11 +186,12 @@ public class Find implements CommandExecutor
         //ChatManager, but for purposes of displaying an accurate
         //number it needs to happen here.
         page = Math.max(page,1);
+        int pages = PLUGIN.CM.getPaginationSize(listings);
         String msg =
                 textCol + "Listings for " +
                 itemCol + displayName +
                 textCol + ", page " + page +
-                " of " + PLUGIN.CM.getPaginationSize(listings) + ":";
+                " of " + Math.min(page,pages) + ":";
         PLUGIN.CM.reply(usr,msg);
         
         //List all listings on this page.

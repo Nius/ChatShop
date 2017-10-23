@@ -6,17 +6,22 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionType;
 
 import com.niusworks.chatshop.ChatShop;
+import com.niusworks.chatshop.commands.EFind;
+import com.niusworks.chatshop.constructs.EnchLvl;
 import com.niusworks.chatshop.constructs.Item;
 
 /**
@@ -53,7 +58,7 @@ public class ItemManager
     protected HashMap<String,Item> aliases = new HashMap<String,Item>();
     
     /**
-     * A map of potions types (as defined by {@link org.bukkit.potion.PotionType}) to
+     * A map of potion types (as defined by {@link org.bukkit.potion.PotionType}) to
      * (arbitrary) integer values, for the purpose of superimposing a MATERIAL:DMG system
      * atop the potion architecture.
      */
@@ -68,6 +73,9 @@ public class ItemManager
      * all named items and compare their attributes.
      */
     protected HashMap<Integer,HashMap<Integer,Item>> items = new HashMap<Integer,HashMap<Integer,Item>>();
+    
+    /** A map of presentable names for enchantments to their Bukkit names. **/
+    protected final HashMap<Enchantment,String> ENCHANTS = new HashMap<Enchantment,String>();
     
     /** The master plugin for this manager. **/
     protected final ChatShop PLUGIN;
@@ -91,7 +99,7 @@ public class ItemManager
          * be matched by items.csv.
          * This is to facilitate superimposition of a MATERIAL:DMG system atop the
          * potion architecture, which is NBT-driven and currently incompatible with
-         * spogot.
+         * spigot.
          */
         POTIONS.put("AWKWARD",0);
         POTIONS.put("FIRE_RESISTANCE",1);
@@ -112,6 +120,42 @@ public class ItemManager
         POTIONS.put("WATER",16);
         POTIONS.put("WATER_BREATHING",17); 
         POTIONS.put("WEAKNESS",18);
+        
+        /* A map of all enchantment types and their usable, presentable names.
+         * Note that this is different and independent from the map maintained by
+         * DatabaseManager, and that this is not referenced by any other part of
+         * the plugin.
+         */
+        ENCHANTS.put(Enchantment.ARROW_DAMAGE,"Power");
+        ENCHANTS.put(Enchantment.ARROW_FIRE,"Flame");
+        ENCHANTS.put(Enchantment.ARROW_INFINITE,"Infinity");
+        ENCHANTS.put(Enchantment.ARROW_KNOCKBACK,"Punch");
+        ENCHANTS.put(Enchantment.BINDING_CURSE,"Curse of Binding");
+        ENCHANTS.put(Enchantment.DAMAGE_ALL,"Sharpness");
+        ENCHANTS.put(Enchantment.DAMAGE_ARTHROPODS,"Bane of Arthropods");
+        ENCHANTS.put(Enchantment.DAMAGE_UNDEAD,"Smite");
+        ENCHANTS.put(Enchantment.DEPTH_STRIDER,"Depth Strider");
+        ENCHANTS.put(Enchantment.DIG_SPEED,"Efficiency");
+        ENCHANTS.put(Enchantment.DURABILITY,"Unbreaking");
+        ENCHANTS.put(Enchantment.FIRE_ASPECT,"Fire Aspect");
+        ENCHANTS.put(Enchantment.FROST_WALKER,"Frost Walker");
+        ENCHANTS.put(Enchantment.KNOCKBACK,"Knockback");
+        ENCHANTS.put(Enchantment.LOOT_BONUS_BLOCKS,"Fortune");
+        ENCHANTS.put(Enchantment.LOOT_BONUS_MOBS,"Looting");
+        ENCHANTS.put(Enchantment.LUCK,"Luck");
+        ENCHANTS.put(Enchantment.LURE,"Lure");
+        ENCHANTS.put(Enchantment.MENDING,"Mending");
+        ENCHANTS.put(Enchantment.OXYGEN,"Respiration");
+        ENCHANTS.put(Enchantment.PROTECTION_ENVIRONMENTAL,"Protection");
+        ENCHANTS.put(Enchantment.PROTECTION_EXPLOSIONS,"Blast Protection");
+        ENCHANTS.put(Enchantment.PROTECTION_FALL,"Feather Falling");
+        ENCHANTS.put(Enchantment.PROTECTION_FIRE,"Fire Protection");
+        ENCHANTS.put(Enchantment.PROTECTION_PROJECTILE,"Projectile Protection");
+        ENCHANTS.put(Enchantment.SILK_TOUCH,"Silk Touch");
+        ENCHANTS.put(Enchantment.SWEEPING_EDGE,"Sweeping Edge");
+        ENCHANTS.put(Enchantment.THORNS,"Thorns");
+        ENCHANTS.put(Enchantment.VANISHING_CURSE,"Curse of Vanishing");
+        ENCHANTS.put(Enchantment.WATER_WORKER,"Aqua Affinity");
     }
     
     /**
@@ -224,9 +268,7 @@ public class ItemManager
                         }
                     
                     //Read the display name from the first alias but maintain capitalization.
-                    String display = "";
-                    if(display.length() == 0)
-                        display = tokens[2].trim().replaceAll("\\s","");
+                    String display = tokens[2].trim();//.replaceAll("\\s","");
                     
                     //Store the new item in the items 2D-hash
                     //In case of duplicate item ID:DMGs, the first entry will prevail.
@@ -311,7 +353,7 @@ public class ItemManager
         
         //Try to put the items in the player's (main) hand first.
         ItemStack handItem = inv.getItemInMainHand();
-        if(handItem == null || isAir(handItem) || areSameItem(handItem,gift))
+        if(handItem == null || isAir(handItem) || areSameType(handItem,gift))
         {
             //Put no more than was specified or the maximum stack size of
             // this item.
@@ -343,7 +385,7 @@ public class ItemManager
             ItemStack slot = inv.getItem(i);
             if(slot == null || isAir(slot))
                 space += stackSize;
-            else if(PLUGIN.IM.areSameItem(gift,slot))
+            else if(PLUGIN.IM.areSameType(gift,slot))
                 space += stackSize - slot.getAmount();
         }
         
@@ -389,7 +431,7 @@ public class ItemManager
     }
           
     /**
-     * Look up a valid Minecraft item by ItemStack.
+     * Look up a valid Minecraft item configuration by ItemStack.
      * This is essentially a reverse-lookup from validated
      * item to dictionary definition, useful for getting
      * configuration information such as maximum price.
@@ -425,7 +467,7 @@ public class ItemManager
      */
     public String getDisplayName(ItemStack item)
     {
-        Object res = verify(item);
+        Object res = verify(item,false);
         if(!(res instanceof ItemStack))
             return "~INVALID";
         Item itm = lookup((ItemStack)res);
@@ -497,8 +539,29 @@ public class ItemManager
     
     /**
      * Check whether the specified ItemStacks are the same
-     * item, regardless of amount.
+     * type of item, regardless of amount.
      * If either item is enchanted, returns false.
+     * 
+     * @param a     An ItemStack
+     * @param b     Another ItemStack
+     * @return      Whether the two stacks are the same item
+     *              regardless of amount. If either argument
+     *              is null, returns false.
+     */
+    public boolean areSameType(ItemStack a, ItemStack b)
+    {
+        if(a == null || b == null)
+            return false;
+        if(a.getEnchantments().size() > 0 || b.getEnchantments().size() > 0)
+            return false;
+        return
+                a.getType().toString().equals(b.getType().toString()) &&
+                superimposePotionDamage(a).getDurability() == superimposePotionDamage(b).getDurability();
+    }
+    
+    /**
+     * Check whether the specified ItemStacks are exactly the same
+     * item, including enchantments.
      * 
      * @param a     An ItemStack
      * @param b     Another ItemStack
@@ -510,11 +573,36 @@ public class ItemManager
     {
         if(a == null || b == null)
             return false;
-        if(a.getEnchantments().size() > 0 || b.getEnchantments().size() > 0)
+        if(!(
+            a.getType().toString().equals(b.getType().toString()) &&
+            superimposePotionDamage(a).getDurability() == superimposePotionDamage(b).getDurability()
+            ))
             return false;
-        return
-                a.getType().toString().equals(b.getType().toString()) &&
-                superimposePotionDamage(a).getDurability() == superimposePotionDamage(b).getDurability();
+        if(a.getEnchantments().size() > 0 || b.getEnchantments().size() > 0)
+        {
+            for(Map.Entry<Enchantment,Integer> entry : a.getEnchantments().entrySet())
+                if(!(
+                    b.containsEnchantment(entry.getKey()) &&
+                    b.getEnchantments().get(entry.getKey()).equals(entry.getValue())))
+                    return false;
+        }
+        return true;
+    }
+    
+    /**
+     * Determine whether the specified user has any of the specified item,
+     * regardless of quantity, sensitive to enchantments.
+     * 
+     * @param usr   The player whose inventory to check.
+     * @param itm   The item to be sought.
+     * @return      Whether the item exists in the player's inventory.
+     */
+    public boolean hasItem(Player usr, ItemStack itm)
+    {
+        for(ItemStack has : usr.getInventory())
+            if(areSameItem(has,itm))
+                return true;
+        return false;
     }
      
     /**
@@ -535,6 +623,29 @@ public class ItemManager
      */
     public Object parse(Player caller, String arg)
     {
+        return parse(caller,arg,false);
+    }
+    
+    /**
+     * Parse a (player-provided) String which seeks to represent
+     * an item.
+     * 
+     * @param caller    The user who supplied the String.
+     * @param arg       A user-provided String; can be the name of the
+     *                  item (such as "stone") or an ID or an ID:DMG
+     *                  value. Could also be "hand".
+     * @param ignoreEnchDmg Whether to ignore enchantments and damage.
+     *                      This should be used only by {@link EFind}.
+     * @return          A (validated) ItemStack if one was found,
+     *                  -1 if the String was "hand" but no item is held,
+     *                  -2 if item lookup failed,
+     *                  -3 if there was an error validating to ItemStack,
+     *                  -4 if the item is enchanted,
+     *                  -5 if the item is recognized but damaged.
+     *                  -6 if the item is recognized but banned.
+     */
+    public Object parse(Player caller, String arg, boolean ignoreEnchDmg)
+    {
         ItemStack result;
         
         //If item = "hand"
@@ -549,11 +660,13 @@ public class ItemManager
             {
                 ItemStack copy = handItem.clone();
                 copy.setDurability((short)0);
-                if(lookup(copy) != null)
+                if(lookup(copy) != null && !ignoreEnchDmg)
                     return -5;
+                else
+                    result = copy;
             }
-            
-            result = handItem;
+            else
+                result = handItem;
         }
         //If not "hand"
         else
@@ -580,7 +693,7 @@ public class ItemManager
                 return -3;
             }
         }
-        return verify(result);
+        return verify(result,ignoreEnchDmg);
     }
     
     /**
@@ -588,13 +701,14 @@ public class ItemManager
      * rules or enchantment rules.
      * 
      * @param itm   The ItemStack to verify.
+     * @param ignoreEnchant Whether to ignore enchantments.
      * @return      A (validated) ItemStack which is ready to use.
      *              -4 if the item is enchanted.
      *              -6 if the item is banned.
      */
-    public Object verify(ItemStack itm)
+    public Object verify(ItemStack itm,boolean ignoreEnchant)
     {
-        if(itm.getEnchantments().size() > 0)
+        if(itm.getEnchantments().size() > 0 && !ignoreEnchant)
             return -4;
         ItemStack ret = superimposePotionDamage(itm);
         Item cfg = lookup(ret);
@@ -743,5 +857,95 @@ public class ItemManager
             if(POTIONS.get(key) == value)
                 return key;
         return null;
+    }
+    
+    /**
+     * Resolve an enchantment to a usable name.
+     * 
+     * @param e The enchantment to resolve.
+     * @return  A presentable name by which to refer to this enchantment type.
+     */
+    public String getUsableName(Enchantment e)
+    {
+        return ENCHANTS.get(e);
+    }
+    
+    /**
+     * Resolve a user-provided string to a valid {@link Enchantment}.
+     * 
+     * @param str   The string to resolve.
+     * @return      An Enchantment or:
+     *              -1 if the enchantment is incorrectly formatted
+     *              -2 if the specified name does not match any enchantment
+     *              -3 if the specified name matches more than one enchantment
+     *              -4 if the specified level is impossibly high
+     */
+    public Object resolveEnchantment(String str)
+    {
+        String name; int lvl = 1;
+        
+        //Check format of enchantment name. Should be NAME or NAME-LVL.
+        //LVL can be an int or a Roman numeral.
+        
+        String[] splat = str.split("-");
+        if(splat.length > 2)
+            return -1;
+        else if(splat.length == 2)  //Formated for STRING-X
+        {
+            name = splat[0];
+            try
+            {
+                lvl = Integer.parseInt(splat[1]);
+            }
+            catch(NumberFormatException e)
+            {
+                lvl = ChatManager.deRomanNumeralize(splat[1]);
+                if(lvl == -1)
+                    return -1;
+            }
+        }
+        else
+            name = str;
+        
+        //Check for enchantment name matches.
+        
+        Enchantment matched = null;
+        for(Map.Entry<Enchantment,String> entry : ENCHANTS.entrySet())
+        {
+            if(entry.getValue().toUpperCase().contains(name.toUpperCase()))
+            {
+                if(matched == null)
+                    matched = entry.getKey();
+                else
+                    return -3;  //Second match
+            }
+        }
+        if(matched == null)     //No matches
+            return -2;
+        
+        if(lvl > matched.getMaxLevel())
+            return -4;
+        
+        return new EnchLvl(matched,lvl);
+    }
+    
+    /**
+     * Add all enchantments in the provided list to the given item.
+     * Detects and processes Enchanted Books seamlessly.
+     * 
+     * @param target        The item to enchant.
+     * @param enchants      The enchantments to apply.
+     */
+    public static void addEnchantments(ItemStack target, EnchLvl[] enchants)
+    {
+        for(EnchLvl enchant : enchants)
+            if(target.getType().equals(Material.ENCHANTED_BOOK))
+            {
+                EnchantmentStorageMeta esm = ((EnchantmentStorageMeta)target.getItemMeta());
+                esm.addStoredEnchant(enchant.ENCHANT,enchant.LVL,true);
+                target.setItemMeta(esm);
+            }
+            else
+                target.addEnchantment(enchant.ENCHANT,enchant.LVL);
     }
 }

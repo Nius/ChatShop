@@ -3,20 +3,31 @@ package com.niusworks.chatshop.managers;
 import com.niusworks.chatshop.ChatShop;
 import com.niusworks.chatshop.commands.Buy;
 import com.niusworks.chatshop.commands.Cancel;
+import com.niusworks.chatshop.commands.ECancel;
+import com.niusworks.chatshop.commands.EReprice;
+import com.niusworks.chatshop.commands.ESell;
 import com.niusworks.chatshop.commands.Reprice;
 import com.niusworks.chatshop.commands.Sell;
+import com.niusworks.chatshop.constructs.EListing;
+import com.niusworks.chatshop.constructs.EnchLvl;
 import com.niusworks.chatshop.constructs.Listing;
 import com.niusworks.chatshop.constructs.Tender;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
 /**
  * Manages all database functionality for OC Network's ChatShop.
@@ -42,6 +53,13 @@ public class DatabaseManager
     protected Connection connect;
     
     /**
+     * A map of enchantment types (as defined by {@link org.bukkit.enchantments.Enchantment}) to
+     * (arbitrary) integer values, for the purpose of being able to refer to enchantments in an
+     * orderly fashion.
+     */
+    protected final HashMap<Enchantment,Integer> ENCHANTS = new HashMap<Enchantment,Integer>();
+    
+    /**
      * Create an ItemManager with a reference to the master
      * plugin.
      * 
@@ -60,6 +78,41 @@ public class DatabaseManager
     @SuppressWarnings("unused")
     public int initialize()
     {
+        /* This is an arbitrary assignment of numbers to enchantment types.
+         * No other part of this plugin needs to refer to this, but DatabaseManager
+         * requires some orderly structure for storing and retrieving enchant types.
+         */
+        ENCHANTS.put(Enchantment.ARROW_DAMAGE,0);
+        ENCHANTS.put(Enchantment.ARROW_FIRE,1);
+        ENCHANTS.put(Enchantment.ARROW_INFINITE,2);
+        ENCHANTS.put(Enchantment.ARROW_KNOCKBACK,3);
+        ENCHANTS.put(Enchantment.BINDING_CURSE,4);
+        ENCHANTS.put(Enchantment.DAMAGE_ALL,5);
+        ENCHANTS.put(Enchantment.DAMAGE_ARTHROPODS,6);
+        ENCHANTS.put(Enchantment.DAMAGE_UNDEAD,7);
+        ENCHANTS.put(Enchantment.DEPTH_STRIDER,8);
+        ENCHANTS.put(Enchantment.DIG_SPEED,9);
+        ENCHANTS.put(Enchantment.DURABILITY,10);
+        ENCHANTS.put(Enchantment.FIRE_ASPECT,11);
+        ENCHANTS.put(Enchantment.FROST_WALKER,12);
+        ENCHANTS.put(Enchantment.KNOCKBACK,13);
+        ENCHANTS.put(Enchantment.LOOT_BONUS_BLOCKS,14);
+        ENCHANTS.put(Enchantment.LOOT_BONUS_MOBS,15);
+        ENCHANTS.put(Enchantment.LUCK,16);
+        ENCHANTS.put(Enchantment.LURE,17);
+        ENCHANTS.put(Enchantment.MENDING,18);
+        ENCHANTS.put(Enchantment.OXYGEN,19);
+        ENCHANTS.put(Enchantment.PROTECTION_ENVIRONMENTAL,20);
+        ENCHANTS.put(Enchantment.PROTECTION_EXPLOSIONS,21);
+        ENCHANTS.put(Enchantment.PROTECTION_FALL,22);
+        ENCHANTS.put(Enchantment.PROTECTION_FIRE,23);
+        ENCHANTS.put(Enchantment.PROTECTION_PROJECTILE,24);
+        ENCHANTS.put(Enchantment.SILK_TOUCH,25);
+        ENCHANTS.put(Enchantment.SWEEPING_EDGE,26);
+        ENCHANTS.put(Enchantment.THORNS,27);
+        ENCHANTS.put(Enchantment.VANISHING_CURSE,28);
+        ENCHANTS.put(Enchantment.WATER_WORKER,29);
+        
         try
         {
             int port = PLUGIN.getConfig().getInt("MySQL.port",3306);
@@ -90,6 +143,7 @@ public class DatabaseManager
                     + "seller VARCHAR(36) NOT NULL,"        //Minecraft UUID length
                     + "sellerAlias VARCHAR(16) NOT NULL,"   //-- See below.
                     + "price DECIMAL(10,2) NOT NULL,"
+                    + "enchantments VARCHAR(30),"  //30 different enchantments, used for E* commands
                     + "quantity INT NOT NULL) ENGINE=INNODB";
             result = connect.createStatement().executeUpdate(query);
             query = "CREATE TABLE IF NOT EXISTS ChatShop_transactions("
@@ -101,6 +155,7 @@ public class DatabaseManager
                     + "buyer VARCHAR(36) NOT NULL,"         //Minecraft UUID length
                     + "buyerAlias VARCHAR(16) NOT NULL,"    //-- See below.
                     + "price DECIMAL(10,2) NOT NULL,"
+                    + "enchantments VARCHAR(30),"  //30 different enchantments, used for E* commands
                     + "quantity INT NOT NULL,"
                     + "date TIMESTAMP NOT NULL DEFAULT NOW()) ENGINE=INNODB";
             result = connect.createStatement().executeUpdate(query);
@@ -282,6 +337,7 @@ public class DatabaseManager
     
     /**
      * Get this player's current listing for the specified merch.
+     * Ignores enchanted listings.
      * 
      * @param user          The UUID of the user in question.
      * @param merchandise   The merchandise being sought after.
@@ -294,7 +350,8 @@ public class DatabaseManager
         
         String query = "SELECT * FROM ChatShop_listings WHERE seller = '" + user.getUniqueId() + "'"
             + " AND material = '" + merchandise.getType() + "'"
-            + " AND damage = '" + merchandise.getDurability() + "'";
+            + " AND damage = '" + merchandise.getDurability() + "'"
+            + " AND enchantments IS NULL";
         try
         {
             ResultSet res = connect.createStatement().executeQuery(query);
@@ -319,6 +376,7 @@ public class DatabaseManager
     
     /**
      * Get all listings (regardless of player) for the specified item.
+     * Ignores enchanted listings.
      * 
      * @param merchandise   The item for which to get listings.
      * @return              All matching listings, ordered by price ASC.
@@ -332,19 +390,20 @@ public class DatabaseManager
         String query = "SELECT * FROM ChatShop_listings" +
                 " WHERE material = '" + merchandise.getType() + "'" +
                 " AND damage = '" + merchandise.getDurability() + "'" +
+                " AND enchantments IS NULL" +
                 " ORDER BY price ASC";
         try
         {
             ResultSet res = connect.createStatement().executeQuery(query);
             while(res.next())
                 listings.add(new Listing (
-                        res.getInt("id"),
-                        res.getString("material"),
-                        res.getInt("damage"),
-                        res.getString("seller"),
-                        res.getString("sellerAlias"),
-                        res.getDouble("price"),
-                        res.getInt("quantity")));
+                    res.getInt("id"),
+                    res.getString("material"),
+                    res.getInt("damage"),
+                    res.getString("seller"),
+                    res.getString("sellerAlias"),
+                    res.getDouble("price"),
+                    res.getInt("quantity")));
             return listings.toArray(new Listing[listings.size()]);            
         }
         catch(SQLException e)
@@ -356,7 +415,89 @@ public class DatabaseManager
     }
     
     /**
+     * Get all listings (regardless of player) for the specified enchanted item.
+     * Ignores non-enchanted listings.
+     * 
+     * @param merchandise   The item for which to get listings.
+     * @param enchants      The list of enchants required of the item.
+     * @return              All matching listings, ordered by price ASC.
+     *                      If no listings found, a {@link EListing}[]
+     *                      object of length 0 will be returned.
+     *                      null will be returned on SQL failure.
+     */
+    public synchronized EListing[] getListings(ItemStack merchandise, EnchLvl[] enchants)
+    {
+        String coded = stringifyEnchants(enchants); 
+        
+        //Execute the query
+        String query = "SELECT * FROM ChatShop_listings "
+            + "WHERE material = '" + merchandise.getType() + "' "
+            + "AND enchantments LIKE '" + coded + "' "
+            + "ORDER BY price ASC";
+        try
+        {
+            ResultSet res = connect.createStatement().executeQuery(query);
+            ArrayList<EListing> listings = new ArrayList<EListing>();
+            while(res.next())
+                listings.add(new EListing(
+                    res.getInt("id"),
+                    res.getString("material"),
+                    res.getInt("damage"),
+                    res.getString("seller"),
+                    res.getString("sellerAlias"),
+                    res.getDouble("price"),
+                    deStringifyEnchants(res.getString("enchantments")),
+                    res.getString("enchantments")));
+            return listings.toArray(new EListing[listings.size()]); 
+        }
+        catch(SQLException e)
+        {
+            error(query);
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    /**
+     * Retrieve the listing for the specified lot number.
+     * Ignores non-enchanted listings.
+     * 
+     * @param lot   The integer ID number of the lot.
+     * @return      The EListing, or null if none was found.
+     */
+    public synchronized EListing getEListing(int lot)
+    {
+        String query = "SELECT * FROM ChatShop_listings "
+            + "WHERE id = " + lot
+            + " AND enchantments IS NOT NULL";
+        try
+        {
+            ResultSet res = connect.createStatement().executeQuery(query);
+            if(!res.isBeforeFirst())
+                return null;
+            res.next();
+            EListing listing = new EListing(
+                    res.getInt("id"),
+                    res.getString("material"),
+                    res.getInt("damage"),
+                    res.getString("seller"),
+                    res.getString("sellerAlias"),
+                    res.getDouble("price"),
+                    deStringifyEnchants(res.getString("enchantments")),
+                    res.getString("enchantments"));
+            return listing;
+        }
+        catch(SQLException e)
+        {
+            error(query);
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    /**
      * Get all listings (regardless of item type) for the specified player.
+     * Ignores enchanted listings.
      * 
      * @param qPlayer       The item for which to get listings.
      * @return              All matching listings, ordered by material.
@@ -366,15 +507,33 @@ public class DatabaseManager
      */
     public synchronized Listing[] getListings(OfflinePlayer qPlayer)
     {
+        return getListings(qPlayer,true);
+    }
+    
+    /**
+     * Get all listings (regardless of item type) for the specified player.
+     * 
+     * @param qPlayer       The item for which to get listings.
+     * @param ignoreEnchants    Whether to omit enchanted listings.
+     * @return              All matching listings, ordered by material.
+     *                      If no listings are found, a {@link Listing}[]
+     *                      object of length 0 will be returned.
+     *                      null will be returned on SQL failure.
+     */
+    public synchronized Listing[] getListings(OfflinePlayer qPlayer,boolean ignoreEnchants)
+    {
         ArrayList<Listing> listings = new ArrayList<Listing>();
         String query = "SELECT * FROM ChatShop_listings" +
                 " WHERE seller = '" + qPlayer.getUniqueId() + "'" +
+                (ignoreEnchants ? " AND enchantments IS NULL" : "") +
                 " ORDER BY material";
         try
         {
             ResultSet res = connect.createStatement().executeQuery(query);
             while(res.next())
-                listings.add(new Listing (
+            {
+                if(res.getObject("enchantments") == null)
+                    listings.add(new Listing (
                         res.getInt("id"),
                         res.getString("material"),
                         res.getInt("damage"),
@@ -382,6 +541,17 @@ public class DatabaseManager
                         res.getString("sellerAlias"),
                         res.getDouble("price"),
                         res.getInt("quantity")));
+                else
+                    listings.add(new EListing (
+                        res.getInt("id"),
+                        res.getString("material"),
+                        res.getInt("damage"),
+                        res.getString("seller"),
+                        res.getString("sellerAlias"),
+                        res.getDouble("price"),
+                        deStringifyEnchants(res.getString("enchantments")),
+                        res.getString("enchantments")));
+            }
             return listings.toArray(new Listing[listings.size()]);            
         }
         catch(SQLException e)
@@ -394,6 +564,7 @@ public class DatabaseManager
     
     /**
      * Get the transaction history of the specified player.
+     * Ignores enchanted transactions.
      * 
      * @param qPlayer   The player whose history to compile.
      * @return          A list of listings in reverse order by
@@ -404,10 +575,27 @@ public class DatabaseManager
      */
     public synchronized Listing[] getHistory(OfflinePlayer qPlayer)
     {
+        return getHistory(qPlayer,true);
+    }
+    
+    /**
+     * Get the transaction history of the specified player.
+     * 
+     * @param qPlayer   The player whose history to compile.
+     * @param ignoreEnchants    Whether to omit enchanted listings.
+     * @return          A list of listings in reverse order by
+     *                  date, such that the QUANTITY is positive
+     *                  when the queried player was the buyer and
+     *                  negative when the queried player was the
+     *                  seller.
+     */
+    public synchronized Listing[] getHistory(OfflinePlayer qPlayer,boolean ignoreEnchants)
+    {
         ArrayList<Listing> sales = new ArrayList<Listing>();
         String query = "SELECT * FROM ChatShop_transactions " +
-            "WHERE seller = '" + qPlayer.getUniqueId().toString() + "' " +
-            "OR buyer = '" + qPlayer.getUniqueId().toString() + "' " +
+            "WHERE (seller = '" + qPlayer.getUniqueId().toString() + "' " +
+            "OR buyer = '" + qPlayer.getUniqueId().toString() + "') " +
+            (ignoreEnchants ? "AND enchantments IS NULL " : "") +
             "ORDER BY date DESC";
         
         try
@@ -417,7 +605,8 @@ public class DatabaseManager
             {
                 String selleruuid = res.getString("seller");
                 boolean qWasSeller = selleruuid.equalsIgnoreCase(qPlayer.getUniqueId().toString());
-                sales.add(new Listing (
+                if(res.getObject("enchantments") == null)
+                    sales.add(new Listing (
                         res.getInt("id"),
                         res.getString("material"),
                         res.getInt("damage"),
@@ -426,19 +615,31 @@ public class DatabaseManager
                         res.getDouble("price"),
                         res.getInt("quantity") * (qWasSeller ? -1 : 1),
                         res.getTimestamp("date")));
+                else
+                    sales.add(new EListing (
+                        res.getInt("id"),
+                        res.getString("material"),
+                        res.getInt("damage"),
+                        (qWasSeller ? res.getString("buyer") : selleruuid),
+                        (qWasSeller ? res.getString("buyerAlias") : res.getString("sellerAlias")),
+                        res.getDouble("price"),
+                        deStringifyEnchants(res.getString("enchantments")),
+                        res.getString("enchantments"),
+                        res.getInt("quantity") * (qWasSeller ? -1 : 1),
+                        res.getTimestamp("date")));
             }
             return sales.toArray(new Listing[sales.size()]);            
         }
         catch(SQLException e)
         {
-        	e.printStackTrace();
             error(query);
+        	e.printStackTrace();
         }
         return null;
     }
     
     /**
-     * Execute a cancel operation.
+     * Execute a cancel operation of non-enchanted merchandise.
      * This method resides here and not with {@link Cancel} in order
      * to manage synchronization with the database.
      * 
@@ -451,6 +652,7 @@ public class DatabaseManager
     @SuppressWarnings("unused")
     public synchronized int cancel(Player usr, ItemStack merch)
     {
+        String query = "";
         try
         {
             Listing stock = getListing(usr,merch);
@@ -463,14 +665,14 @@ public class DatabaseManager
                 // greater than the available amount, so the
                 // listing will be removed rather than updated.
                 
-                String query = "DELETE FROM ChatShop_listings WHERE id = " + stock.ID;
+                query = "DELETE FROM ChatShop_listings WHERE id = " + stock.ID;
                 int unused = connect.createStatement().executeUpdate(query);
                 
                 return stock.QUANTITY;
             }
             
             int targetQty = (stock.QUANTITY - merch.getAmount());
-            String query =
+            query =
                 "UPDATE ChatShop_listings SET quantity = " +
                 + targetQty + ", sellerAlias = '" + usr.getName() + "' WHERE id = " + stock.ID;
             int unused = connect.createStatement().executeUpdate(query);
@@ -479,13 +681,47 @@ public class DatabaseManager
         }
         catch(SQLException e)
         {
+            error(query);
         	e.printStackTrace();
             return -2;
         }
     }
     
     /**
+     * Execute a cancellation of an enchanted item.
+     * This method resides here and not with {@link ECancel} in order
+     * to manage synchronization with the database.
+     * 
+     * @param lot       The ID of the lot to cancel.
+     * @return          -2 on SQL fail, -1 on no stock to cancel,
+     *                  otherwise the {@link EListing} that was
+     *                  cancelled.
+     */
+    public synchronized Object ecancel(int lot)
+    {
+        EListing listing = getEListing(lot);
+        
+        if(listing == null)
+            return -1;
+        
+        String query = "DELETE FROM ChatShop_listings "
+                + "WHERE id = " + lot;
+        try
+        {
+            connect.createStatement().executeUpdate(query);
+            return listing;
+        }
+        catch(SQLException e)
+        {
+            error(query);
+            e.printStackTrace();
+            return -2;
+        }
+    }
+    
+    /**
      * Price a buy operation.
+     * Ignores enchanted items.
      * This method resides here and not with {@link Buy} in order
      * to manage synchronization with the database.
      * 
@@ -512,7 +748,63 @@ public class DatabaseManager
     }
     
     /**
-     * Execute a buy operation.
+     * Execute the purchase of an enchanted item.
+     * 
+     * @param usr               The user who is making this purchase.
+     * @param lot               The lot number.
+     * @param expectedPrice     The price that the user has consented to pay.
+     *                          It's possible, if the price has changed before
+     *                          the user used /confirm, that these figures don't
+     *                          match, in which case the purchase fails.
+     * @return  The status of the purchase:
+     *          An {@link EListing} on success.
+     *          -1 on insufficient funds.
+     *          -2 on unexpected price.
+     *          -3 on invalid listing (perhaps someone already bought it).
+     *          -4 on SQL failure.
+     */
+    public synchronized Object ebuy(Player usr, int lot, double expectedPrice)
+    {
+        EListing listing = getEListing(lot);
+        if(listing == null)
+            return -3;
+        
+        if(listing.PRICE != expectedPrice)
+            return -2;
+            
+        if(PLUGIN.ECON.getBalance(usr) < listing.PRICE)
+            return -1;
+        
+        //At this point, aside from SQL failure there is no
+        //  reason for the purchase not to succeed.
+        
+        String query = "DELETE FROM ChatShop_listings "
+            + "WHERE id = " + lot;
+        
+        try{connect.createStatement().executeUpdate(query);}
+            catch(SQLException e){error(query);e.printStackTrace();return -4;}
+        
+        query = "INSERT INTO ChatShop_transactions VALUES("
+            + "null,"
+            + "'" + listing.MATERIAL + "',"
+            + listing.DAMAGE + ","
+            + "'" + listing.PLAYER_UUID + "',"
+            + "'" + listing.PLAYER_ALIAS + "',"
+            + "'" + usr.getUniqueId() + "',"
+            + "'" + usr.getName() + "',"
+            + listing.PRICE + ","
+            + "'" + listing.ENCHANTS_STRING + "',"
+            + "1,"
+            + "null)";
+        
+        try{connect.createStatement().executeUpdate(query);}
+        catch(SQLException e){error(query);e.printStackTrace();return -4;}
+        
+        return listing;
+    }
+    
+    /**
+     * Execute a buy operation of non-enchanted items.
      * This method resides here and not with {@link Buy} in order
      * to manage synchronization with the database.
      * 
@@ -531,7 +823,7 @@ public class DatabaseManager
     }
     
     /**
-     * Execute a buy operation.
+     * Execute a buy operation of non-enchanted items.
      * This method resides here and not with {@link Buy} in order
      * to manage synchronization with the database.
      * 
@@ -561,6 +853,7 @@ public class DatabaseManager
                     + "AND damage = " + merch.getDurability() + " ";
             if(maxp != -1)
                 query += "AND price <= " + maxp + " ";
+            query += "AND enchantments IS NULL ";
             query += "ORDER BY price ASC";
             
             //Compile relevant listings into a malleable data structure.
@@ -701,6 +994,7 @@ public class DatabaseManager
                             + "'" + usr.getUniqueId() + "', "
                             + "'" + usr.getName() + "', "
                             + listing.PRICE + ", "
+                            + "null,"
                             + thisQuantity + ", "
                             + "null)";
                     int unused = connect.createStatement().executeUpdate(query);
@@ -717,9 +1011,76 @@ public class DatabaseManager
             return null;
         }
     }
+   
+    /**
+     * Execute a sell operation for an enchanted item.
+     * This method resides here and not with {@link ESell} in order
+     * to manage synchronization with the database.
+     * 
+     * @param usr       The player who executed the esell command.
+     * @param merch     The item to sell.
+     * @param price     The price for the merchandise.
+     * @return          -2 on SQL fail.
+     *                  A positive number indicating the ID of the new lot.
+     */
+    @SuppressWarnings("unused")
+    public synchronized int esell(Player usr, ItemStack merch, double price)
+    {
+        /* Produce a string representing all enchantments had by this item.
+         * The string is actually a very long integer, of which each digit
+         * represents a single enchantment.
+         * The map DatabaseManager#ENCHANTS contains a map of Enchantments
+         * to indexes in this String.
+         * The value of the digit is the level of the enchantment.
+         */
+        
+        String coded = "";
+        while(coded.length() < ENCHANTS.size())
+            coded += "0";
+        
+        Set<Map.Entry<Enchantment,Integer>> entrySet =
+                (merch.getType().equals(Material.ENCHANTED_BOOK) ?
+                    ((EnchantmentStorageMeta)merch.getItemMeta()).getStoredEnchants().entrySet() :
+                        merch.getEnchantments().entrySet());
+        for(Map.Entry<Enchantment,Integer> entry : entrySet)
+        {
+            int index = ENCHANTS.get(entry.getKey());
+            int level = entry.getValue();
+            coded =
+                (index == 0 ? "" : coded.substring(0,index)) +
+                level +
+                (index == coded.length() - 1 ? "" : coded.substring(index + 1));
+        }
+        
+        // Post the listing to the database.
+        
+        String query = "INSERT INTO ChatShop_listings VALUES("
+            + "null,"
+            + "'" + merch.getType() + "',"
+            + merch.getDurability() + ","
+            + "'" + usr.getUniqueId() + "',"
+            + "'" + usr.getName() + "',"
+            + price + ","
+            + "'" + coded + "',"
+            + "1);";
+        
+        try
+        {
+            int unused = connect.createStatement().executeUpdate(query);
+            ResultSet res = connect.createStatement().executeQuery("SELECT LAST_INSERT_ID() AS ID");
+            res.next();
+            return res.getInt("ID");
+        }
+        catch(SQLException e)
+        {
+            error(query);
+            e.printStackTrace();
+        }
+        return -2;
+    }
     
     /**
-     * Execute a sell operation.
+     * Execute a sell operation of non-enchanted items.
      * This method resides here and not with {@link Sell} in order
      * to manage synchronization with the database.
      * 
@@ -773,6 +1134,7 @@ public class DatabaseManager
                     + "'" + usr.getUniqueId() + "',"
                     + "'" + usr.getName() + "',"
                     + price + ","
+                    + "null,"
                     + merch.getAmount() + ")";
             int unused = connect.createStatement().executeUpdate(query);
             return 0;
@@ -786,7 +1148,7 @@ public class DatabaseManager
     }
     
     /**
-     * Execute a reprice operation.
+     * Execute a reprice operation of non-enchanted items.
      * This method resides here and not with {@link Reprice} in order
      * to manage synchronization with the database.
      * 
@@ -825,11 +1187,47 @@ public class DatabaseManager
     }
     
     /**
+     * Execute a reprice operation of an enchanted item.
+     * This method resides here and not with {@link EReprice} in order
+     * to manage synchronization with the database.
+     * 
+     * @param lot       The id number of the item to reprice.
+     * @param price     The new item price.
+     * @return          -2 on SQL fail, -1 on no stock to cancel,
+     *                  otherwise the {@link EListing} that was
+     *                  updated. <b>Note that tne returned listing
+     *                  will have the old price.</b>
+     */
+    public synchronized Object ereprice(int lot, double price)
+    {
+        EListing listing = getEListing(lot);
+        
+        if(listing == null)
+            return -1;
+        
+        String query = "UPDATE ChatShop_listings "
+            + "SET price = " + price + " "
+            + "WHERE id = " + lot;
+        
+        try
+        {
+            connect.createStatement().executeUpdate(query);
+            return listing;
+        }
+        catch(SQLException e)
+        {
+            error(query);
+            e.printStackTrace();
+            return -2;
+        }
+    }
+    
+    /**
      * Log an error to the console involving the specified query.
      * 
      * @param query This query will be logged verbatim to the console.
      */
-    public void error(String query)
+    protected void error(String query)
     {
         PLUGIN.CM.severe("Unexpected error occurred with query: \"" + query + "\"");
     }
@@ -873,5 +1271,42 @@ public class DatabaseManager
            PLUGIN.CM.severe("Unexpected error attempting to close the database connection.");
            e.printStackTrace();
        }
+    }
+    
+    /**
+     * Convert a list of enchantments to a string suitable for database storage.
+     * 
+     * @param enchants  The list of enchantments to encode.
+     * @return          A string, as it will appear in the database.
+     */
+    protected String stringifyEnchants(EnchLvl[] enchants)
+    {
+        String coded = "";
+        while(coded.length() < ENCHANTS.size())
+            coded += "_";
+        
+        for(EnchLvl enchant : enchants)
+        {
+            int index = ENCHANTS.get(enchant.ENCHANT);
+            coded = coded.substring(0,index) +
+                    enchant.LVL +
+                    (index == coded.length() - 1 ? "" : coded.substring(index + 1));
+        }
+        return coded;
+    }
+    
+    /**
+     * Convert a codified string to a list of Enchantments.
+     * 
+     * @param coded     The string to decode.
+     * @return          A list of enchantments.
+     */
+    protected EnchLvl[] deStringifyEnchants(String coded)
+    {
+        ArrayList<EnchLvl> enchants = new ArrayList<EnchLvl>();
+        for(Map.Entry<Enchantment,Integer> entry : ENCHANTS.entrySet())
+            if(coded.charAt(entry.getValue()) != '0')
+                enchants.add(new EnchLvl(entry.getKey(),Integer.parseInt("" + coded.charAt(entry.getValue()))));
+        return enchants.toArray(new EnchLvl[enchants.size()]);
     }
 }

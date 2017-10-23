@@ -30,11 +30,18 @@ MySQL:
 #################
 
 # Global maximum price for all items.
-# items.csv does NOT override this.
+# items.csv does not override this.
 global-max-price:   10000000
 
 # Time in milliseconds a user has in which to /confirm.
 confirm-timeout:    10000
+
+# Whether damaged enchanted items may be sold.
+allow-damaged-enchanted:    true
+
+# Whether enchanted items observe the max-price for
+# their non-enchanted counterparts.
+allow-enchanted-overprice:  false
 
 ####################################
 # Gamemode and World Configuration #
@@ -68,6 +75,7 @@ chat:
     color:          DARK_PURPLE
     tag:            '[OShop]'
   colors:
+    attribute:      GRAY
     date:           DARK_GRAY
     error:          DARK_RED
     helpUsage:      GRAY

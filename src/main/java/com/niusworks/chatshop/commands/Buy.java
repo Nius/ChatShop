@@ -11,7 +11,6 @@ import com.niusworks.chatshop.constructs.BuyOrder;
 import com.niusworks.chatshop.constructs.Item;
 import com.niusworks.chatshop.constructs.Tender;
 import com.niusworks.chatshop.managers.ChatManager;
-import com.niusworks.chatshop.managers.DatabaseManager;
 import com.niusworks.chatshop.managers.ItemManager;
 
 /**
@@ -20,6 +19,8 @@ import com.niusworks.chatshop.managers.ItemManager;
  * Players can buy items from the chatshop. Purchases are always made in ascending order by price;
  * the ChatShop always buys the cheapest available items. This command has three elements: quantity,
  * item, and maxPrice.
+ * Alternatively, if the user enters only one argument AND that argument is an integer preceded by a
+ * hash, then this command redirects to {@link EBuy}.
  * <br><br>
  * Quantity must be an integer greater than zero.
  * <br><br>
@@ -104,6 +105,15 @@ public class Buy implements CommandExecutor
         //
         
         //Number of args
+        //If the user enters only an integer value preceded by a hash,
+        //  they probably meant to buy that lot number, so redirect to EBuy.
+        if(args.length == 1 && args[0].charAt(0) == '#')
+            try
+            {
+                int lot = Integer.parseInt(args[0].substring(1));
+                return PLUGIN.getCommand("ebuy").getExecutor().onCommand(usr,cmd,lbl,new String[]{lot + ""});
+            }
+            catch(NumberFormatException e){/* do nothing, the next conditional will terminate this command. */}
         if(args.length != 2 && args.length != 3)
             return PLUGIN.CM.error(sender,USAGE);
         
@@ -215,13 +225,11 @@ public class Buy implements CommandExecutor
         }
         else{} //The player is not using /confirm for buys; execute immediately.
         
-        Tender res = PLUGIN.DB.buy(usr,merchandise,maxp);
-        
         //
         //  RESULT
         //
         
-        return processResults(usr,merchandise,displayName,res);
+        return processResults(usr,merchandise,displayName,maxp);
     }
     
     /**
@@ -233,12 +241,17 @@ public class Buy implements CommandExecutor
      * @param usr           The user who is executing the buy operaion.
      * @param merchandise   The merchandise (including amount) the user tried to buy.
      * @param displayName   The already-looked-up display name of the items.
-     * @param res           The results of {@link DatabaseManager#buy}.
+     * @param maxp          The maximum price at which to buy items.
      * @return              Always returns true, so that calling methods can finalize
      *                      the buy order and terminate in one line.
      */
-    public boolean processResults(Player usr,ItemStack merchandise,String displayName,Tender res)
+    public boolean processResults(Player usr,ItemStack merchandise,String displayName,double maxp)
     {
+        //No price check is needed before executing the buy operation, as DatabaseManager
+        //  ensures that available balance is not exceeded.
+        
+        Tender res = PLUGIN.DB.buy(usr,merchandise,maxp);
+        
         //On fail...
         if(res == null)
             return PLUGIN.CM.err500(usr);

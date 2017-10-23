@@ -3,19 +3,19 @@ authors: [Wesley27, LazrCowboy, SirNius]
 description: Allows players to buy and sell goods via chat.
 main: com.niusworks.chatshop.ChatShop
 name: ChatShop
-version: 1.0.11
+version: 2.0.0
 depend: [Vault]
 commands:
     buy:
         description: |-
-          Buy a quantity of the cheapest of the specified item from the market.
+          Buy a quantity of the cheapest of the specified item from the shop.
           You can use "hand" to refer to the item currently in your main hand.
           If you specify a maximum price then ChatShop will not allow you to spend
           more than that price on any one unit of the item you're buying.
         usage: /buy <quantity> <item | "hand"> [maxprice]
     cancel:
         description: |-
-          Remove some of your own specified items from the market.
+          Remove some of your own specified items from the shop.
           You can say "all" instead of a number to remove the whole stock. 
           You can use "hand" to refer to the item currently in your main hand.
         usage: /cancel <quantity | "all"> <item | "hand">
@@ -31,13 +31,37 @@ commands:
         usage: /csadmin <command>
     dump:
         description: |-
-          Post your whole inventory to the market.
-          Only items for which you already have some on the market will be posted.
+          Post your whole inventory to the shop.
+          Only items for which you already have some in the shop will be posted.
           Your prices will not be changed.
         usage: /dump
+    ebuy:
+        description: |-
+          Buy an enchanted item from the shop. You must specify a lot number.
+        usage: /ebuy <lot number>
+    ecancel:
+        description: |-
+          Cancel an enchanted item from the shop. You must specify a lot number.
+        usage: /ecancel <lot number>
+    efind:
+        description: |-
+          Find enchanted items in the shop.
+          You can use "hand" to refer to the item currently in your main hand.
+          Specify enchantments with NAME-LVL such as Eff-3.
+        usage: /efind <item> [enchant [enchant [...]]] [page];
+        aliases: [ef]
+    ereprice:
+        description: |-
+          Change the price of an enchanted item you're already selling.
+          You must specify a lot number.
+        usage: /reprice <lot number> <newPrice>
+    esell:
+        description: |-
+          Put the currently held enchanted item up for sale in the shop.
+        usage: /esell <price>
     find:
         description: |-
-          Find an item on the market.
+          Find an item in the shop.
           You can use "hand" to refer to the item currently in your main hand.
         usage: /find <item | "hand"> [page]
         aliases: [f]
@@ -57,14 +81,14 @@ commands:
         usage: /reprice <item | "hand"> <newPrice>
     sell:
         description: |-
-          Put items up for sale on the ChatShop.
+          Put items up for sale in the ChatShop.
           You can say "all" instead of a number to sell as much as you have in your inventory.
           You can use "hand" to refer to the item currently in your main hand.
           You can use "-" instead of a price to use your current market price, if you have one.
           The price is per item, not for the whole stock.
         usage: /sell <quantity> <item | "hand"> <priceEach | "-">
     stock:
-        description: Show everything a player is currently selling on the ChatShop.
+        description: Show everything a player is currently selling in the ChatShop.
         usage: /stock [player] [page]
 permissions:
     chatshop.admin:
@@ -81,6 +105,21 @@ permissions:
         default: true
     chatshop.dump:
         description: Allow usage of /dump
+        default: true
+    chatshop.ebuy:
+        description: Allow usage of /ebuy
+        default: true
+    chatshop.ecancel:
+        description: Allow usage of /ecancel
+        default: true
+    chatshop.efind:
+        description: Allow usage of /efind
+        default: true
+    chatshop.ereprice:
+        description: Allow usage of /ereprice
+        default: true
+    chatshop.esell:
+        description: Allow usage of /esell
         default: true
     chatshop.find:
         description: Allow usage of /find

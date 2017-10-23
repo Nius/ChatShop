@@ -20,7 +20,7 @@ public class BuyOrder extends Order
     
     /**
      * @param usr     The player who created this order.
-     * @param merch   The merchandise (including quantity) to purchse.
+     * @param merch   The merchandise (including quantity) to purchase.
      * @param cfg     The already-looked-up configuration for this item.
      * @param maxp    The maximum price for the buy order.
      * @param total   The calculated total price for the buy order at the time of its creation.

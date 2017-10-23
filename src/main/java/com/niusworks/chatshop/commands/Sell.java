@@ -1,6 +1,7 @@
 package com.niusworks.chatshop.commands;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -20,6 +21,8 @@ import com.niusworks.chatshop.managers.ItemManager;
  * <br>
  * Users can post items to the ChatShop marketplace. This command has three required elements:
  * quantity, item, and priceEach.
+ * Alternatively, if a user is holding an enchanted item AND the user enters only one argument
+ * AND that argument is a double, then this command redirects to {@link ESell}.
  * <br><br>
  * Quantity can be an integer, which will be compared to the total amount of the specified
  * item currently in the user's inventory. It can also be the string "all" (case-insensitive)
@@ -35,7 +38,7 @@ import com.niusworks.chatshop.managers.ItemManager;
  * Price limits set forth in items.csv are honored here; attempting to price an item above its
  * configured maximum price will result in a refusal message.
  * <br><br>
- * Upon successful sale a broadcast is sent out notifying players of the newly created listing.
+ * Upon successful posting a broadcast is sent out notifying players of the newly created listing.
  * <br><br>
  * This command has the following limits (aside from basic perms):
  * <ul>
@@ -105,6 +108,18 @@ public class Sell implements CommandExecutor
         //
         
         //Number of args
+        //If the user enters only a double value and is holding an
+        //  enchanted item, they probably meant to use /esell, so try that instead.
+        if(args.length == 1)
+            if( ((Player)sender).getInventory().getItemInMainHand().getEnchantments().size() > 0 ||
+                ((Player)sender).getInventory().getItemInMainHand().getType().equals(Material.ENCHANTED_BOOK) )
+                try
+                {
+                    @SuppressWarnings("unused")
+                    double price = Double.parseDouble(args[0]);
+                    return PLUGIN.getCommand("esell").getExecutor().onCommand(usr,cmd,lbl,args);
+                }
+                catch(NumberFormatException e){ /* do nothing, it's not a price. */ }
         if(args.length != 3)
             return PLUGIN.CM.error(sender,USAGE);
                
@@ -139,7 +154,7 @@ public class Sell implements CommandExecutor
         for(ItemStack item : usr.getInventory().getContents())
             if(item == null)
                 continue;
-            else if(PLUGIN.IM.areSameItem(item,merchandise))
+            else if(PLUGIN.IM.areSameType(item,merchandise))
                 has += item.getAmount();
         if(has == 0)
             return PLUGIN.CM.error(sender,"You do not have any " + displayName + ".");
@@ -197,9 +212,9 @@ public class Sell implements CommandExecutor
         }
         //Check the quantity against the defined maximum quantity.
         //This check is performed again by the DatabaseManager when attempting
-        // to carry out the sell operation, in the provided number is less than
-        // the limit but the provided number plus the already-existing stock is
-        // in excess of the limit.
+        // to carry out the sell operation, in case the provided number is less
+        // than the limit but the provided number plus the already-existing stock
+        // is in excess of the limit.
         //In such a situation the DatabaseManager reports to ProcessResults, and
         // a denial identical to this one is returned.
         if(cfg.MAXQUANTITY > 0 && merchandise.getAmount() > cfg.MAXQUANTITY)
@@ -234,15 +249,13 @@ public class Sell implements CommandExecutor
                textCol + "to confirm this order.";
            return PLUGIN.CM.reply(usr,msg);
         }
-        else{} //The player is not using /confirm for buys.
+        else{} //The player is not using /confirm for sells.
            
-        Object res = PLUGIN.DB.sell(usr,merchandise,price);
-        
         //
         //  RESULT
         //
         
-        return processResults(usr,merchandise,cfg,price,res);
+        return processResults(usr,merchandise,cfg,price);
     }
     
     /**
@@ -255,11 +268,10 @@ public class Sell implements CommandExecutor
      * @param merchandise   The merchandise (including amount) the user tried to buy.
      * @param cfg           The item, as configured from file.
      * @param price         The user-provided price for these items.
-     * @param res           The results of {@link DatabaseManager#sell}.
      * @return              Always returns true, so that calling methods can finalize
      *                      the buy order and terminate in one line.
      */
-    public boolean processResults(Player usr,ItemStack merchandise,Item cfg,double price,Object res)
+    public boolean processResults(Player usr,ItemStack merchandise,Item cfg,double price)
     {
         // Check again (necessary for use of /confirm) that the user has the specified
         //  amount of the item.
@@ -267,13 +279,15 @@ public class Sell implements CommandExecutor
         for(ItemStack item : usr.getInventory().getContents())
             if(item == null)
                 continue;
-            else if(PLUGIN.IM.areSameItem(item,merchandise))
+            else if(PLUGIN.IM.areSameType(item,merchandise))
                 has += item.getAmount();
         if(merchandise.getAmount() > has)
             return PLUGIN.CM.error(usr,"You no longer have " +
                 PLUGIN.CM.color("quantity") + ChatManager.format(merchandise.getAmount()) + " " +
                 PLUGIN.CM.color("item") + cfg.DISPLAY +
                 PLUGIN.CM.color("error") + ".");
+        
+        Object res = PLUGIN.DB.sell(usr,merchandise,price);
         
         // On SQL fail...
         if(res instanceof Integer && ((Integer)res).intValue() == -2)
@@ -295,7 +309,7 @@ public class Sell implements CommandExecutor
         int removed = 0;
         ItemStack[] inv = usr.getInventory().getContents();
         for(int i = 0; i < inv.length; i ++)
-            if(PLUGIN.IM.areSameItem(inv[i],merchandise))
+            if(PLUGIN.IM.areSameType(inv[i],merchandise))
             {
                 //If this slot has more than needs to be removed, trim it
                 // and quit.

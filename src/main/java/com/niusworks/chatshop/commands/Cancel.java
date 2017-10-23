@@ -94,6 +94,15 @@ public class Cancel implements CommandExecutor
         //
         
         //Number of args
+        //If the user enters only an integer value preceded by a hash then they
+        //  probably meant to use ecancel, so redirect to ECancel.
+        if(args.length == 1 && args[0].charAt(0) == '#')
+            try
+            {
+                int lot = Integer.parseInt(args[0].substring(1));
+                return PLUGIN.getCommand("ecancel").getExecutor().onCommand(usr,cmd,lbl,new String[]{lot + ""});
+            }
+            catch(NumberFormatException e){/* do nothing, the next conditional will terminate this command. */}
         if(args.length != 2)
             return PLUGIN.CM.error(sender,USAGE);
         

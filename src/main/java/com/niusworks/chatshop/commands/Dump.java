@@ -108,7 +108,7 @@ public class Dump implements CommandExecutor
             // Wash each item through the ItemManager verifier.
             // This takes care of special cases such as potions, tipped arrows,
             //  and enchantments.
-            Object res = PLUGIN.IM.verify(merchandise);
+            Object res = PLUGIN.IM.verify(merchandise,false);
             if(!(res instanceof ItemStack))
                 continue;
             merchandise = (ItemStack)res;
@@ -131,7 +131,7 @@ public class Dump implements CommandExecutor
             int removed = 0;
             ItemStack[] inv = usr.getInventory().getContents();
             for(int i = 0; i < inv.length; i ++)
-                if(PLUGIN.IM.areSameItem(inv[i],merchandise))
+                if(PLUGIN.IM.areSameType(inv[i],merchandise))
                 {
                     //If this slot has more than needs to be removed, trim it
                     // and quit.
