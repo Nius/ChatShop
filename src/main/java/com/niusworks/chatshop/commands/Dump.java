@@ -108,7 +108,7 @@ public class Dump implements CommandExecutor
             // Wash each item through the ItemManager verifier.
             // This takes care of special cases such as potions, tipped arrows,
             //  and enchantments.
-            Object res = PLUGIN.IM.verify(merchandise,false);
+            Object res = PLUGIN.IM.makeCompliant(merchandise,false);
             if(!(res instanceof ItemStack))
                 continue;
             merchandise = (ItemStack)res;

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.bukkit.Material;
@@ -467,7 +468,7 @@ public class ItemManager
      */
     public String getDisplayName(ItemStack item)
     {
-        Object res = verify(item,false);
+        Object res = makeCompliant(item,true);
         if(!(res instanceof ItemStack))
             return "~INVALID";
         Item itm = lookup((ItemStack)res);
@@ -578,12 +579,25 @@ public class ItemManager
             superimposePotionDamage(a).getDurability() == superimposePotionDamage(b).getDurability()
             ))
             return false;
-        if(a.getEnchantments().size() > 0 || b.getEnchantments().size() > 0)
+        if(
+            a.getEnchantments().size() > 0 ||
+            b.getEnchantments().size() > 0 ||
+            a.getType().equals(Material.ENCHANTED_BOOK))
+            //If a is enchanted book then b must be too, via the second conditional of this method.
+            //Enchanted books have getEnchantments().size() = 0.
         {
-            for(Map.Entry<Enchantment,Integer> entry : a.getEnchantments().entrySet())
+            Set<Map.Entry<Enchantment,Integer>> entrySetA =
+                    (a.getType().equals(Material.ENCHANTED_BOOK) ?
+                        ((EnchantmentStorageMeta)a.getItemMeta()).getStoredEnchants().entrySet() :
+                        a.getEnchantments().entrySet());
+            Map<Enchantment,Integer> entrySetB =
+                    (b.getType().equals(Material.ENCHANTED_BOOK) ?
+                        ((EnchantmentStorageMeta)b.getItemMeta()).getStoredEnchants() :
+                        b.getEnchantments());
+            for(Map.Entry<Enchantment,Integer> entry : entrySetA)
                 if(!(
-                    b.containsEnchantment(entry.getKey()) &&
-                    b.getEnchantments().get(entry.getKey()).equals(entry.getValue())))
+                    entrySetB.containsKey(entry.getKey()) &&
+                    entrySetB.get(entry.getKey()).equals(entry.getValue())))
                     return false;
         }
         return true;
@@ -613,13 +627,13 @@ public class ItemManager
      * @param arg       A user-provided String; can be the name of the
      *                  item (such as "stone") or an ID or an ID:DMG
      *                  value. Could also be "hand".
-     * @return          A (validated) ItemStack if one was found,
-     *                  -1 if the String was "hand" but no item is held,
-     *                  -2 if item lookup failed,
-     *                  -3 if there was an error validating to ItemStack,
-     *                  -4 if the item is enchanted,
-     *                  -5 if the item is recognized but damaged.
-     *                  -6 if the item is recognized but banned.
+     * @return          A (validated) ItemStack if one was found (see {@link #makeCompliant(ItemStack, boolean)}),
+     *                  <br>-1 if the String was "hand" but no item is held,
+     *                  <br>-2 if item lookup failed,
+     *                  <br>-3 if there was an error validating to ItemStack,
+     *                  <br>-4 if the item is "hand" and is enchanted,
+     *                  <br>-5 if the item is "hand" and is recognized but damaged.
+     *                  <br>-6 if the item is recognized but banned.
      */
     public Object parse(Player caller, String arg)
     {
@@ -636,13 +650,13 @@ public class ItemManager
      *                  value. Could also be "hand".
      * @param ignoreEnchDmg Whether to ignore enchantments and damage.
      *                      This should be used only by {@link EFind}.
-     * @return          A (validated) ItemStack if one was found,
-     *                  -1 if the String was "hand" but no item is held,
-     *                  -2 if item lookup failed,
-     *                  -3 if there was an error validating to ItemStack,
-     *                  -4 if the item is enchanted,
-     *                  -5 if the item is recognized but damaged.
-     *                  -6 if the item is recognized but banned.
+     * @return          A (validated) ItemStack if one was found (see {@link #makeCompliant(ItemStack, boolean)}),
+     *                  <br>-1 if the String was "hand" but no item is held,
+     *                  <br>-2 if item lookup failed,
+     *                  <br>-3 if there was an error validating to ItemStack,
+     *                  <br>-4 if the item is enchanted,
+     *                  <br>-5 if the item is recognized but damaged.
+     *                  <br>-6 if the item is recognized but banned.
      */
     public Object parse(Player caller, String arg, boolean ignoreEnchDmg)
     {
@@ -693,27 +707,33 @@ public class ItemManager
                 return -3;
             }
         }
-        return verify(result,ignoreEnchDmg);
+        return makeCompliant(result,ignoreEnchDmg);
     }
     
     /**
-     * Ensures that items are compliant to any special, such as potion/tipped_arrow
-     * rules or enchantment rules.
+     * Ensures that the provided ItemStack is compliant to ChatShop rules:
+     * <ul>
+     *  <li>If the item is a potion, rebuilds the item as a ChatShop-recognized potion.
+     *  <li>If the item is banned, refuses it.
+     *  <li>If the item is enchanted, refuses it unless instructed not to.
+     * </ul>
+     * The ban check occurs before the enchantment check.
      * 
      * @param itm   The ItemStack to verify.
      * @param ignoreEnchant Whether to ignore enchantments.
-     * @return      A (validated) ItemStack which is ready to use.
-     *              -4 if the item is enchanted.
-     *              -6 if the item is banned.
+     * @return      A (validated) ItemStack which is ready to use. If the item was
+     *              not a potion then the returned ItemStack is literally <code>itm</code>.
+     *              <br>-4 if the item is enchanted.
+     *              <br>-6 if the item is banned.
      */
-    public Object verify(ItemStack itm,boolean ignoreEnchant)
+    public Object makeCompliant(ItemStack itm,boolean ignoreEnchant)
     {
-        if(itm.getEnchantments().size() > 0 && !ignoreEnchant)
-            return -4;
         ItemStack ret = superimposePotionDamage(itm);
         Item cfg = lookup(ret);
         if(cfg != null && cfg.ISBANNED)
             return -6;
+        else if(itm.getEnchantments().size() > 0 && !ignoreEnchant)
+            return -4;
         else
             return ret;
     }
@@ -872,6 +892,7 @@ public class ItemManager
     
     /**
      * Resolve a user-provided string to a valid {@link Enchantment}.
+     * An enchantment whose level is not specified will be assigned level -1.
      * 
      * @param str   The string to resolve.
      * @return      An Enchantment or:
@@ -882,7 +903,7 @@ public class ItemManager
      */
     public Object resolveEnchantment(String str)
     {
-        String name; int lvl = 1;
+        String name; int lvl = -1;
         
         //Check format of enchantment name. Should be NAME or NAME-LVL.
         //LVL can be an int or a Roman numeral.
@@ -908,11 +929,16 @@ public class ItemManager
             name = str;
         
         //Check for enchantment name matches.
+        //An individual check is made against "PROTECTION", because
+        //  the entirety of the name of the enchantment "PROTECTION" is
+        //  matched by several other enchants.
+        if("PROTECTION".contains(name.toUpperCase()))
+            return new EnchLvl(Enchantment.PROTECTION_ENVIRONMENTAL,lvl);
         
         Enchantment matched = null;
         for(Map.Entry<Enchantment,String> entry : ENCHANTS.entrySet())
         {
-            if(entry.getValue().toUpperCase().contains(name.toUpperCase()))
+            if(entry.getValue().replaceAll(" ","").toUpperCase().contains(name.toUpperCase()))
             {
                 if(matched == null)
                     matched = entry.getKey();
@@ -927,25 +953,5 @@ public class ItemManager
             return -4;
         
         return new EnchLvl(matched,lvl);
-    }
-    
-    /**
-     * Add all enchantments in the provided list to the given item.
-     * Detects and processes Enchanted Books seamlessly.
-     * 
-     * @param target        The item to enchant.
-     * @param enchants      The enchantments to apply.
-     */
-    public static void addEnchantments(ItemStack target, EnchLvl[] enchants)
-    {
-        for(EnchLvl enchant : enchants)
-            if(target.getType().equals(Material.ENCHANTED_BOOK))
-            {
-                EnchantmentStorageMeta esm = ((EnchantmentStorageMeta)target.getItemMeta());
-                esm.addStoredEnchant(enchant.ENCHANT,enchant.LVL,true);
-                target.setItemMeta(esm);
-            }
-            else
-                target.addEnchantment(enchant.ENCHANT,enchant.LVL);
     }
 }

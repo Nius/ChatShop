@@ -1,11 +1,14 @@
 package com.niusworks.chatshop.commands;
 
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
@@ -31,9 +34,15 @@ import net.md_5.bungee.api.chat.TextComponent;
  * by {@link ItemManager#parse}. Invalid items are caught and appropriate messages are sent to
  * the player.
  * Attempting to efind a non-enchantable item will result in an empty set: "no listings found".
+ * Using "hand" for the item will search:
+ * <ul>
+ *  <li>The item type in hand if it is unenchanted.
+ *  <li>The item type in hand with all its enchantments (level-specific) if it is enchanted.
+ *  <li>A refusal message if no item is in hand.
+ * </ul>
  * <br>
- * Alternatively, if the item is an integer and there are no other args, then the lot number
- * specified will be shown, if it exists.
+ * Alternatively, if the item is an integer (or #integer) and there are no other args, then the
+ * lot number specified will be shown, if it exists.
  * <br><br>
  * Users can specify any number of enchantments that they desire of an object.
  * To specify an enchant, the user must use this format: "STRING-X", where X is a number
@@ -121,33 +130,19 @@ public class EFind implements CommandExecutor
         if(args.length < 1)
             return PLUGIN.CM.error(sender,USAGE);
         
-        //Check to see if there is only one arg and it's an integer.
+        //Check to see if there is only one arg and it's an integer (or #integer).
         //  If so, we're just looking up that specific lot.
         EListing lotlisting = null;
         if(args.length == 1)
         {
             try
             {
-                int lot = Integer.parseInt(args[0]);
+                int lot = Integer.parseInt(
+                    (args[0].startsWith("#") ? args[0].substring(1) : args[0]));
                 lotlisting = PLUGIN.DB.getEListing(lot);
             }
             catch(NumberFormatException e){/* do nothing */}
         }
-        
-        //Item check
-        Object parse = PLUGIN.IM.parse(usr,
-            (lotlisting == null ? args[0] : lotlisting.MATERIAL));
-        if(parse instanceof Integer)
-            switch((Integer)parse)
-            {
-                case -1: return PLUGIN.CM.error(usr,"You are not holding an item.");
-                case -2:
-                case -3: return PLUGIN.CM.error(usr,"Invalid item: " + PLUGIN.CM.color("item") + args[0] + PLUGIN.CM.color("error") + ".");
-                case -6: return PLUGIN.CM.error(usr,"That item cannot be sold on the ChatShop.");
-                default: return PLUGIN.CM.err500(usr);
-            }
-        ItemStack merchandise = (ItemStack)parse;
-        String displayName = PLUGIN.IM.getDisplayName(merchandise);
         
         //Page check
         //The page must be the last argument, which will be an integer only
@@ -163,9 +158,9 @@ public class EFind implements CommandExecutor
             catch(NumberFormatException e)
             { /* Do nothing; the last arg is probably an enchant. */}
         
-        //Resolve remaining args to enchantments.
+        //Resolve trailing args to enchantments.
         EnchLvl[] enchs =
-            new EnchLvl[args.length - (didSpecifyPage ? 2 : 1)];
+                new EnchLvl[args.length - (didSpecifyPage ? 2 : 1)];
         for(int i = 0; i < enchs.length; i ++)
         {
             Object res = PLUGIN.IM.resolveEnchantment(args[i + 1]);
@@ -178,6 +173,36 @@ public class EFind implements CommandExecutor
                     case -4: return PLUGIN.CM.error(usr,args[i+1] + " is too high a level for that enchantment type.");
                 }
             enchs[i] = (EnchLvl)res;
+        }
+        
+        //Item check
+        Object parse = PLUGIN.IM.parse(usr,
+            (lotlisting == null ? args[0] : lotlisting.MATERIAL),true);
+        if(parse instanceof Integer)
+            switch((Integer)parse)
+            {
+                case -1: return PLUGIN.CM.error(usr,"You are not holding an item.");
+                case -2:
+                case -3: return PLUGIN.CM.error(usr,"Invalid item: " + PLUGIN.CM.color("item") + args[0] + PLUGIN.CM.color("error") + ".");                    
+                case -6: return PLUGIN.CM.error(usr,"That item cannot be sold on the ChatShop.");
+                default: return PLUGIN.CM.err500(usr);
+            }
+        ItemStack merchandise = (ItemStack)parse;
+        String displayName = PLUGIN.IM.getDisplayName(merchandise);
+        
+        //If the item was "hand" (and valid, because this method hasn't returned),
+        //  if the item in hand is enchanted then use all of its enchants as search params.
+        //  Note that the item will be enchanted only if the user entered "hand".
+        if(merchandise.getEnchantments().size() > 0 || merchandise.getType().equals(Material.ENCHANTED_BOOK))
+        {
+            Set<Map.Entry<Enchantment,Integer>> entrySet =
+            (merchandise.getType().equals(Material.ENCHANTED_BOOK) ?
+                ((EnchantmentStorageMeta)merchandise.getItemMeta()).getStoredEnchants().entrySet() :
+                    merchandise.getEnchantments().entrySet());
+            enchs = new EnchLvl[entrySet.size()];
+            int index = 0;
+            for(Map.Entry<Enchantment,Integer> entry : entrySet)
+                enchs[index ++] = new EnchLvl(entry.getKey(),entry.getValue());
         }
         
         //
@@ -217,14 +242,47 @@ public class EFind implements CommandExecutor
         {
             page = Math.max(page,1);
             int pages = PLUGIN.CM.getPaginationSize(listings);
-            String msg =
-                    textCol + "Listings for " +
+            
+            ChatColor attrCol = ChatColor.valueOf(PLUGIN.getConfig().getString("chat.colors.attribute"));
+            
+            TextComponent htc0 = new TextComponent();
+            htc0.setText(PLUGIN.CM.PREFIX + textCol + "Listings for ");
+            
+            TextComponent htc1 = new TextComponent();
+            htc1.setText(
                     itemCol +
                     (merchandise.getType().equals(Material.ENCHANTED_BOOK) ? "" : "enchanted ") +
-                    displayName +
-                    textCol + ", page " + Math.min(page,pages) +
-                    " of " + pages + ":";
-            PLUGIN.CM.reply(usr,msg);
+                    displayName
+                    );
+            
+            TextComponent htc2 = new TextComponent();
+            htc2.setText(textCol + ", page " + Math.min(page,pages) +
+                    " of " + pages + ":");
+            
+            TextComponent hmotext = new TextComponent();
+            hmotext.setText("With:");
+            hmotext.setColor(attrCol);
+            
+            if(enchs.length == 0)
+                hmotext.setText("With any enchantments");
+            else
+                for(EnchLvl ench : enchs)
+                {
+                    TextComponent hattr = new TextComponent();
+                    hattr.setColor(attrCol);
+                    hattr.setText("\n" + PLUGIN.IM.getUsableName(ench.ENCHANT) +
+                        (ench.ENCHANT.getMaxLevel() == 1 ||
+                        ench.LVL < 0 ?
+                            "" :
+                            " " + ChatManager.romanNumeralize(ench.LVL)));
+                    hmotext.addExtra(hattr);
+                }
+        
+            htc1.setHoverEvent(
+                new HoverEvent(net.md_5.bungee.api.chat.HoverEvent.Action.SHOW_TEXT,
+                        new BaseComponent[]{hmotext}));
+            
+            usr.spigot().sendMessage(htc0,htc1,htc2);
         }
         
         //List all listings on this page.
@@ -241,10 +299,7 @@ public class EFind implements CommandExecutor
             if(playerName == null)
                 playerName = listings[i].PLAYER_ALIAS;
             
-            //Build the item in question
-            ItemStack itm = new ItemStack(Material.getMaterial(listings[i].MATERIAL));
-            itm.setDurability((short)listings[i].DAMAGE);
-            ItemManager.addEnchantments(itm,listings[i].ENCHANTS);
+            ItemStack itm = listings[i].toItemStack();
             
             //Build the chat message.
             TextComponent tc0 = new TextComponent();

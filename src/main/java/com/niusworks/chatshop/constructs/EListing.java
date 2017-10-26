@@ -2,7 +2,11 @@ package com.niusworks.chatshop.constructs;
 
 import java.sql.Timestamp;
 
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import com.niusworks.chatshop.commands.History;
 import com.niusworks.chatshop.managers.DatabaseManager;
@@ -30,6 +34,8 @@ public class EListing extends Listing
     public final EnchLvl[] ENCHANTS;
     /** The Enchantment encoded String. **/
     public final String ENCHANTS_STRING;
+    /** The name of the item (as named by the player). **/
+    public final String ITEM_NAME;
     
     /**
      * Create a new EListing object with no date.
@@ -40,12 +46,14 @@ public class EListing extends Listing
      * @param uuid      The UUID of the involved player.
      * @param alias     The alias of the involved player.
      * @param price     The price per item.
+     * @param itemName  The name of the item (as named by the player).
      * @param enchants  The enchantments attached to this listing.
      * @param estring   The encoded String representation of enchantments.
      */
-    public EListing(int id, String mat, int dmg, String uuid, String alias, double price, EnchLvl[] enchants, String estring)
+    public EListing(int id, String mat, int dmg, String uuid, String alias, double price, String itemName, EnchLvl[] enchants, String estring)
     {
         super(id,mat,dmg,uuid,alias,price,1);
+        ITEM_NAME = itemName;
         ENCHANTS = enchants;
         ENCHANTS_STRING = estring;
     }
@@ -59,13 +67,15 @@ public class EListing extends Listing
      * @param uuid      The UUID of the involved player.
      * @param alias     The alias of the involved player.
      * @param price     The price per item.
+     * @param itemName  The name of the item (as named by the player).
      * @param enchants  The enchantments attached to this listing.
      * @param estring   The encoded String representation of enchantments.
      * @param date      A SQL Timestamp.
      */
-    public EListing(int id, String mat, int dmg, String uuid, String alias, double price, EnchLvl[] enchants, String estring, Timestamp date)
+    public EListing(int id, String mat, int dmg, String uuid, String alias, double price, String itemName, EnchLvl[] enchants, String estring, Timestamp date)
     {
         super(id,mat,dmg,uuid,alias,price,1,date);
+        ITEM_NAME = itemName;
         ENCHANTS = enchants;
         ENCHANTS_STRING = estring;
     }
@@ -82,15 +92,46 @@ public class EListing extends Listing
      * @param uuid      The UUID of the involved player.
      * @param alias     The alias of the involved player.
      * @param price     The price per item.
+     * @param itemName  The name of the item (as named by the player).
      * @param enchants  The enchantments attached to this listing.
      * @param estring   The encoded String representation of enchantments.
      * @param qty       The quantity for this listing.
      * @param date      A SQL Timestamp.
      */
-    public EListing(int id, String mat, int dmg, String uuid, String alias, double price, EnchLvl[] enchants, String estring, int qty, Timestamp date)
+    public EListing(int id, String mat, int dmg, String uuid, String alias, double price, String itemName, EnchLvl[] enchants, String estring, int qty, Timestamp date)
     {
         super(id,mat,dmg,uuid,alias,price,qty,date);
+        ITEM_NAME = itemName;
         ENCHANTS = enchants;
         ENCHANTS_STRING = estring;
+    }
+    
+    /**
+     * @return  An ItemStack with the set {@link #MATERIAL}, {@link #QUANTITY} and {@link #DAMAGE}
+     *          as well as all {@link #ENCHANTS} and the {@link #ITEM_NAME}.
+     */
+    @Override
+    public ItemStack toItemStack()
+    {
+        ItemStack ret = super.toItemStack();
+        
+        for(EnchLvl enchant : ENCHANTS)
+            if(ret.getType().equals(Material.ENCHANTED_BOOK))
+            {
+                EnchantmentStorageMeta esm = ((EnchantmentStorageMeta)ret.getItemMeta());
+                esm.addStoredEnchant(enchant.ENCHANT,enchant.LVL,true);
+                ret.setItemMeta(esm);
+            }
+            else
+                ret.addEnchantment(enchant.ENCHANT,enchant.LVL);
+        
+        if(ITEM_NAME != null)
+        {
+            ItemMeta im = ret.getItemMeta();
+            im.setDisplayName(ITEM_NAME);
+            ret.setItemMeta(im);
+        }
+        
+        return ret;
     }
 }

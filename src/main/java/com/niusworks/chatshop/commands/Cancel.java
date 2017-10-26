@@ -123,7 +123,10 @@ public class Cancel implements CommandExecutor
                 case -1: return PLUGIN.CM.error(usr,"You are not holding an item.");
                 case -2:
                 case -3: return PLUGIN.CM.error(usr,"Invalid item: " + PLUGIN.CM.color("item") + args[1] + PLUGIN.CM.color("error") + ".");
-                case -4: return PLUGIN.CM.error(usr,"Enchanted items cannot be sold on the ChatShop.");
+                case -4: return PLUGIN.CM.error(usr,
+                        "Enchanted items must be cancelled by lot number. See "
+                        + PLUGIN.CM.color("helpUsage") + "/ecancel"
+                        + PLUGIN.CM.color("error") + ".");
                 case -5: return PLUGIN.CM.error(usr,"Damaged items cannot be sold on the ChatShop.");
                 case -6: return PLUGIN.CM.error(usr,"That item cannot be sold on the ChatShop.");
                 default: return PLUGIN.CM.err500(usr);

@@ -143,7 +143,8 @@ public class DatabaseManager
                     + "seller VARCHAR(36) NOT NULL,"        //Minecraft UUID length
                     + "sellerAlias VARCHAR(16) NOT NULL,"   //-- See below.
                     + "price DECIMAL(10,2) NOT NULL,"
-                    + "enchantments VARCHAR(30),"  //30 different enchantments, used for E* commands
+                    + "enchantments VARCHAR(30),"           //30 different enchantments, used for E* commands
+                    + "itemName TEXT,"                      //For named items
                     + "quantity INT NOT NULL) ENGINE=INNODB";
             result = connect.createStatement().executeUpdate(query);
             query = "CREATE TABLE IF NOT EXISTS ChatShop_transactions("
@@ -155,7 +156,8 @@ public class DatabaseManager
                     + "buyer VARCHAR(36) NOT NULL,"         //Minecraft UUID length
                     + "buyerAlias VARCHAR(16) NOT NULL,"    //-- See below.
                     + "price DECIMAL(10,2) NOT NULL,"
-                    + "enchantments VARCHAR(30),"  //30 different enchantments, used for E* commands
+                    + "enchantments VARCHAR(30),"           //30 different enchantments, used for E* commands
+                    + "itemName TEXT,"                      //For named items
                     + "quantity INT NOT NULL,"
                     + "date TIMESTAMP NOT NULL DEFAULT NOW()) ENGINE=INNODB";
             result = connect.createStatement().executeUpdate(query);
@@ -432,7 +434,7 @@ public class DatabaseManager
         //Execute the query
         String query = "SELECT * FROM ChatShop_listings "
             + "WHERE material = '" + merchandise.getType() + "' "
-            + "AND enchantments LIKE '" + coded + "' "
+            + "AND enchantments REGEXP '" + coded + "' "
             + "ORDER BY price ASC";
         try
         {
@@ -446,6 +448,7 @@ public class DatabaseManager
                     res.getString("seller"),
                     res.getString("sellerAlias"),
                     res.getDouble("price"),
+                    res.getString("itemName"),
                     deStringifyEnchants(res.getString("enchantments")),
                     res.getString("enchantments")));
             return listings.toArray(new EListing[listings.size()]); 
@@ -483,6 +486,7 @@ public class DatabaseManager
                     res.getString("seller"),
                     res.getString("sellerAlias"),
                     res.getDouble("price"),
+                    res.getString("itemName"),
                     deStringifyEnchants(res.getString("enchantments")),
                     res.getString("enchantments"));
             return listing;
@@ -549,6 +553,7 @@ public class DatabaseManager
                         res.getString("seller"),
                         res.getString("sellerAlias"),
                         res.getDouble("price"),
+                        res.getString("itemName"),
                         deStringifyEnchants(res.getString("enchantments")),
                         res.getString("enchantments")));
             }
@@ -623,6 +628,7 @@ public class DatabaseManager
                         (qWasSeller ? res.getString("buyer") : selleruuid),
                         (qWasSeller ? res.getString("buyerAlias") : res.getString("sellerAlias")),
                         res.getDouble("price"),
+                        res.getString("itemName"),
                         deStringifyEnchants(res.getString("enchantments")),
                         res.getString("enchantments"),
                         res.getInt("quantity") * (qWasSeller ? -1 : 1),
@@ -793,6 +799,7 @@ public class DatabaseManager
             + "'" + usr.getUniqueId() + "',"
             + "'" + usr.getName() + "',"
             + listing.PRICE + ","
+            + (listing.ITEM_NAME == null ? "null," : "'" + listing.ITEM_NAME + "',")
             + "'" + listing.ENCHANTS_STRING + "',"
             + "1,"
             + "null)";
@@ -995,6 +1002,7 @@ public class DatabaseManager
                             + "'" + usr.getName() + "', "
                             + listing.PRICE + ", "
                             + "null,"
+                            + "null,"
                             + thisQuantity + ", "
                             + "null)";
                     int unused = connect.createStatement().executeUpdate(query);
@@ -1021,6 +1029,8 @@ public class DatabaseManager
      * @param merch     The item to sell.
      * @param price     The price for the merchandise.
      * @return          -2 on SQL fail.
+     *                  -1 on encountering an item with enchantment level higher than 9, which
+     *                  would result in SQL errors and/or corrupted item data in ChatShop_listings.
      *                  A positive number indicating the ID of the new lot.
      */
     @SuppressWarnings("unused")
@@ -1046,11 +1056,18 @@ public class DatabaseManager
         {
             int index = ENCHANTS.get(entry.getKey());
             int level = entry.getValue();
+            
+            if(level > 9)
+                return -1;
+            
             coded =
                 (index == 0 ? "" : coded.substring(0,index)) +
                 level +
                 (index == coded.length() - 1 ? "" : coded.substring(index + 1));
         }
+        
+        String itemName = (merch.getItemMeta().hasDisplayName() ?
+            merch.getItemMeta().getDisplayName() : null);
         
         // Post the listing to the database.
         
@@ -1062,6 +1079,7 @@ public class DatabaseManager
             + "'" + usr.getName() + "',"
             + price + ","
             + "'" + coded + "',"
+            + (itemName == null ? "null," : "'" + itemName + "',")
             + "1);";
         
         try
@@ -1134,6 +1152,7 @@ public class DatabaseManager
                     + "'" + usr.getUniqueId() + "',"
                     + "'" + usr.getName() + "',"
                     + price + ","
+                    + "null,"
                     + "null,"
                     + merch.getAmount() + ")";
             int unused = connect.createStatement().executeUpdate(query);
@@ -1274,22 +1293,24 @@ public class DatabaseManager
     }
     
     /**
-     * Convert a list of enchantments to a string suitable for database storage.
+     * Convert a list of enchantments to a string suitable for database searching.
      * 
      * @param enchants  The list of enchantments to encode.
+     *                  Enchantments with a negative level will be searched such that
+     *                  any level above zero will match.
      * @return          A string, as it will appear in the database.
      */
     protected String stringifyEnchants(EnchLvl[] enchants)
     {
         String coded = "";
         while(coded.length() < ENCHANTS.size())
-            coded += "_";
+            coded += ".";
         
         for(EnchLvl enchant : enchants)
         {
             int index = ENCHANTS.get(enchant.ENCHANT);
             coded = coded.substring(0,index) +
-                    enchant.LVL +
+                    (enchant.LVL < 0 ? "[1-9]" : enchant.LVL) +
                     (index == coded.length() - 1 ? "" : coded.substring(index + 1));
         }
         return coded;

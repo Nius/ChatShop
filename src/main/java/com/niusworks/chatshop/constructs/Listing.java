@@ -2,6 +2,9 @@ package com.niusworks.chatshop.constructs;
 
 import java.sql.Timestamp;
 
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+
 import com.niusworks.chatshop.commands.History;
 import com.niusworks.chatshop.managers.DatabaseManager;
 
@@ -72,5 +75,17 @@ public class Listing
     public Listing(int id, String mat, int dmg, String uuid, String alias, double price, int qty, Timestamp date)
     {
         ID = id; MATERIAL = mat; DAMAGE = dmg; PLAYER_UUID = uuid; PLAYER_ALIAS = alias; PRICE = price; QUANTITY = qty; DATE = date;
+    }
+    
+    /**
+     * Generate an ItemStack from the data contained in this listing.
+     * 
+     * @return  An ItemStack with the set {@link #MATERIAL}, {@link #QUANTITY} and {@link #DAMAGE}.
+     */
+    public ItemStack toItemStack()
+    {
+        ItemStack ret = new ItemStack(Material.getMaterial(MATERIAL),QUANTITY);
+        ret.setDurability((short) DAMAGE);
+        return ret;
     }
 }

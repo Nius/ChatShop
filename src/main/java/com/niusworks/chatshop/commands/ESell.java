@@ -222,6 +222,9 @@ public class ESell implements CommandExecutor
         //On SQL fail...
         if(res == -2)
             return PLUGIN.CM.err500(usr);
+        //If an item with an enchant higher than level 10...
+        if(res == -1)
+            return PLUGIN.CM.error(usr,"ChatShop does not support items whose enchants exceed level 9.");
         
         //Remove the specified items from the player's inventory.
         ItemStack[] inv = usr.getInventory().getContents();

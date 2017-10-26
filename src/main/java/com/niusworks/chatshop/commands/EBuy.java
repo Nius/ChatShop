@@ -203,10 +203,7 @@ public class EBuy implements CommandExecutor
         UUID seller = UUID.fromString(listing.PLAYER_UUID);
         OfflinePlayer slr = PLUGIN.getServer().getOfflinePlayer(seller);
         
-        //Build the item that was just purchased.
-        ItemStack merchandise = new ItemStack(Material.getMaterial(listing.MATERIAL));
-        merchandise.setDurability((short)listing.DAMAGE);
-        ItemManager.addEnchantments(merchandise,listing.ENCHANTS);
+        ItemStack merchandise = listing.toItemStack();
         
         //Charge the buyer for the purchase.
         PLUGIN.ECON.withdrawPlayer(usr,listing.PRICE);

@@ -273,10 +273,7 @@ public class History implements CommandExecutor
             
             if(tenders[i] instanceof EListing)
             {
-                //Build this item so that the ChatManager can read it.
-                ItemStack merchandise = new ItemStack(Material.getMaterial(tenders[i].MATERIAL));
-                merchandise.setDurability((short)tenders[i].DAMAGE);
-                ItemManager.addEnchantments(merchandise,((EListing)tenders[i]).ENCHANTS);
+                ItemStack merchandise = tenders[i].toItemStack();
                 
                 TextComponent tc0 = new TextComponent();
                 tc0.setText(textCol +

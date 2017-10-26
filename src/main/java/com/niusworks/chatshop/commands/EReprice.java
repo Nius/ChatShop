@@ -179,10 +179,7 @@ public class EReprice implements CommandExecutor
                 case -2:    return PLUGIN.CM.err500(usr);
             }
         
-        //Build the item that was just repriced.
-        ItemStack merchandise = new ItemStack(Material.getMaterial(listing.MATERIAL));
-        merchandise.setDurability((short)listing.DAMAGE);
-        ItemManager.addEnchantments(merchandise,listing.ENCHANTS);
+        ItemStack merchandise = listing.toItemStack();
         
         // Construct a broadcast message.
         

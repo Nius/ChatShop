@@ -122,10 +122,7 @@ public class ECancel implements CommandExecutor
                 case -2:    return PLUGIN.CM.err500(usr);
             }
         
-        //Build the item that was just cancelled.
-        ItemStack merchandise = new ItemStack(Material.getMaterial(listing.MATERIAL));
-        merchandise.setDurability((short)listing.DAMAGE);
-        ItemManager.addEnchantments(merchandise,listing.ENCHANTS);
+        ItemStack merchandise = listing.toItemStack();
 
         //Credit the item to the user's inventory.
         PLUGIN.IM.giveItem(usr,merchandise);

@@ -446,12 +446,19 @@ public class ChatManager
         TextComponent motext = new TextComponent();
         if(!omitLotNumber)
         {
-            motext.setText("Lot #" + lot);
+            motext.setText("Lot #" + lot + "\n");
             motext.setColor(ChatColor.valueOf(itemColName));
         }
+        if(merchandise.getItemMeta().hasDisplayName())
+        {
+            TextComponent nmtext = new TextComponent();
+            nmtext.setText("\"" + merchandise.getItemMeta().getDisplayName() + "\"\n");
+            nmtext.setColor(ChatColor.valueOf(itemColName));
+            nmtext.setItalic(true);
+            motext.addExtra(nmtext);
+        }
         TextComponent use = new TextComponent();
-        use.setText((omitLotNumber ? "" : "\n") +
-                    (dampercent < 0 ? "" : attCol + dampercent + "% used"));
+        use.setText((dampercent < 0 ? "" : attCol + dampercent + "% used"));
         use.setColor(ChatColor.valueOf(attrColName));
         motext.addExtra(use);
         Set<Map.Entry<Enchantment,Integer>> entrySet =

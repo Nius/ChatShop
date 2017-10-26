@@ -205,9 +205,7 @@ public class Stock implements CommandExecutor
             if(listings[i] instanceof EListing)
             {
                 //Build this item so that the ChatManager can read it.
-                ItemStack merchandise = new ItemStack(Material.getMaterial(listings[i].MATERIAL));
-                merchandise.setDurability((short)listings[i].DAMAGE);
-                ItemManager.addEnchantments(merchandise,((EListing)listings[i]).ENCHANTS);
+                ItemStack merchandise = listings[i].toItemStack();
                 
                 //Look up the config definition for the item sans-ENCHANTS.
                 //ESell allows damaged items but ItemManager#lookup will return

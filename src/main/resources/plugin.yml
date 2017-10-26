@@ -3,7 +3,7 @@ authors: [Wesley27, LazrCowboy, SirNius]
 description: Allows players to buy and sell goods via chat.
 main: com.niusworks.chatshop.ChatShop
 name: ChatShop
-version: 2.0.0
+version: 2.1.0
 depend: [Vault]
 commands:
     buy:
