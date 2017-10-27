@@ -307,7 +307,7 @@ public class EFind implements CommandExecutor
                         //  prefix so it doesn't look weird.
                         (lotlisting != null ? PLUGIN.CM.PREFIX : "") +
                         priceCol + ChatManager.format(listings[i].PRICE) +
-                        textCol + ", lot ");
+                        textCol + ", ");
             TextComponent tc1 = PLUGIN.CM.MOTforEnchanted(
                 itemCol + 
                 (lotlisting != null ?

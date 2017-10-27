@@ -15,6 +15,7 @@ import com.niusworks.chatshop.ChatShop;
 import com.niusworks.chatshop.constructs.EBuyOrder;
 import com.niusworks.chatshop.constructs.EListing;
 import com.niusworks.chatshop.constructs.EnchLvl;
+import com.niusworks.chatshop.constructs.Item;
 import com.niusworks.chatshop.managers.ChatManager;
 import com.niusworks.chatshop.managers.ItemManager;
 
@@ -146,12 +147,22 @@ public class EBuy implements CommandExecutor
             EBuyOrder order = new EBuyOrder(usr,lot,listing.PRICE,System.currentTimeMillis());
             PLUGIN.PENDING.put(usr,order);
             
+            Item cfg = PLUGIN.IM.lookup(listing.MATERIAL);
+            
+            TextComponent tc0 = new TextComponent();
+            tc0.setText(PLUGIN.CM.PREFIX +
+                        textCol + "Preparing to buy ");
+            TextComponent tc1 = PLUGIN.CM.MOTforEnchanted(
+                    itemCol +
+                    (Material.getMaterial(listing.MATERIAL).equals(Material.ENCHANTED_BOOK) ? "" : "enchanted ") +
+                    itemCol + cfg.DISPLAY,listing.ID,listing.toItemStack());
+            TextComponent tc2 = new TextComponent();
+            tc2.setText(textCol + " for " +
+                        priceCol + ChatManager.format(listing.PRICE) +
+                        textCol + ".");
+            usr.spigot().sendMessage(tc0,tc1,tc2);
+            
             msg =
-                textCol + "Preparing to buy " +
-                itemCol + "lot #" + lot + " " +
-                textCol + "for " +
-                priceCol + ChatManager.format(listing.PRICE) +
-                textCol + ".\n" + PLUGIN.CM.PREFIX +
                 textCol + "Use " +
                 cmdCol + "/confirm " +
                 textCol + "to confirm this order.";
@@ -222,11 +233,16 @@ public class EBuy implements CommandExecutor
         String playerCol = PLUGIN.CM.color("player");
         String priceCol = PLUGIN.CM.color("price");
         
+        Item cfg = PLUGIN.IM.lookup(listing.MATERIAL);
+        
         //Notify the BUYER that the sale was accomplished.
         TextComponent tc0 = new TextComponent();
         tc0.setText(PLUGIN.CM.PREFIX +
                     textCol + "Bought ");
-        TextComponent tc1 = PLUGIN.CM.MOTforEnchanted(itemCol + "lot #" + listing.ID,listing.ID,merchandise);
+        TextComponent tc1 = PLUGIN.CM.MOTforEnchanted(
+                itemCol +
+                (Material.getMaterial(listing.MATERIAL).equals(Material.ENCHANTED_BOOK) ? "" : "enchanted ") +
+                itemCol + cfg.DISPLAY,listing.ID,merchandise);
         TextComponent tc2 = new TextComponent();
         tc2.setText(textCol + " for " +
                     priceCol + ChatManager.format(price) +

@@ -178,13 +178,26 @@ public class ESell implements CommandExecutor
             //The player is using /confirm for esells.
             ESellOrder order = new ESellOrder(usr,handItem,cfg,price,System.currentTimeMillis());
             PLUGIN.PENDING.put(usr,order);
+            
             String textCol = PLUGIN.CM.color("text");
+            String itemCol = PLUGIN.CM.color("item");
+            String priceCol = PLUGIN.CM.color("price");
+            
+            TextComponent tc0 = new TextComponent();
+            tc0.setText(PLUGIN.CM.PREFIX +
+                        textCol + "Preparing to sell your ");
+            TextComponent tc1 = PLUGIN.CM.MOTforEnchanted(
+                itemCol +
+                (handItem.getType().equals(Material.ENCHANTED_BOOK) ? "" : "enchanted ") +
+                cfg.DISPLAY,-1,handItem,true);
+            TextComponent tc2 = new TextComponent();
+            tc2.setText(textCol + " for " +
+                        priceCol + ChatManager.format(price) +
+                        textCol + ".");
+            
+            usr.spigot().sendMessage(tc0,tc1,tc2);
+            
             String msg =
-                textCol + "Preparing to sell your " +
-                PLUGIN.CM.color("item") + "enchanted " + cfg.DISPLAY + " " +
-                textCol + "for " +
-                PLUGIN.CM.color("price") + ChatManager.format(price) +
-                textCol + ".\n" + PLUGIN.CM.PREFIX +
                 textCol + "Use " +
                 PLUGIN.CM.color("helpUsage") + "/confirm " +
                 textCol + "to confirm this order.";
@@ -244,8 +257,8 @@ public class ESell implements CommandExecutor
         // It's necessary to provide more than just the broadcast so that
         //  the user is explicitly told his lot number.
         PLUGIN.CM.reply(usr,
-            textCol + "Your item has been posted as lot " +
-            itemCol + "#" + res +
+            textCol + "Your item has been posted as " +
+            itemCol + "lot #" + res +
             textCol + ".");
         
         // Construct a broadcast message.
