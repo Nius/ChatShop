@@ -193,17 +193,18 @@ public class EFind implements CommandExecutor
         //If the item was "hand" (and valid, because this method hasn't returned),
         //  if the item in hand is enchanted then use all of its enchants as search params.
         //  Note that the item will be enchanted only if the user entered "hand".
-        if(merchandise.getEnchantments().size() > 0 || merchandise.getType().equals(Material.ENCHANTED_BOOK))
-        {
-            Set<Map.Entry<Enchantment,Integer>> entrySet =
-            (merchandise.getType().equals(Material.ENCHANTED_BOOK) ?
-                ((EnchantmentStorageMeta)merchandise.getItemMeta()).getStoredEnchants().entrySet() :
-                    merchandise.getEnchantments().entrySet());
-            enchs = new EnchLvl[entrySet.size()];
-            int index = 0;
-            for(Map.Entry<Enchantment,Integer> entry : entrySet)
-                enchs[index ++] = new EnchLvl(entry.getKey(),entry.getValue());
-        }
+        if(lotlisting == null && args[0].equalsIgnoreCase("hand"))
+            if(merchandise.getEnchantments().size() > 0 || merchandise.getType().equals(Material.ENCHANTED_BOOK))
+            {
+                Set<Map.Entry<Enchantment,Integer>> entrySet =
+                (merchandise.getType().equals(Material.ENCHANTED_BOOK) ?
+                    ((EnchantmentStorageMeta)merchandise.getItemMeta()).getStoredEnchants().entrySet() :
+                        merchandise.getEnchantments().entrySet());
+                enchs = new EnchLvl[entrySet.size()];
+                int index = 0;
+                for(Map.Entry<Enchantment,Integer> entry : entrySet)
+                    enchs[index ++] = new EnchLvl(entry.getKey(),entry.getValue());
+            }
         
         //
         //  EXECUTION
