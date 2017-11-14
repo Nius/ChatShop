@@ -291,6 +291,10 @@ public class ItemManager
                     }
                     //Store the official Bukkit name as an alias only for items with damage 0.
                     //(except for potions, which will store :111 (basic Fire Resistance potion).
+                    //Official names with underscores (most of them) will be stored twice:
+                    //  once as-is,
+                    //  once with underscores removed.
+                    //In case of duplicates, the latest entry will prevail.
                     if( dam == 0 ||
                         (
                             (itm.MNAME.equals("POTION") ||
@@ -301,7 +305,10 @@ public class ItemManager
                             dam == 111
                          )
                        )
+                    {
                         newAliases.put(mname.trim().toUpperCase(),itm);
+                        newAliases.put(mname.trim().toUpperCase().replaceAll("_",""),itm);
+                    }
                     
                     totalLoaded ++;
                 }

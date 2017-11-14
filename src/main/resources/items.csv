@@ -49,13 +49,13 @@
 5:2,wood                           ,Birch Wood Plank,birch plank,birch wood
 5:3,wood                           ,Jungle Wood Plank,jungle plank,jungle wood
 5:4,wood                           ,Acacia Wood Plank,acacia plank,acacia wood
-5:5,wood                           ,Dark Oak Wood Plank,dark oak plank,dark oak wood
-6,sapling                          ,Oak Sapling
-6:1,sapling                        ,Spruce Sapling
-6:2,sapling                        ,Birch Sapling
-6:3,sapling                        ,Jungle Sapling
-6:4,sapling                        ,Acacia Sapling
-6:5,sapling                        ,Dark Oak Sapling
+5:5,wood                           ,Dark Oak Wood Plank,dark oak plank,dark oak wood,doak wood,doak plank
+6,sapling                          ,Oak Sapling,oak sap
+6:1,sapling                        ,Spruce Sapling,spruce sap
+6:2,sapling                        ,Birch Sapling,birch sap
+6:3,sapling                        ,Jungle Sapling,jungle sap
+6:4,sapling                        ,Acacia Sapling,acacia sap
+6:5,sapling                        ,Dark Oak Sapling,doak sapling,doak sap
 7,bedrock                          ,Bedrock                             !BAN
 8,flowing_water                    ,Flowing Water                       !TECHNICAL
 9,water                            ,Still Water                         !TECHNICAL
@@ -202,6 +202,7 @@
 
 #standing_sign
 63,sign_post                       ,Standing Sign Block                 !TECHNICAL
+
 
 64,wooden_door                     ,Oak Door Block                      !TECHNICAL
 65,ladder                          ,Ladder
@@ -363,20 +364,20 @@
 124,redstone_lamp_on               ,Redstone Lamp (active)              !TECHNICAL
 
 #double_wooden_slab
-125,wood_double_step               ,Double Oak Wood Slab,doakslab
-125:1,wood_double_step             ,Double Spruce Wood Slab,dspruceslab
-125:2,wood_double_step             ,Double Birch Wood Slab,dbirchslab
-125:3,wood_double_step             ,Double Jungle Wood Slab,djungleslab
-125:4,wood_double_step             ,Double Acacia Wood Slab,dacaciaslab
-125:5,wood_double_step             ,Double Dark Oak Wood Slab,ddarkoakslab
+125,wood_double_step               ,Double Oak Wood Slab,doakslab           !TECHNICAL
+125:1,wood_double_step             ,Double Spruce Wood Slab,dspruceslab     !TECHNICAL
+125:2,wood_double_step             ,Double Birch Wood Slab,dbirchslab       !TECHNICAL
+125:3,wood_double_step             ,Double Jungle Wood Slab,djungleslab     !TECHNICAL
+125:4,wood_double_step             ,Double Acacia Wood Slab,dacaciaslab     !TECHNICAL
+125:5,wood_double_step             ,Double Dark Oak Wood Slab,ddarkoakslab  !TECHNICAL
 
 #wooden_slab
 126,wood_step                      ,Oak Wood Slab,oakslab
-126:1,wood_step                    ,Spruce Wood Slab,spruceslab
-126:2,wood_step                    ,Birch Wood Slab,birchslab
-126:3,wood_step                    ,Jungle Wood Slab,jungleslab
-126:4,wood_step                    ,Acacia Wood Slab,acaciaslab
-126:5,wood_step                    ,Dark Oak Wood Slab,doakslab
+126:1,wood_step                    ,Spruce Wood Slab,spruce slab
+126:2,wood_step                    ,Birch Wood Slab,birch slab
+126:3,wood_step                    ,Jungle Wood Slab,jungle slab
+126:4,wood_step                    ,Acacia Wood Slab,acacia slab
+126:5,wood_step                    ,Dark Oak Wood Slab,doak slab
 
 127,cocoa                          ,Cocoa                               !TECHNICAL
 128,sandstone_stairs               ,Sandstone Stairs
@@ -479,14 +480,14 @@
 
 #leaves2
 161,leaves_2                       ,Acacia Leaves
-161:1,leaves_2                     ,Dark Oak Leaves
+161:1,leaves_2                     ,Dark Oak Leaves,doak leaves
 
 #log2
 162,log_2                          ,Acacia Log,acacia,acacia tree
-162:1,log_2                        ,Dark Oak Wood,dark oak,dark oak tree
+162:1,log_2                        ,Dark Oak Wood,dark oak,dark oak tree,doak
 
 163,acacia_stairs                  ,Acacia Wood Stairs
-164,dark_oak_stairs                ,Dark Oak Wood Stairs
+164,dark_oak_stairs                ,Dark Oak Wood Stairs,doak stairs
 
 #slime
 165,slime_block                    ,Slime Block,sblock,bslime,slimeb
@@ -535,15 +536,15 @@
 180,red_sandstone_stairs           ,Red Sandstone Stairs
 181,double_stone_slab2             ,Double Red Sandstone Slab
 182,stone_slab2                    ,Red Sandstone Slab
-183,spruce_fence_gate              ,Spruce Fence Gate,sprucegate
-184,birch_fence_gate               ,Birch Fence Gate,birchgate
-185,jungle_fence_gate              ,Jungle Fence Gate,junglegate
-186,dark_oak_fence_gate            ,Dark Oak Fence Gate,doakgate
-187,acacia_fence_gate              ,Acacia Fence Gate,acaciagate
+183,spruce_fence_gate              ,Spruce Fence Gate,spruce gate
+184,birch_fence_gate               ,Birch Fence Gate,birch gate
+185,jungle_fence_gate              ,Jungle Fence Gate,jungle gate
+186,dark_oak_fence_gate            ,Dark Oak Fence Gate,dark oak gate,doak gate
+187,acacia_fence_gate              ,Acacia Fence Gate,acacia gate
 188,spruce_fence                   ,Spruce Fence
 189,birch_fence                    ,Birch Fence
 190,jungle_fence                   ,Jungle Fence
-191,dark_oak_fence                 ,Dark Oak Fence
+191,dark_oak_fence                 ,Dark Oak Fence,doak fence
 192,acacia_fence                   ,Acacia Fence
 193,spruce_door                    ,Spruce Door Block                   !TECHNICAL
 194,birch_door                     ,Birch Door Block                    !TECHNICAL
@@ -737,7 +738,10 @@
 333,boat                           ,Oak Boat
 334,leather                        ,Leather
 335,milk_bucket                    ,Milk Bucket
-336,brick                          ,Brick
+
+#brick
+336,clay_brick                     ,Single Brick
+
 337,clay_ball                      ,Clay Ball,clay
 
 #reeds
