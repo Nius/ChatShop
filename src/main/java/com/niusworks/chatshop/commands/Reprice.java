@@ -1,5 +1,6 @@
 package com.niusworks.chatshop.commands;
 
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -65,17 +66,35 @@ public class Reprice implements CommandExecutor
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String lbl, String[] args)
     {
+        return execute(sender,null,cmd,lbl,args);
+    }
+    
+    /**
+     * Execute the reprice command.
+     * This was originally contiguous with {@link #onCommand} but has been separated to support
+     * forced execution by proxy via CSAdmin.
+     * 
+     * @param issuer    The player that issued the command - either for himself or by proxy.
+     * @param target    The player upon whose stock this command is being executed. This will be
+     *                  null if the player is calling this command on himself.
+     * @param cmd       The literal of the executed command.
+     * @param lbl       The alias used to execute this command.
+     * @param args      The command arguments to be parsed and validated.
+     * @return          Always returns true.
+     */
+    public boolean execute(CommandSender issuer, OfflinePlayer target, Command cmd, String lbl, String[] args)
+    {
         //
         // Denial of service conditions
         //
         
         //No console
-        if(!(sender instanceof Player))
-            return PLUGIN.CM.reply(sender,"ChatShop.reprice cannot be executed as console.");
-        Player usr = (Player)sender;
+        if(!(issuer instanceof Player))
+            return PLUGIN.CM.reply(issuer,"ChatShop.reprice cannot be executed as console.");
+        Player usr = (Player)issuer;
         //Permissions
-        if(!sender.hasPermission("chatshop.reprice"))
-            return PLUGIN.CM.denyPermission(sender);
+        if(!issuer.hasPermission("chatshop.reprice"))
+            return PLUGIN.CM.denyPermission(issuer);
         if(!PLUGIN.getConfig().getBoolean("query-anyone"))
         {
             //Gamemode
@@ -86,7 +105,7 @@ public class Reprice implements CommandExecutor
                     if(((String)modes[i]).equalsIgnoreCase(usr.getGameMode().toString()))
                         allowed = true;
             if(!allowed)
-                return PLUGIN.CM.denyGameMode(sender);
+                return PLUGIN.CM.denyGameMode(issuer);
             //World
             allowed = false;
             Object[] worlds = PLUGIN.getConfig().getList("allowed-worlds").toArray();
@@ -95,7 +114,7 @@ public class Reprice implements CommandExecutor
                     if(((String)worlds[i]).equalsIgnoreCase(usr.getWorld().getName()))
                         allowed = true;
             if(!allowed)
-                return PLUGIN.CM.denyWorld(sender);
+                return PLUGIN.CM.denyWorld(issuer);
         }
         //General freeze
         if(PLUGIN.DB.isGeneralFreeze())
@@ -107,7 +126,7 @@ public class Reprice implements CommandExecutor
         
         //Number of args
         if(args.length != 2)
-            return PLUGIN.CM.error(sender,USAGE);
+            return PLUGIN.CM.error(issuer,USAGE);
                
         //Item check
 
@@ -154,15 +173,15 @@ public class Reprice implements CommandExecutor
         {
             price = Double.parseDouble(args[1]);
             if(price < .01)
-                return PLUGIN.CM.error(sender,"Minimum price is $0.01.");
+                return PLUGIN.CM.error(issuer,"Minimum price is $0.01.");
             double globalmax = PLUGIN.getConfig().getDouble("global-max-price");
             if(price > globalmax)
-                return PLUGIN.CM.error(sender,
+                return PLUGIN.CM.error(issuer,
                     "No item may be priced higher than " +
                     PLUGIN.CM.color("price") + ChatManager.format(globalmax) +
                     PLUGIN.CM.color("error") + ".");
             if(cfg.MAXPRICE > 0 && price > cfg.MAXPRICE)
-                return PLUGIN.CM.error(sender,
+                return PLUGIN.CM.error(issuer,
                         "The maximum allowed price for " +
                         PLUGIN.CM.color("item") + cfg.DISPLAY +
                         PLUGIN.CM.color("error") + " is " + 
@@ -170,7 +189,7 @@ public class Reprice implements CommandExecutor
                         PLUGIN.CM.color("error") + ".");
         } catch (NumberFormatException e)
         {
-            return PLUGIN.CM.error(sender,USAGE);
+            return PLUGIN.CM.error(issuer,USAGE);
         }
         
         //
@@ -178,7 +197,11 @@ public class Reprice implements CommandExecutor
         //  Deferred to DatabaseManager for synchronization purposes.
         //
         
-        Object res = PLUGIN.DB.reprice(usr,merchandise,price);
+        //Ternary operation is to determine whether this command is being executed on oneself
+        //  or by proxy (admin).
+        Object res = PLUGIN.DB.reprice(
+            (target == null ? usr : target),
+            merchandise,price);
         
         //
         //  RESULT
@@ -186,11 +209,13 @@ public class Reprice implements CommandExecutor
         
         // On fail...
         if(res instanceof Integer && ((Integer)res).intValue() == -1)
-            return PLUGIN.CM.err500(sender);
+            return PLUGIN.CM.err500(issuer);
         
         // On "-" price but no listing found...
         if(res instanceof Integer && ((Integer)res).intValue() == 0)
-            return PLUGIN.CM.error(sender,"You do not have any " + displayName + " for sale.");
+            return PLUGIN.CM.error(issuer,
+                (target == null ? "You do " : "This player does ") +
+                    "not have any " + displayName + " for sale.");
         
         String textColor = PLUGIN.CM.color("text");
         String qColor = PLUGIN.CM.color("quantity");
@@ -200,7 +225,9 @@ public class Reprice implements CommandExecutor
         if(!PLUGIN.getConfig().getBoolean("chat.broadcast-offers"))
             return true;
         
-        String broadcast = PLUGIN.CM.color("player") + usr.getName() + " " +
+        String broadcast = PLUGIN.CM.color("player") +
+                (target == null ? usr : target).getName() +
+                " " +
                 textColor + "is selling " + qColor;
         
         // Indicate the appropriate quantity.

@@ -2,6 +2,7 @@ package com.niusworks.chatshop.commands;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -65,17 +66,35 @@ public class EReprice implements CommandExecutor
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String lbl, String[] args)
     {
+      return execute(sender,null,cmd,lbl,args);
+    }
+    
+    /**
+     * Execute the ereprice command.
+     * This was originally contiguous with {@link #onCommand} but has been separated to support
+     * forced execution by proxy via CSAdmin.
+     * 
+     * @param issuer    The player that issued the command - either for himself or by proxy.
+     * @param target    The player upon whose stock this command is being executed. This will be
+     *                  null if the player is calling this command on himself.
+     * @param cmd       The literal of the executed command.
+     * @param lbl       The alias used to execute this command.
+     * @param args      The command arguments to be parsed and validated.
+     * @return          Always returns true.
+     */
+    public boolean execute(CommandSender issuer, OfflinePlayer target, Command cmd, String lbl, String[] args)
+    {
         //
         // Denial of service conditions
         //
         
         //No console
-        if(!(sender instanceof Player))
-            return PLUGIN.CM.reply(sender,"ChatShop.ereprice cannot be executed as console.");
-        Player usr = (Player)sender;
+        if(!(issuer instanceof Player))
+            return PLUGIN.CM.reply(issuer,"ChatShop.ereprice cannot be executed as console.");
+        Player usr = (Player)issuer;
         //Permissions
-        if(!sender.hasPermission("chatshop.ereprice"))
-            return PLUGIN.CM.denyPermission(sender);
+        if(!issuer.hasPermission("chatshop.ereprice"))
+            return PLUGIN.CM.denyPermission(issuer);
         if(!PLUGIN.getConfig().getBoolean("query-anyone"))
         {
             //Gamemode
@@ -86,7 +105,7 @@ public class EReprice implements CommandExecutor
                     if(((String)modes[i]).equalsIgnoreCase(usr.getGameMode().toString()))
                         allowed = true;
             if(!allowed)
-                return PLUGIN.CM.denyGameMode(sender);
+                return PLUGIN.CM.denyGameMode(issuer);
             //World
             allowed = false;
             Object[] worlds = PLUGIN.getConfig().getList("allowed-worlds").toArray();
@@ -95,7 +114,7 @@ public class EReprice implements CommandExecutor
                     if(((String)worlds[i]).equalsIgnoreCase(usr.getWorld().getName()))
                         allowed = true;
             if(!allowed)
-                return PLUGIN.CM.denyWorld(sender);
+                return PLUGIN.CM.denyWorld(issuer);
         }
         //General freeze
         if(PLUGIN.DB.isGeneralFreeze())
@@ -107,7 +126,7 @@ public class EReprice implements CommandExecutor
         
         //Number of args
         if(args.length != 2)
-            return PLUGIN.CM.error(sender,USAGE);
+            return PLUGIN.CM.error(issuer,USAGE);
         
         //First arg is a valid lot number
         String itemCol = PLUGIN.CM.color("item");
@@ -125,8 +144,8 @@ public class EReprice implements CommandExecutor
         if(listing == null)
             return PLUGIN.CM.error(usr,"Invalid lot number " + itemCol + lot);
         
-        //Lot number belongs to user
-        if(!listing.PLAYER_UUID.equals(usr.getUniqueId().toString()))
+        //Lot number belongs to user, unless this command is being executed by proxy (admin)
+        if(!listing.PLAYER_UUID.equals(usr.getUniqueId().toString()) || target != null)
             return PLUGIN.CM.error(usr,"That item does not belong to you.");
         
         //Look up the config definition for the item sans-ENCHANTS.
@@ -141,15 +160,15 @@ public class EReprice implements CommandExecutor
         {
             price = Double.parseDouble(args[1]);
             if(price < .01)
-                return PLUGIN.CM.error(sender,"Minimum price is $0.01.");
+                return PLUGIN.CM.error(issuer,"Minimum price is $0.01.");
             double globalmax = PLUGIN.getConfig().getDouble("global-max-price");
             if(price > globalmax)
-                return PLUGIN.CM.error(sender,
+                return PLUGIN.CM.error(issuer,
                     "No item may be priced higher than " +
                     PLUGIN.CM.color("price") + ChatManager.format(globalmax) +
                     PLUGIN.CM.color("error") + ".");
             if(cfg.MAXPRICE > 0 && price > cfg.MAXPRICE)
-                return PLUGIN.CM.error(sender,
+                return PLUGIN.CM.error(issuer,
                         "The maximum allowed price for " +
                         PLUGIN.CM.color("item") + cfg.DISPLAY +
                         PLUGIN.CM.color("error") + " is " + 
@@ -157,7 +176,7 @@ public class EReprice implements CommandExecutor
                         PLUGIN.CM.color("error") + ".");
         } catch (NumberFormatException e)
         {
-            return PLUGIN.CM.error(sender,USAGE);
+            return PLUGIN.CM.error(issuer,USAGE);
         }
         
         //
@@ -193,7 +212,7 @@ public class EReprice implements CommandExecutor
         //Build the chat message.
         TextComponent tc0 = new TextComponent();
         tc0.setText(PLUGIN.CM.PREFIX +
-                    playerCol + usr.getName() +
+                    playerCol + (target == null ? usr : target).getName() +
                     textCol + " is selling ");
         TextComponent tc1 = PLUGIN.CM.MOTforEnchanted(
             itemCol +

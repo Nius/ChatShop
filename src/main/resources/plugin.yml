@@ -29,6 +29,7 @@ commands:
     csadmin:
         description: Central command for administrative functions.
         usage: /csadmin <command>
+        aliases: [csa]
     dump:
         description: |-
           Post your whole inventory to the shop.
@@ -93,6 +94,18 @@ commands:
 permissions:
     chatshop.admin:
         description: Access to administrative commands and overrides.
+        default: OP
+    chatshop.admin.generalFreeze:
+        description: Allow freezing of the entire ChatShop.
+        default: OP
+    chatshop.admin.reload:
+        description: Allow reloading of the items dictionary.
+        default: OP
+    chatshop.admin.reprice:
+        description: Allow forcibly repricing other players' items.
+        default: OP
+    chatshop.admin.vaporize:
+        description: Allow forcibly deleting other players' items from the shop.
         default: OP
     chatshop.buy:
         description: Allow usage of /buy

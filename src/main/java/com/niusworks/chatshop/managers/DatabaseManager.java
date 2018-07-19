@@ -345,7 +345,7 @@ public class DatabaseManager
      * @param merchandise   The merchandise being sought after.
      * @return              A single listing, or null if none exists.
      */
-    public synchronized Listing getListing(Player user, ItemStack merchandise)
+    public synchronized Listing getListing(OfflinePlayer user, ItemStack merchandise)
     {
         if(merchandise == null)
             return null;
@@ -1178,7 +1178,7 @@ public class DatabaseManager
      *                  the original pre-existing listing.
      */
     @SuppressWarnings("unused")
-    public synchronized Object reprice(Player usr, ItemStack merch, double price)
+    public synchronized Object reprice(OfflinePlayer usr, ItemStack merch, double price)
     {
         String query = "";
         try

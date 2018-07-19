@@ -1,12 +1,12 @@
 package com.niusworks.chatshop.commands;
 
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.niusworks.chatshop.ChatShop;
-import com.niusworks.chatshop.managers.DatabaseManager;
 
 import net.md_5.bungee.api.ChatColor;
 
@@ -20,13 +20,11 @@ import net.md_5.bungee.api.ChatColor;
  * If the single argument provided is an integer, a list of valid administrative
  * commands is provided.
  * <br><br>
- * If the single argument provided is the string "freeze" then the {@link DatabaseManager}
- * will be instructed to toggle the general freeze state of the ChatShop.
- * <br><br>
  * This command has the following limits (aside from basic perms):
  * <ul>
  * <li>Console access denied.
- * <li>Requires permission: <code>chatshop.admin</code>
+ * <li>Requires various permissions under <code>chatshop.admin.x</code> for its
+ *     various functions.
  * </ul>
  * 
  * @author ObsidianCraft Staff
@@ -93,7 +91,7 @@ public class CSAdmin implements CommandExecutor
         //
         
         //Number of args
-        if(args.length != 1)
+        if(args.length < 1)
             return PLUGIN.CM.error(sender,USAGE);
         
         //
@@ -118,6 +116,10 @@ public class CSAdmin implements CommandExecutor
                     textCol + "Freeze ALL chatshop assets.",
                     cmdCol + "reload",
                     textCol + "Reload item definitions and configurations.",
+                    cmdCol + "reprice",
+                    textCol + "Forcibly reprice another player's items.",
+                    cmdCol + "vaporize",
+                    textCol + "Immediately vaporize another player's stock.",
                     cmdCol + "version",
                     textCol + "Get the current ChatShop version."};
                 
@@ -146,9 +148,12 @@ public class CSAdmin implements CommandExecutor
         }
         catch(NumberFormatException e){}
         
-        //General freeze command.
+        //General freeze command
         if(args[0].equalsIgnoreCase("freeze"))
         {
+            if(!sender.hasPermission("chatshop.admin.generalFreeze"))
+                return PLUGIN.CM.denyPermission(sender);
+            
             boolean isNowFrozen = PLUGIN.DB.toggleGeneralFreeze();
             
             String msg = (isNowFrozen ?
@@ -160,8 +165,13 @@ public class CSAdmin implements CommandExecutor
             
             return PLUGIN.CM.reply(usr,msg);
         }
+        
+        //Item dictionary reload
         else if(args[0].equalsIgnoreCase("reload"))
         {
+            if(!sender.hasPermission("chatshop.admin.reload"))
+                return PLUGIN.CM.denyPermission(sender);
+            
             String msg;
             int status = PLUGIN.IM.loadItems();
             switch(status)
@@ -173,6 +183,44 @@ public class CSAdmin implements CommandExecutor
             }
             return PLUGIN.CM.reply(usr,msg);
         }
+        
+        //Reprice
+        else if(args[0].equalsIgnoreCase("reprice"))
+        {
+            if(!sender.hasPermission("chatshop.admin.reprice"))
+                return PLUGIN.CM.denyPermission(sender);
+            
+            //Defer to the Reprice command for execution; there is no need to re-code it here.
+            //Note that due to Reprice's flexibility this can also be used to EReprice via #LOT notation.
+            
+            if(args.length != 4)
+                return PLUGIN.CM.error(usr,"/csadmin reprice <player> <item> <price>");
+            
+            @SuppressWarnings("deprecation")
+            //Unfortunately it is unreasonable to expect users (admins) to enter whole UUID's into the chat.
+            //This method is deprecated because names are not guaranteed unique - though they almost always are anyway.
+            OfflinePlayer target = PLUGIN.getServer().getOfflinePlayer(args[1]);
+            
+            //Repackage the trailing args to send to the Reprice executor.
+            String[] sendArgs = new String[]{args[2],args[3]};
+            
+            return ((Reprice)(PLUGIN.getCommand("reprice").getExecutor())).execute(usr,target,cmd,lbl,sendArgs);
+        }
+        
+        //Vaporize
+        else if(args[0].equalsIgnoreCase("vaporize"))
+        {
+            if(!sender.hasPermission("chatshop.admin.vaporize"))
+                return PLUGIN.CM.denyPermission(sender);
+            
+            //This command was originally going to be "purge", but "vaporize" is a little more cumbersome to type
+            //  and it should be, considering this will instantly do just that. Also "vaporize" is a little more
+            //  obvious as to the results of this command.
+            
+            return true;
+        }
+        
+        //Version check
         else if(args[0].equalsIgnoreCase("version"))
         {
             String msg =
